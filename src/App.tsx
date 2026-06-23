@@ -207,8 +207,14 @@ export default function App() {
   const isRtl = lang === 'ar';
 
   return (
-    <div className={`min-h-screen bg-[#07051b] text-white selection:bg-orange-600 selection:text-white ${isRtl ? 'font-sans' : 'font-sans'}`}>
+    <div className={`relative min-h-screen bg-[#07051b] text-white selection:bg-orange-600 selection:text-white ${isRtl ? 'font-sans' : 'font-sans'}`}>
       
+      {/* Subtle Animated Grid Pattern Overlay */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern animate-grid-slow opacity-30"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#07051b_85%)] opacity-90"></div>
+      </div>
+
       {/* 1. Navbar */}
       <Navbar
         currentLang={lang}
