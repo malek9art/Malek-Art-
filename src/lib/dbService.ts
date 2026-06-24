@@ -191,43 +191,58 @@ export async function getAdminUserDB(email: string): Promise<AdminUser | null> {
                          trimmedEmail === 'admin@malek.art' || 
                          trimmedEmail === 'admin@malek';
 
+  // ALWAYS check local storage first for instant, zero-delay responses!
+  const local = localStorage.getItem(`malek_admin_${trimmedEmail}`);
+  if (local) {
+    try {
+      const parsed = JSON.parse(local) as AdminUser;
+      // Start a background fetch to update the local cache, but don't block the UI!
+      const docRef = doc(db, "admin_users", trimmedEmail);
+      getDoc(docRef).then((docSnap) => {
+        if (docSnap.exists()) {
+          localStorage.setItem(`malek_admin_${trimmedEmail}`, JSON.stringify(docSnap.data()));
+        }
+      }).catch(() => {});
+      
+      return parsed;
+    } catch (e) {}
+  }
+
+  // If there's no local storage, try fetching from the cloud, but with a strict timeout (e.g., 1.5 seconds)
+  // to avoid infinite loading spinners on slow or restricted networks.
   try {
     const docRef = doc(db, "admin_users", trimmedEmail);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data() as AdminUser;
-      localStorage.setItem(`malek_admin_${trimmedEmail}`, JSON.stringify(data));
-      return data;
-    } else if (isDefaultAdmin) {
-      // If default admin does not exist in Cloud, seed it on-the-fly
-      const defaultAdmin: AdminUser = {
-        email: trimmedEmail,
-        passwordHash: "",
-        isFirstLogin: true,
-        createdAt: new Date().toISOString()
-      };
-      await saveAdminUserDB(defaultAdmin);
-      return defaultAdmin;
+    const cloudFetchPromise = getDoc(docRef).then(async (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data() as AdminUser;
+        localStorage.setItem(`malek_admin_${trimmedEmail}`, JSON.stringify(data));
+        return data;
+      }
+      return null;
+    });
+
+    const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
+    const cloudAdmin = await Promise.race([cloudFetchPromise, timeoutPromise]);
+    if (cloudAdmin) {
+      return cloudAdmin;
     }
   } catch (error) {
     console.warn("[Offline/Sync Notice] Error fetching admin user from cloud:", error);
   }
   
-  // Try local fallback
-  const local = localStorage.getItem(`malek_admin_${trimmedEmail}`);
-  if (local) {
-    try {
-      return JSON.parse(local) as AdminUser;
-    } catch (e) {}
-  } else if (isDefaultAdmin) {
-    // If absolutely offline and no local record, create a local-only default admin
+  // Try local fallback as a last resort
+  if (isDefaultAdmin) {
     const defaultAdmin: AdminUser = {
       email: trimmedEmail,
       passwordHash: "",
       isFirstLogin: true,
       createdAt: new Date().toISOString()
     };
+    // Save locally immediately
     localStorage.setItem(`malek_admin_${trimmedEmail}`, JSON.stringify(defaultAdmin));
+    // Save to cloud in background
+    const docRef = doc(db, "admin_users", trimmedEmail);
+    setDoc(docRef, defaultAdmin).catch(() => {});
     return defaultAdmin;
   }
   return null;
@@ -235,15 +250,17 @@ export async function getAdminUserDB(email: string): Promise<AdminUser | null> {
 
 export async function saveAdminUserDB(admin: AdminUser): Promise<void> {
   const trimmedEmail = admin.email.toLowerCase().trim();
-  // Always write to local storage first for resilience
+  // Always write to local storage first for absolute resilience and instant UI updates
   localStorage.setItem(`malek_admin_${trimmedEmail}`, JSON.stringify(admin));
   
+  // Non-blocking background save to Cloud Firestore so the user never gets stuck waiting/spinning
   try {
     const docRef = doc(db, "admin_users", trimmedEmail);
-    await setDoc(docRef, admin);
+    setDoc(docRef, admin).catch((error) => {
+      console.warn("[Offline/Sync Notice] Background save to Firestore failed:", error);
+    });
   } catch (error) {
-    console.warn("[Offline/Sync Notice] Error saving admin user to cloud:", error);
-    // Do not throw error so local operations can continue seamlessly
+    console.warn("[Offline/Sync Notice] Error initializing cloud save:", error);
   }
 }
 
