@@ -383,11 +383,25 @@ export default function AdminPanel({
 
   const handleVerifyEmail = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminEmail.trim()) return;
+    const emailKey = adminEmail.toLowerCase().trim();
+    if (!emailKey) return;
     setIsVerifying(true);
     setPassError('');
     try {
-      const admin = await getAdminUserDB(adminEmail);
+      let admin = await getAdminUserDB(emailKey);
+      
+      // Dynamic on-the-fly seeding for known admin emails to prevent lockouts
+      if (!admin && (emailKey === 'malikalwesabi@gmail.com' || emailKey === 'admin@malek.art' || emailKey === 'admin@malek')) {
+        const defaultAdmin: AdminUser = {
+          email: emailKey,
+          passwordHash: "", // No password set initially
+          isFirstLogin: true,
+          createdAt: new Date().toISOString()
+        };
+        await saveAdminUserDB(defaultAdmin);
+        admin = defaultAdmin;
+      }
+
       if (!admin) {
         setPassError(isRtl ? 'هذا البريد الإلكتروني غير مصادق عليه في قاعدة البيانات.' : 'This email is not registered/authenticated as administrator in the database.');
       } else {

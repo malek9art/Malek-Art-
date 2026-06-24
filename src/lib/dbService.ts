@@ -184,28 +184,42 @@ export async function hashPassword(password: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
-// 8. Admin authentication database operations
+// 8. Admin authentication database operations with local storage resilient fallbacks
 export async function getAdminUserDB(email: string): Promise<AdminUser | null> {
+  const trimmedEmail = email.toLowerCase().trim();
   try {
-    const docRef = doc(db, "admin_users", email.toLowerCase().trim());
+    const docRef = doc(db, "admin_users", trimmedEmail);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      return docSnap.data() as AdminUser;
+      const data = docSnap.data() as AdminUser;
+      localStorage.setItem(`malek_admin_${trimmedEmail}`, JSON.stringify(data));
+      return data;
     }
-    return null;
   } catch (error) {
-    console.warn("[Offline/Sync Notice] Error fetching admin user:", error);
-    return null;
+    console.warn("[Offline/Sync Notice] Error fetching admin user from cloud:", error);
   }
+  
+  // Try local fallback
+  const local = localStorage.getItem(`malek_admin_${trimmedEmail}`);
+  if (local) {
+    try {
+      return JSON.parse(local) as AdminUser;
+    } catch (e) {}
+  }
+  return null;
 }
 
 export async function saveAdminUserDB(admin: AdminUser): Promise<void> {
+  const trimmedEmail = admin.email.toLowerCase().trim();
+  // Always write to local storage first for resilience
+  localStorage.setItem(`malek_admin_${trimmedEmail}`, JSON.stringify(admin));
+  
   try {
-    const docRef = doc(db, "admin_users", admin.email.toLowerCase().trim());
+    const docRef = doc(db, "admin_users", trimmedEmail);
     await setDoc(docRef, admin);
   } catch (error) {
-    console.warn("[Offline/Sync Notice] Error saving admin user:", error);
-    throw error;
+    console.warn("[Offline/Sync Notice] Error saving admin user to cloud:", error);
+    // Do not throw error so local operations can continue seamlessly
   }
 }
 
