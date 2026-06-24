@@ -137,3 +137,10 @@ export interface SmartDesignRequest {
   date: string;
   clientNotes?: string;
 }
+
+export interface AdminUser {
+  email: string;
+  passwordHash: string;
+  isFirstLogin: boolean;
+  createdAt: string;
+}

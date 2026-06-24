@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, SetStateAction } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Github, Linkedin, Twitter, ArrowUp } from 'lucide-react';
 import Navbar from './components/Navbar';
@@ -10,6 +10,16 @@ import AIMatchmaker from './components/AIMatchmaker';
 import Contact from './components/Contact';
 import TestimonialsSpace from './components/TestimonialsSpace';
 import AdminPanel from './components/AdminPanel';
+
+import {
+  getProjectsDB, saveProjectDB, deleteProjectDB,
+  getServicesDB, saveServiceDB, deleteServiceDB,
+  getSkillsDB, saveSkillDB, deleteSkillDB,
+  getReviewsDB, saveReviewDB, deleteReviewDB,
+  getConfigDB, saveConfigDB,
+  getMessagesDB, saveMessageDB, deleteMessageDB,
+  seedDefaultAdminUser
+} from './lib/dbService';
 
 import {
   DEFAULT_PROJECTS,
@@ -40,123 +50,317 @@ export default function App() {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [reviews, setReviews] = useState<ClientReview[]>([]);
 
-  // 1. First-run Seeder & Local Storage Hydrator
+  // 1. First-run Seeder & Local Storage Hydrator & Firestore Cloud Sync
   useEffect(() => {
-    // Projects hydrate
+    // Instant local load to guarantee snappy speed
     const localProj = localStorage.getItem('malek_projects');
     if (localProj) {
-      try {
-        setProjects(JSON.parse(localProj));
-      } catch (e) {
-        setProjects(DEFAULT_PROJECTS);
-      }
+      try { setProjects(JSON.parse(localProj)); } catch (e) {}
     } else {
       setProjects(DEFAULT_PROJECTS);
-      localStorage.setItem('malek_projects', JSON.stringify(DEFAULT_PROJECTS));
     }
 
-    // Services hydrate
     const localServ = localStorage.getItem('malek_services');
     if (localServ) {
-      try {
-        setServices(JSON.parse(localServ));
-      } catch (e) {
-        setServices(DEFAULT_SERVICES);
-      }
+      try { setServices(JSON.parse(localServ)); } catch (e) {}
     } else {
       setServices(DEFAULT_SERVICES);
-      localStorage.setItem('malek_services', JSON.stringify(DEFAULT_SERVICES));
     }
 
-    // Skills hydrate
     const localSkills = localStorage.getItem('malek_skills');
     if (localSkills) {
-      try {
-        setSkills(JSON.parse(localSkills));
-      } catch (e) {
-        setSkills(DEFAULT_SKILLS);
-      }
+      try { setSkills(JSON.parse(localSkills)); } catch (e) {}
     } else {
       setSkills(DEFAULT_SKILLS);
-      localStorage.setItem('malek_skills', JSON.stringify(DEFAULT_SKILLS));
     }
 
-    // Reviews hydrate
+    const defaultReviews: ClientReview[] = [
+      {
+        id: "rev-1",
+        name: "عبد الله الغامدي - تكنو ريد",
+        rating: 5,
+        comment: "عمل رائع ومتقن للغاية من المهندس مالك! استطاع ترجمة أفكارنا وصنع لنا موقعاً بهوية ومظهر فني ترك انطباعاً مذهلاً لدى جميع شركائنا وعملائنا.",
+        date: "2026-05-18",
+        status: 'approved'
+      },
+      {
+        id: "rev-2",
+        name: "Sarah Johnson - Healthy Vitality",
+        rating: 5,
+        comment: "Outstanding professionalism in designing our mobile UI layouts. Malek operates fast, responds quickly, and brought invaluable UX feedback.",
+        date: "2026-06-02",
+        status: 'approved'
+      }
+    ];
+
     const localReviews = localStorage.getItem('malek_client_reviews');
     if (localReviews) {
-      try {
-        setReviews(JSON.parse(localReviews));
-      } catch (e) {
-        const preseeded: ClientReview[] = [
-          {
-            id: "rev-1",
-            name: "عبد الله الغامدي - تكنو ريد",
-            rating: 5,
-            comment: "عمل رائع ومتقن للغاية من المهندس مالك! استطاع ترجمة أفكارنا وصنع لنا موقعاً بهوية ومظهر فني ترك انطباعاً مذهلاً لدى جميع شركائنا وعملائنا.",
-            date: "2026-05-18",
-            status: 'approved'
-          },
-          {
-            id: "rev-2",
-            name: "Sarah Johnson - Healthy Vitality",
-            rating: 5,
-            comment: "Outstanding professionalism in designing our mobile UI layouts. Malek operates fast, responds quickly, and brought invaluable UX feedback.",
-            date: "2026-06-02",
-            status: 'approved'
-          }
-        ];
-        setReviews(preseeded);
-        localStorage.setItem('malek_client_reviews', JSON.stringify(preseeded));
-      }
+      try { setReviews(JSON.parse(localReviews)); } catch (e) {}
     } else {
-      const preseeded: ClientReview[] = [
-        {
-          id: "rev-1",
-          name: "عبد الله الغامدي - تكنو ريد",
-          rating: 5,
-          comment: "عمل رائع ومتقن للغاية من المهندس مالك! استطاع ترجمة أفكارنا وصنع لنا موقعاً بهوية ومظهر فني ترك انطباعاً مذهلاً لدى جميع شركائنا وعملائنا.",
-          date: "2026-05-18",
-          status: 'approved'
-        },
-        {
-          id: "rev-2",
-          name: "Sarah Johnson - Healthy Vitality",
-          rating: 5,
-          comment: "Outstanding professionalism in designing our mobile UI layouts. Malek operates fast, responds quickly, and brought invaluable UX feedback.",
-          date: "2026-06-02",
-          status: 'approved'
-        }
-      ];
-      setReviews(preseeded);
-      localStorage.setItem('malek_client_reviews', JSON.stringify(preseeded));
+      setReviews(defaultReviews);
     }
 
-    // Config hydrate
     const localConf = localStorage.getItem('malek_config');
     if (localConf) {
-      try {
-        setConfig(JSON.parse(localConf));
-      } catch (e) {
-        setConfig(DEFAULT_CONFIG);
-      }
+      try { setConfig(JSON.parse(localConf)); } catch (e) {}
     } else {
       setConfig(DEFAULT_CONFIG);
-      localStorage.setItem('malek_config', JSON.stringify(DEFAULT_CONFIG));
     }
 
-    // Messages hydrate
     const localMsg = localStorage.getItem('malek_messages');
     if (localMsg) {
-      try {
-        setMessages(JSON.parse(localMsg));
-      } catch (e) {
-        setMessages([]);
-      }
-    } else {
-      setMessages([]);
-      localStorage.setItem('malek_messages', JSON.stringify([]));
+      try { setMessages(JSON.parse(localMsg)); } catch (e) {}
     }
+
+    // Now async sync from Firestore cloud database
+    const syncFromCloud = async () => {
+      // 1. Sync Config
+      try {
+        const cloudConfig = await getConfigDB();
+        if (cloudConfig) {
+          setConfig(cloudConfig);
+          localStorage.setItem('malek_config', JSON.stringify(cloudConfig));
+        } else {
+          await saveConfigDB(DEFAULT_CONFIG);
+        }
+      } catch (err) {
+        console.warn("Could not sync Site Config with Firestore cloud, using local cache:", err);
+      }
+
+      // 2. Sync Projects
+      try {
+        const cloudProj = await getProjectsDB();
+        if (cloudProj && cloudProj.length > 0) {
+          const existingIds = new Set(cloudProj.map(p => p.id));
+          const missingProjects = DEFAULT_PROJECTS.filter(p => !existingIds.has(p.id));
+          if (missingProjects.length > 0) {
+            for (const proj of missingProjects) {
+              await saveProjectDB(proj);
+            }
+            const updatedProj = await getProjectsDB();
+            setProjects(updatedProj || cloudProj);
+            localStorage.setItem('malek_projects', JSON.stringify(updatedProj || cloudProj));
+          } else {
+            setProjects(cloudProj);
+            localStorage.setItem('malek_projects', JSON.stringify(cloudProj));
+          }
+        } else {
+          for (const proj of DEFAULT_PROJECTS) {
+            await saveProjectDB(proj);
+          }
+          const freshProj = await getProjectsDB();
+          setProjects(freshProj || DEFAULT_PROJECTS);
+          localStorage.setItem('malek_projects', JSON.stringify(freshProj || DEFAULT_PROJECTS));
+        }
+      } catch (err) {
+        console.warn("Could not sync Projects with Firestore cloud, using local cache:", err);
+      }
+
+      // 3. Sync Services
+      try {
+        const cloudServ = await getServicesDB();
+        if (cloudServ && cloudServ.length > 0) {
+          setServices(cloudServ);
+          localStorage.setItem('malek_services', JSON.stringify(cloudServ));
+        } else {
+          for (const serv of DEFAULT_SERVICES) {
+            await saveServiceDB(serv);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not sync Services with Firestore cloud, using local cache:", err);
+      }
+
+      // 4. Sync Skills
+      try {
+        const cloudSkills = await getSkillsDB();
+        if (cloudSkills && cloudSkills.length > 0) {
+          setSkills(cloudSkills);
+          localStorage.setItem('malek_skills', JSON.stringify(cloudSkills));
+        } else {
+          for (const sk of DEFAULT_SKILLS) {
+            await saveSkillDB(sk);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not sync Skills with Firestore cloud, using local cache:", err);
+      }
+
+      // 5. Sync Reviews
+      try {
+        const cloudReviews = await getReviewsDB();
+        if (cloudReviews && cloudReviews.length > 0) {
+          setReviews(cloudReviews);
+          localStorage.setItem('malek_client_reviews', JSON.stringify(cloudReviews));
+        } else {
+          for (const rev of defaultReviews) {
+            await saveReviewDB(rev);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not sync Reviews with Firestore cloud, using local cache:", err);
+      }
+
+      // 6. Sync Messages
+      try {
+        const cloudMsg = await getMessagesDB();
+        if (cloudMsg) {
+          setMessages(cloudMsg);
+          localStorage.setItem('malek_messages', JSON.stringify(cloudMsg));
+        }
+      } catch (err) {
+        console.warn("Could not sync Messages with Firestore cloud, using local cache:", err);
+      }
+
+      // 7. Seed Default Admin User
+      try {
+        await seedDefaultAdminUser('malikalwesabi@gmail.com');
+      } catch (err) {
+        console.warn("Could not seed default admin user with Firestore cloud:", err);
+      }
+    };
+
+    syncFromCloud();
   }, []);
+
+  // Wrapper handlers that replicate local state writes to cloud Firestore in background
+  const handleSetProjects = (newProjects: React.SetStateAction<Project[]>) => {
+    const updated = typeof newProjects === 'function' 
+      ? (newProjects as (prev: Project[]) => Project[])(projects) 
+      : newProjects;
+    
+    setProjects(updated);
+    localStorage.setItem('malek_projects', JSON.stringify(updated));
+
+    // Sync in background
+    (async () => {
+      try {
+        const deleted = projects.filter(p => !updated.some((u: Project) => u.id === p.id));
+        for (const p of deleted) {
+          await deleteProjectDB(p.id);
+        }
+        for (const p of updated) {
+          await saveProjectDB(p);
+        }
+      } catch (err) {
+        console.error("Firebase sync error on projects:", err);
+      }
+    })();
+  };
+
+  const handleSetServices = (newServices: React.SetStateAction<Service[]>) => {
+    const updated = typeof newServices === 'function' 
+      ? (newServices as (prev: Service[]) => Service[])(services) 
+      : newServices;
+    
+    setServices(updated);
+    localStorage.setItem('malek_services', JSON.stringify(updated));
+
+    // Sync in background
+    (async () => {
+      try {
+        const deleted = services.filter(s => !updated.some((u: Service) => u.id === s.id));
+        for (const s of deleted) {
+          await deleteServiceDB(s.id);
+        }
+        for (const s of updated) {
+          await saveServiceDB(s);
+        }
+      } catch (err) {
+        console.error("Firebase sync error on services:", err);
+      }
+    })();
+  };
+
+  const handleSetSkills = (newSkills: React.SetStateAction<Skill[]>) => {
+    const updated = typeof newSkills === 'function' 
+      ? (newSkills as (prev: Skill[]) => Skill[])(skills) 
+      : newSkills;
+    
+    setSkills(updated);
+    localStorage.setItem('malek_skills', JSON.stringify(updated));
+
+    // Sync in background
+    (async () => {
+      try {
+        const deleted = skills.filter(s => !updated.some((u: Skill) => u.id === s.id));
+        for (const s of deleted) {
+          await deleteSkillDB(s.id);
+        }
+        for (const s of updated) {
+          await saveSkillDB(s);
+        }
+      } catch (err) {
+        console.error("Firebase sync error on skills:", err);
+      }
+    })();
+  };
+
+  const handleSetReviews = (newReviews: React.SetStateAction<ClientReview[]>) => {
+    const updated = typeof newReviews === 'function' 
+      ? (newReviews as (prev: ClientReview[]) => ClientReview[])(reviews) 
+      : newReviews;
+    
+    setReviews(updated);
+    localStorage.setItem('malek_client_reviews', JSON.stringify(updated));
+
+    // Sync in background
+    (async () => {
+      try {
+        const deleted = reviews.filter(r => !updated.some((u: ClientReview) => u.id === r.id));
+        for (const r of deleted) {
+          await deleteReviewDB(r.id);
+        }
+        for (const r of updated) {
+          await saveReviewDB(r);
+        }
+      } catch (err) {
+        console.error("Firebase sync error on reviews:", err);
+      }
+    })();
+  };
+
+  const handleSetConfig = (newConfig: React.SetStateAction<SiteConfig>) => {
+    const updated = typeof newConfig === 'function' 
+      ? (newConfig as (prev: SiteConfig) => SiteConfig)(config) 
+      : newConfig;
+    
+    setConfig(updated);
+    localStorage.setItem('malek_config', JSON.stringify(updated));
+
+    // Sync in background
+    (async () => {
+      try {
+        await saveConfigDB(updated);
+      } catch (err) {
+        console.error("Firebase sync error on config:", err);
+      }
+    })();
+  };
+
+  const handleSetMessages = (newMessages: React.SetStateAction<ContactMessage[]>) => {
+    const updated = typeof newMessages === 'function' 
+      ? (newMessages as (prev: ContactMessage[]) => ContactMessage[])(messages) 
+      : newMessages;
+    
+    setMessages(updated);
+    localStorage.setItem('malek_messages', JSON.stringify(updated));
+
+    // Sync in background
+    (async () => {
+      try {
+        const deleted = messages.filter(m => !updated.some((u: ContactMessage) => u.id === m.id));
+        for (const m of deleted) {
+          await deleteMessageDB(m.id);
+        }
+        for (const m of updated) {
+          await saveMessageDB(m);
+        }
+      } catch (err) {
+        console.error("Firebase sync error on messages:", err);
+      }
+    })();
+  };
 
   // 2. RTL direction toggler based on primitive lang value
   useEffect(() => {
@@ -195,12 +399,24 @@ export default function App() {
     const updated = [msg, ...messages];
     setMessages(updated);
     localStorage.setItem('malek_messages', JSON.stringify(updated));
+    // Save to Firestore in background
+    try {
+      saveMessageDB(msg);
+    } catch (e) {
+      console.error("Error saving new message to Firebase:", e);
+    }
   };
 
   const handleNewReview = (newRev: ClientReview) => {
     const updated = [newRev, ...reviews];
     setReviews(updated);
     localStorage.setItem('malek_client_reviews', JSON.stringify(updated));
+    // Save to Firestore in background
+    try {
+      saveReviewDB(newRev);
+    } catch (e) {
+      console.error("Error saving new review to Firebase:", e);
+    }
   };
 
   const currentTranslations = TRANSLATIONS[lang];
@@ -244,17 +460,17 @@ export default function App() {
             <AdminPanel
               currentLang={lang}
               projects={projects}
-              setProjects={setProjects}
+              setProjects={handleSetProjects}
               services={services}
-              setServices={setServices}
+              setServices={handleSetServices}
               skills={skills}
-              setSkills={setSkills}
+              setSkills={handleSetSkills}
               reviews={reviews}
-              setReviews={setReviews}
+              setReviews={handleSetReviews}
               config={config}
-              setConfig={setConfig}
+              setConfig={handleSetConfig}
               messages={messages}
-              setMessages={setMessages}
+              setMessages={handleSetMessages}
               isLoggedIn={isAdminLoggedIn}
               setIsLoggedIn={setIsAdminLoggedIn}
               t={currentTranslations}

@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Portfolio collections: publicly readable, admin writeable
+    match /projects/{id} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /services/{id} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /skills/{id} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /config/{id} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Customer Leads/Reviews: publicly writeable
+    match /reviews/{id} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /messages/{id} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Administrative database users collection
+    match /admin_users/{email} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

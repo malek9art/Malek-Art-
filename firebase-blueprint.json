@@ -1,0 +1,172 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "Showcase portfolio project details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "titleEn": { "type": "string" },
+        "descriptionAr": { "type": "string" },
+        "descriptionEn": { "type": "string" },
+        "contentAr": { "type": "string" },
+        "contentEn": { "type": "string" },
+        "image": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "categoryAr": { "type": "string" },
+        "categoryEn": { "type": "string" },
+        "link": { "type": "string" },
+        "date": { "type": "string" },
+        "sortOrder": { "type": "number" }
+      },
+      "required": ["id", "titleAr", "titleEn", "image", "categoryAr", "categoryEn", "date"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "Professional services offered by Malek",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "titleEn": { "type": "string" },
+        "descriptionAr": { "type": "string" },
+        "descriptionEn": { "type": "string" },
+        "icon": { "type": "string" }
+      },
+      "required": ["id", "titleAr", "titleEn", "descriptionAr", "descriptionEn", "icon"]
+    },
+    "Skill": {
+      "title": "Skill",
+      "description": "Skill metrics and levels",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "nameAr": { "type": "string" },
+        "nameEn": { "type": "string" },
+        "percentage": { "type": "number" },
+        "categoryAr": { "type": "string" },
+        "categoryEn": { "type": "string" }
+      },
+      "required": ["id", "nameAr", "nameEn", "percentage", "categoryAr", "categoryEn"]
+    },
+    "ClientReview": {
+      "title": "ClientReview",
+      "description": "Client feedback and testimonial ratings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved"] }
+      },
+      "required": ["id", "name", "rating", "comment", "date", "status"]
+    },
+    "SiteConfig": {
+      "title": "SiteConfig",
+      "description": "Global CMS parameters for site content",
+      "type": "object",
+      "properties": {
+        "aboutTextAr": { "type": "string" },
+        "aboutTextEn": { "type": "string" },
+        "heroTextAr": { "type": "string" },
+        "heroTextEn": { "type": "string" },
+        "heroSubAr": { "type": "string" },
+        "heroSubEn": { "type": "string" },
+        "profileImg": { "type": "string" },
+        "logoImg": { "type": "string" },
+        "heroBgImg": { "type": "string" },
+        "nameAr": { "type": "string" },
+        "nameEn": { "type": "string" },
+        "professionAr": { "type": "string" },
+        "professionEn": { "type": "string" },
+        "logoTextAr": { "type": "string" },
+        "logoTextEn": { "type": "string" },
+        "accentColor": { "type": "string" },
+        "socialFacebook": { "type": "string" },
+        "socialTwitter": { "type": "string" },
+        "socialLinkedin": { "type": "string" },
+        "socialGithub": { "type": "string" },
+        "socialInstagram": { "type": "string" },
+        "stat1Value": { "type": "string" },
+        "stat1LabelAr": { "type": "string" },
+        "stat1LabelEn": { "type": "string" },
+        "stat2Value": { "type": "string" },
+        "stat2LabelAr": { "type": "string" },
+        "stat2LabelEn": { "type": "string" },
+        "stat3Value": { "type": "string" },
+        "stat3LabelAr": { "type": "string" },
+        "stat3LabelEn": { "type": "string" },
+        "aiCustomPromptAr": { "type": "string" },
+        "aiCustomPromptEn": { "type": "string" },
+        "resumePhone": { "type": "string" },
+        "resumeEmail": { "type": "string" },
+        "resumeLocation": { "type": "string" },
+        "resumeExperienceAr": { "type": "string" },
+        "resumeExperienceEn": { "type": "string" },
+        "resumeEducationAr": { "type": "string" },
+        "resumeEducationEn": { "type": "string" },
+        "resumeSummaryAr": { "type": "string" },
+        "resumeSummaryEn": { "type": "string" }
+      }
+    },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "description": "Incoming messages from lead submissions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "date": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "message", "date"]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Database-authenticated control panel administrator",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "passwordHash": { "type": "string" },
+        "isFirstLogin": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["email", "passwordHash", "isFirstLogin"]
+    }
+  },
+  "firestore": {
+    "projects": {
+      "schema": "Project",
+      "description": "Portfolio work pieces"
+    },
+    "services": {
+      "schema": "Service",
+      "description": "CMS manageable services"
+    },
+    "skills": {
+      "schema": "Skill",
+      "description": "Tech stack skill bars"
+    },
+    "reviews": {
+      "schema": "ClientReview",
+      "description": "Visitor reviews and testimonials"
+    },
+    "config": {
+      "schema": "SiteConfig",
+      "description": "General settings documentation"
+    },
+    "messages": {
+      "schema": "ContactMessage",
+      "description": "Customer enquiries"
+    },
+    "admin_users": {
+      "schema": "AdminUser",
+      "description": "Admin console access records"
+    }
+  }
+}

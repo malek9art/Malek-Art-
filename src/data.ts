@@ -90,6 +90,66 @@ export const DEFAULT_PROJECTS: Project[] = [
     link: "https://example.com/project-6",
     date: "2026-01",
     sortOrder: 6
+  },
+  {
+    id: "7",
+    titleAr: "منصة ذكاء اصطناعي لتشخيص الصور الطبية",
+    titleEn: "AI Medical Image Diagnostics",
+    descriptionAr: "نظام رؤية حاسوبية متكامل لتشخيص الأشعة السينية والرنين المغناطيسي بدقة فائقة بالتعاون مع كبرى المستشفيات.",
+    descriptionEn: "Deep learning computer vision system for real-time MRI & X-Ray analysis, designed with top-tier healthcare standards.",
+    contentAr: "منصة ويب متكاملة مصممة للأطباء والاستشاريين لتسهيل قراءة الصور الطبية بدقة تصل إلى 99.2%. يتميز المشروع بواجهة مستخدم غاية في البساطة مع ميزات ذكية مثل التلوين الحراري لمناطق الإصابة، المقارنة التاريخية للصور، والتقارير الطبية التلقائية المعدة بالذكاء الاصطناعي التوليدي مع الامتثال الكامل لمعايير HIPAA.",
+    contentEn: "A comprehensive web workstation built for radiologists, enhancing MRI/X-ray reading efficiency with 99.2% accuracy. Features high-contrast interactive layout panels, real-time heatmaps for abnormality detection, historic scan timeline sliders, and automated diagnostic reports drafted using Generative AI under strict HIPAA compliance.",
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1200&auto=format&fit=crop",
+    categoryAr: "ذكاء اصطناعي",
+    categoryEn: "AI + Development",
+    link: "https://example.com/project-7",
+    date: "2026-03",
+    sortOrder: 7
+  },
+  {
+    id: "8",
+    titleAr: "البنك الرقمي السحابي لإدارة الثروات",
+    titleEn: "Apex Wealth Management Portal",
+    descriptionAr: "منصة استثمارية ذكية تتيح إدارة المحافظ المتقدمة، تتبع الأسهم والعملات المشفرة مع لوحة تحكم زجاجية دافئة.",
+    descriptionEn: "Next-generation wealth management engine combining advanced portfolio tracking, stock diagnostics, and elegant dark mode tables.",
+    contentAr: "تصميم وتطوير نظام مالي متكامل يجمع بين الرسوم البيانية التفاعلية الفورية وتحليلات المخاطر الذكية. تم استخدام واجهات بصرية غنية بتأثيرات الزجاج الشفاف (Glassmorphism)، مع تباينات لونية رائعة، ورسوم بيانية مبسطة لمساعدة المستثمرين في اتخاذ قراراتهم الاستثمارية بثقة وسهولة.",
+    contentEn: "Designed and engineered an elite financial web platform integrating live market data streams and responsive risk-mitigation modules. Styled with high-contrast warm charcoal and glowing amber accents, featuring bespoke interactive chart sheets utilizing D3.js for clean, elegant, and action-oriented financial clarity.",
+    image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=1200&auto=format&fit=crop",
+    categoryAr: "أنظمة مالية",
+    categoryEn: "FinTech Solutions",
+    link: "https://example.com/project-8",
+    date: "2026-05",
+    sortOrder: 8
+  },
+  {
+    id: "9",
+    titleAr: "منصة الطيران والسياحة الفاخرة",
+    titleEn: "AeroElite Private Travel Concierge",
+    descriptionAr: "تجربة حجز وتصميم رحلات سياحية خاصة وطائرات خاصة حول العالم مع خدمة كونسيرج تفاعلية مخصصة للنخبة.",
+    descriptionEn: "Premium flight and yacht charter platform with real-time route plotting, private hospitality guides, and luxury design layout.",
+    contentAr: "يركز هذا المشروع على الفخامة والبساطة المطلقة لتناسب ذائقة كبار الشخصيات. يضم نظام حجز ذكي، تخطيط مباشر لمسارات الرحلات على الخريطة التفاعلية، خدمة محادثة فورية للحجوزات الخاصة، ومؤثرات حركية فائقة السلاسة تشعرك بالرفاهية منذ اللحظة الأولى لتصفح الموقع.",
+    contentEn: "A visionary booking system designed for ultra-high-net-worth clients, emphasizing absolute simplicity and luxurious editorial spacing. Includes dynamic map routing interfaces, private luxury yacht/flight customizers, instant VIP support integrations, and fluid page transitions creating a flawless atmosphere of hospitality.",
+    image: "https://images.unsplash.com/photo-1540962351504-03099e0a754b?q=80&w=1200&auto=format&fit=crop",
+    categoryAr: "تطبيقات جوال",
+    categoryEn: "Mobile + Web UX",
+    link: "https://example.com/project-9",
+    date: "2026-01",
+    sortOrder: 9
+  },
+  {
+    id: "10",
+    titleAr: "المعرض الافتراضي للفنون الرقمية ثلاثية الأبعاد",
+    titleEn: "VividMuse 3D Virtual Art Space",
+    descriptionAr: "مساحة فنية غامرة تتيح للزوار التجول داخل صالة عرض فنية ثلاثية الأبعاد واستعراض اللوحات الرقمية بدقة عالية.",
+    descriptionEn: "Immersive 3D museum environment allowing users to explore virtual galleries and purchase verified digital masterpieces.",
+    contentAr: "منصة رائدة تجمع بين الفنون الكلاسيكية والتفاعل الرقمي الحديث باستخدام WebGL وThree.js. توفر تجربة تجول افتراضية حرة بزاوية 360 درجة، وتأثيرات إضاءة تفاعلية وظلال واقعية، مع إمكانية التفاعل مع اللوحات الفنية وعرض معلومات الفنان والمزايدة على الأعمال الفنية بأمان وسهولة.",
+    contentEn: "A groundbreaking artistic landscape fusing classic museology with WebGL and Three.js mechanics. Offers responsive 360-degree free roaming cameras, dynamic gallery lighting shaders, high-DPI zoom interactions on artworks, artist commentary audio, and automated smart auction bidding boards.",
+    image: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1200&auto=format&fit=crop",
+    categoryAr: "ثلاثي الأبعاد",
+    categoryEn: "3D Web Experiences",
+    link: "https://example.com/project-10",
+    date: "2026-04",
+    sortOrder: 10
   }
 ];
 

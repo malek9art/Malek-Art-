@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Shield, Key, Grid, Layout, Layers, FileText, Trash2, Edit3, Plus, CheckCircle, AlertTriangle, LogOut, FileCode, Mail, Trash, Sparkles, Brain, Star, CheckCheck, Landmark } from 'lucide-react';
-import { Project, Service, ContactMessage, SiteConfig, SocialLink, SmartDesignRequest, Skill, ClientReview } from '../types';
+import { Project, Service, ContactMessage, SiteConfig, SocialLink, SmartDesignRequest, Skill, ClientReview, AdminUser } from '../types';
+import { getAdminUserDB, saveAdminUserDB, hashPassword } from '../lib/dbService';
 
 interface AdminPanelProps {
   currentLang: 'ar' | 'en';
@@ -42,6 +43,14 @@ export default function AdminPanel({
 }: AdminPanelProps) {
   const [password, setPassword] = useState('');
   const [passError, setPassError] = useState('');
+  
+  // Custom multi-step database admin authentication states
+  const [adminEmail, setAdminEmail] = useState('');
+  const [loginStep, setLoginStep] = useState<'email' | 'setPassword' | 'enterPassword'>('email');
+  const [foundAdmin, setFoundAdmin] = useState<AdminUser | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
   
   // Custom Skills Fields & Actions
   const [newSkillNameAr, setNewSkillNameAr] = useState('');
@@ -372,13 +381,78 @@ export default function AdminPanel({
 
   const isRtl = currentLang === 'ar';
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleVerifyEmail = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'admin123' || password === 'admin@malek') {
+    if (!adminEmail.trim()) return;
+    setIsVerifying(true);
+    setPassError('');
+    try {
+      const admin = await getAdminUserDB(adminEmail);
+      if (!admin) {
+        setPassError(isRtl ? 'هذا البريد الإلكتروني غير مصادق عليه في قاعدة البيانات.' : 'This email is not registered/authenticated as administrator in the database.');
+      } else {
+        setFoundAdmin(admin);
+        if (admin.isFirstLogin || !admin.passwordHash) {
+          setLoginStep('setPassword');
+        } else {
+          setLoginStep('enterPassword');
+        }
+      }
+    } catch (error) {
+      setPassError(isRtl ? 'حدث خطأ أثناء التحقق من قاعدة البيانات.' : 'An error occurred during database lookup.');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleSetupPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword.trim() || !confirmPassword.trim()) return;
+    if (newPassword.length < 6) {
+      setPassError(isRtl ? 'يجب أن تكون كلمة المرور 6 أحرف على الأقل.' : 'Password must be at least 6 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPassError(isRtl ? 'كلمتا المرور غير متطابقتين.' : 'Passwords do not match.');
+      return;
+    }
+    setIsVerifying(true);
+    setPassError('');
+    try {
+      const hash = await hashPassword(newPassword);
+      const updatedAdmin: AdminUser = {
+        email: adminEmail.toLowerCase().trim(),
+        passwordHash: hash,
+        isFirstLogin: false,
+        createdAt: foundAdmin?.createdAt || new Date().toISOString()
+      };
+      await saveAdminUserDB(updatedAdmin);
       setIsLoggedIn(true);
-      setPassError('');
-    } else {
-      setPassError(t.adminIncorrect);
+      showFeedback(isRtl ? 'تم إعداد وتأكيد كلمة المرور بنجاح!' : 'Your admin password was set successfully!');
+    } catch (error) {
+      setPassError(isRtl ? 'حدث خطأ أثناء حفظ كلمة المرور.' : 'An error occurred while saving password.');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!password.trim() || !foundAdmin) return;
+    setIsVerifying(true);
+    setPassError('');
+    try {
+      const hash = await hashPassword(password);
+      if (hash === foundAdmin.passwordHash) {
+        setIsLoggedIn(true);
+        setPassError('');
+      } else {
+        setPassError(isRtl ? 'كلمة المرور غير صحيحة.' : 'Incorrect password.');
+      }
+    } catch (error) {
+      setPassError(isRtl ? 'حدث خطأ أثناء تسجيل الدخول.' : 'An error occurred during verification.');
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -682,44 +756,210 @@ export default function AdminPanel({
             <Key className="w-6 h-6" />
           </div>
 
-          <h3 className="text-xl sm:text-2xl font-black text-white mb-2 font-sans tracking-tight uppercase">
-            {t.adminLoginTitle}
-          </h3>
-          <p className="text-xs text-white/60 mb-8 max-w-xs mx-auto leading-relaxed">
-            {isRtl ? "أهلاً بك مالك في لوحة CMS الشخصية. أدخل كلمة المرور الافتراضية للوصول الكامل" : "Please submit your safe password credentials to start modifying live showcase content info."}
-          </p>
+          <AnimatePresence mode="wait">
+            {loginStep === 'email' && (
+              <motion.div
+                key="email-step"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <h3 className="text-xl sm:text-2xl font-black text-white mb-2 font-sans tracking-tight uppercase">
+                  {isRtl ? "تسجيل دخول المسؤول" : "Administrator Portal Login"}
+                </h3>
+                <p className="text-xs text-white/60 mb-8 max-w-xs mx-auto leading-relaxed">
+                  {isRtl 
+                    ? "الرجاء إدخال البريد الإلكتروني المصادق عليه في قاعدة البيانات للتحقق والوصول للوحة التحكم." 
+                    : "Please enter your authenticated administrator email from the database to log in."}
+                </p>
 
-          <form onSubmit={handleLogin} className={`space-y-5 ${isRtl ? 'rtl' : 'ltr'}`}>
-            <div className="text-start">
-              <label htmlFor="admin-vault-pwd" className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">
-                {t.adminPasswordLabel} (try: <span className="font-mono text-[#EA580C]">admin123</span>)
-              </label>
-              <input
-                id="admin-vault-pwd"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-4 text-white text-center focus:outline-none focus:border-[#EA580C]"
-                required
-              />
-            </div>
+                <form onSubmit={handleVerifyEmail} className={`space-y-5 ${isRtl ? 'rtl' : 'ltr'}`}>
+                  <div className="text-start">
+                    <label htmlFor="admin-email" className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">
+                      {isRtl ? "البريد الإلكتروني" : "Email Address"} (try: <span className="font-mono text-[#EA580C]">malikalwesabi@gmail.com</span>)
+                    </label>
+                    <input
+                      id="admin-email"
+                      type="email"
+                      value={adminEmail}
+                      onChange={(e) => setAdminEmail(e.target.value)}
+                      placeholder="malikalwesabi@gmail.com"
+                      className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-4 text-white text-center focus:outline-none focus:border-[#EA580C]"
+                      required
+                      disabled={isVerifying}
+                    />
+                  </div>
 
-            {passError && (
-              <p className="text-xs font-bold text-red-450 text-red-400 flex items-center gap-1.5 justify-center">
-                <AlertTriangle className="w-4 h-4" />
-                <span>{passError}</span>
-              </p>
+                  {passError && (
+                    <p className="text-xs font-bold text-red-400 flex items-center gap-1.5 justify-center">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span>{passError}</span>
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isVerifying}
+                    className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#4f46e5] to-[#ea580c] text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg hover:opacity-90 active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {isVerifying ? (
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    ) : null}
+                    <span>{isRtl ? "التحقق والاستمرار" : "Verify & Continue"}</span>
+                  </button>
+                </form>
+              </motion.div>
             )}
 
-            <button
-              type="submit"
-              id="admin-login-submit"
-              className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#4f46e5] to-[#ea580c] text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg hover:opacity-90 active:scale-98 cursor-pointer"
-            >
-              {t.adminLoginBtn}
-            </button>
-          </form>
+            {loginStep === 'setPassword' && (
+              <motion.div
+                key="set-password-step"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <h3 className="text-xl sm:text-2xl font-black text-white mb-2 font-sans tracking-tight uppercase">
+                  {isRtl ? "إعداد كلمة المرور لأول مرة" : "Configure Password"}
+                </h3>
+                <p className="text-xs text-white/60 mb-6 max-w-xs mx-auto leading-relaxed">
+                  {isRtl 
+                    ? "أهلاً بك مالك! هذا أول تسجيل دخول لك. الرجاء إعداد كلمة مرور آمنة لحسابك لاستخدامها مستقبلاً." 
+                    : "Welcome, Malek! This is your first login. Please choose a safe admin password for future logins."}
+                </p>
+
+                <form onSubmit={handleSetupPassword} className={`space-y-4 ${isRtl ? 'rtl' : 'ltr'}`}>
+                  <div className="text-start">
+                    <label htmlFor="new-pwd" className="block text-xs uppercase tracking-wider font-semibold text-white mb-1.5">
+                      {isRtl ? "كلمة المرور الجديدة" : "New Password"} (min 6 chars)
+                    </label>
+                    <input
+                      id="new-pwd"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white text-center focus:outline-none focus:border-[#EA580C]"
+                      required
+                      disabled={isVerifying}
+                    />
+                  </div>
+
+                  <div className="text-start">
+                    <label htmlFor="confirm-pwd" className="block text-xs uppercase tracking-wider font-semibold text-white mb-1.5">
+                      {isRtl ? "تأكيد كلمة المرور" : "Confirm Password"}
+                    </label>
+                    <input
+                      id="confirm-pwd"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white text-center focus:outline-none focus:border-[#EA580C]"
+                      required
+                      disabled={isVerifying}
+                    />
+                  </div>
+
+                  {passError && (
+                    <p className="text-xs font-bold text-red-400 flex items-center gap-1.5 justify-center">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span>{passError}</span>
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isVerifying}
+                    className="w-full py-3.5 rounded-full bg-[#EA580C] hover:bg-orange-500 text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg hover:opacity-90 active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {isVerifying ? (
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    ) : null}
+                    <span>{isRtl ? "حفظ كلمة المرور والدخول" : "Save Password & Enter"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginStep('email');
+                      setPassError('');
+                    }}
+                    className="w-full text-xs text-white/50 hover:text-white transition-colors py-1 cursor-pointer underline"
+                  >
+                    {isRtl ? "رجوع لتغيير البريد الإلكتروني" : "Back to Change Email"}
+                  </button>
+                </form>
+              </motion.div>
+            )}
+
+            {loginStep === 'enterPassword' && (
+              <motion.div
+                key="enter-password-step"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <h3 className="text-xl sm:text-2xl font-black text-white mb-2 font-sans tracking-tight uppercase">
+                  {isRtl ? "إدخال كلمة المرور" : "Submit Password"}
+                </h3>
+                <p className="text-xs text-white/60 mb-8 max-w-xs mx-auto leading-relaxed">
+                  {isRtl 
+                    ? `مرحباً بالمسؤول (${adminEmail}). الرجاء إدخال كلمة المرور المعتمدة للوصول الكامل للوحة التحكم.` 
+                    : `Welcome Admin (${adminEmail}). Please enter your safe password to unlock modifications.`}
+                </p>
+
+                <form onSubmit={handlePasswordLogin} className={`space-y-5 ${isRtl ? 'rtl' : 'ltr'}`}>
+                  <div className="text-start">
+                    <label htmlFor="admin-vault-pwd" className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">
+                      {isRtl ? "كلمة المرور" : "Password"}
+                    </label>
+                    <input
+                      id="admin-vault-pwd"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-4 text-white text-center focus:outline-none focus:border-[#EA580C]"
+                      required
+                      disabled={isVerifying}
+                    />
+                  </div>
+
+                  {passError && (
+                    <p className="text-xs font-bold text-red-400 flex items-center gap-1.5 justify-center">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span>{passError}</span>
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isVerifying}
+                    className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#4f46e5] to-[#ea580c] text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg hover:opacity-90 active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {isVerifying ? (
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    ) : null}
+                    <span>{isRtl ? "تسجيل الدخول" : "Log In"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginStep('email');
+                      setPassError('');
+                    }}
+                    className="w-full text-xs text-white/50 hover:text-white transition-colors py-1 cursor-pointer underline"
+                  >
+                    {isRtl ? "رجوع لتغيير البريد الإلكتروني" : "Back to Change Email"}
+                  </button>
+                </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </section>
     );
@@ -947,8 +1187,8 @@ export default function AdminPanel({
 
                   {/* Image link, Category options */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div className="sm:col-span-2">
-                      <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{t.adminProjImage} *</label>
+                    <div className="sm:col-span-2 space-y-2">
+                      <label className="block text-xs uppercase tracking-wider font-semibold text-white">{t.adminProjImage} *</label>
                       <input
                         type="url"
                         value={pImage}
@@ -957,6 +1197,30 @@ export default function AdminPanel({
                         className="w-full text-xs sm:text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white focus:outline-none"
                         required
                       />
+                      <div className="border border-dashed border-white/15 hover:border-orange-500 rounded-2xl bg-black/10 p-3 text-center cursor-pointer transition-all relative">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                if (typeof reader.result === 'string') {
+                                  setPImage(reader.result);
+                                  showFeedback(isRtl ? "تم تحميل وتحديث صورة المشروع بنجاح!" : "Project image uploaded and updated!");
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                        <div className="text-[11px] text-white/70">
+                          <p className="font-bold text-orange-400 mb-0.5">{isRtl ? "أو اضغط هنا لرفع صورة من جهازك" : "Or click here to upload an image from your device"}</p>
+                          <p className="text-[9px] text-white/40">Base64 encoded directly to database (max 2MB recommended)</p>
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{t.adminProjDate} *</label>

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ExternalLink, Calendar, Tag, Layers, X, Eye, ArrowUpLeft, ArrowUpRight, ArrowLeft, ArrowRight } from 'lucide-react';
+import { ExternalLink, Calendar, Tag, Layers, X, Eye, ArrowUpLeft, ArrowUpRight, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
 import { Project } from '../types';
 
 interface PortfolioProps {
@@ -12,6 +12,7 @@ interface PortfolioProps {
 export default function Portfolio({ currentLang, projects, t }: PortfolioProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const [isImgExpanded, setIsImgExpanded] = useState<boolean>(false);
 
   const isRtl = currentLang === 'ar';
 
@@ -42,6 +43,36 @@ export default function Portfolio({ currentLang, projects, t }: PortfolioProps) 
     
     return catEn.includes(filterId) || catAr.includes(filterId);
   });
+
+  const activeIndex = activeProject ? filteredProjects.findIndex(p => p.id === activeProject.id) : -1;
+
+  const handlePrevProject = () => {
+    if (filteredProjects.length === 0) return;
+    const prevIdx = (activeIndex - 1 + filteredProjects.length) % filteredProjects.length;
+    setActiveProject(filteredProjects[prevIdx]);
+  };
+
+  const handleNextProject = () => {
+    if (filteredProjects.length === 0) return;
+    const nextIdx = (activeIndex + 1) % filteredProjects.length;
+    setActiveProject(filteredProjects[nextIdx]);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!activeProject) return;
+      if (e.key === 'Escape') {
+        setActiveProject(null);
+        setIsImgExpanded(false);
+      } else if (e.key === 'ArrowLeft') {
+        if (isRtl) handleNextProject(); else handlePrevProject();
+      } else if (e.key === 'ArrowRight') {
+        if (isRtl) handlePrevProject(); else handleNextProject();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeProject, filteredProjects, isRtl, activeIndex]);
 
   return (
     <section id="portfolio" className="relative py-24 sm:py-32 bg-[#040316] overflow-hidden">
@@ -119,8 +150,9 @@ export default function Portfolio({ currentLang, projects, t }: PortfolioProps) 
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.4 }}
-                  className={`${wrapperClass} relative overflow-hidden rounded-[32px] bg-white/5 border border-white/10 group shadow-xl cursor-pointer hover:border-[#EA580C]/40`}
+                  whileHover={{ scale: 1.02, y: -6 }}
+                  transition={{ duration: 0.3 }}
+                  className={`${wrapperClass} relative overflow-hidden rounded-[32px] bg-white/5 border border-white/10 group shadow-xl cursor-pointer hover:border-[#EA580C]/40 hover:shadow-2xl hover:shadow-[#EA580C]/10 transition-all duration-300`}
                   onClick={() => setActiveProject(project)}
                 >
                   {/* Background Showcase Image */}
@@ -182,7 +214,7 @@ export default function Portfolio({ currentLang, projects, t }: PortfolioProps) 
           </AnimatePresence>
         </div>
 
-        {/* Detailed Modal Overlay */}
+        {/* Detailed Full-Screen Lightbox Modal Overlay */}
         <AnimatePresence>
           {activeProject && (
             <motion.div
@@ -190,104 +222,158 @@ export default function Portfolio({ currentLang, projects, t }: PortfolioProps) 
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               id="project-overlay-modal"
-              className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-lg flex items-center justify-center p-4 sm:p-6"
+              className="fixed inset-0 z-50 bg-[#02010d]/98 backdrop-blur-xl flex flex-col md:flex-row overflow-hidden"
+              onClick={() => {
+                setActiveProject(null);
+                setIsImgExpanded(false);
+              }}
             >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 30 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                transition={{ type: "spring", duration: 0.5 }}
-                className="relative bg-[#1e1b4b]/95 border border-white/10 rounded-[32px] max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl backdrop-blur-lg"
+              {/* Left / Right Carousel Buttons & Main Media Container */}
+              <div 
+                className={`relative flex-1 flex items-center justify-center bg-[#010103] p-4 transition-all duration-500 ${
+                  isImgExpanded ? 'w-full md:w-full' : 'w-full md:w-2/3 lg:w-[70%]'
+                }`}
                 onClick={(e) => e.stopPropagation()}
               >
-                
-                {/* Hero Showcase Image */}
-                <div className="relative h-[240px] sm:h-[350px] w-full">
-                  <img
-                    src={activeProject.image}
-                    referrerPolicy="no-referrer"
-                    alt={isRtl ? activeProject.titleAr : activeProject.titleEn}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1e1b4b] via-transparent to-black/30"></div>
-                  
-                  {/* Close button with text */}
+                {/* Floating Top Bar (Controls) */}
+                <div className="absolute top-4 left-4 right-4 z-30 flex items-center justify-between gap-4 pointer-events-none">
+                  {/* Toggle Expand / Fullscreen button */}
                   <button
-                    onClick={() => setActiveProject(null)}
-                    id="modal-close-btn"
-                    className="absolute top-4 right-4 z-25 px-4.5 py-2.5 rounded-full bg-black/70 hover:bg-[#EA580C] border border-white/10 flex items-center gap-2 text-white transition-all cursor-pointer shadow-lg text-xs font-bold uppercase tracking-wider"
+                    onClick={() => setIsImgExpanded(!isImgExpanded)}
+                    title={isImgExpanded ? (isRtl ? "عرض التفاصيل" : "Show Details") : (isRtl ? "توسيع الصورة" : "Expand Image")}
+                    className="pointer-events-auto w-10 h-10 rounded-full bg-white/10 hover:bg-[#EA580C] text-white flex items-center justify-center backdrop-blur-md border border-white/10 hover:border-transparent transition-all cursor-pointer shadow-lg"
+                  >
+                    {isImgExpanded ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+                  </button>
+
+                  {/* Close button */}
+                  <button
+                    onClick={() => {
+                      setActiveProject(null);
+                      setIsImgExpanded(false);
+                    }}
+                    className="pointer-events-auto px-4 py-2 rounded-full bg-white/10 hover:bg-[#EA580C] text-white flex items-center gap-1.5 backdrop-blur-md border border-white/10 hover:border-transparent transition-all cursor-pointer shadow-lg text-xs font-bold"
                   >
                     <X className="w-4 h-4" />
-                    <span>{isRtl ? "رجوع" : "Back"}</span>
+                    <span>{isRtl ? "إغلاق" : "Close"}</span>
                   </button>
                 </div>
 
-                {/* Modal Detail Body */}
-                <div className={`p-6 sm:p-10 text-start ${isRtl ? 'rtl' : 'ltr'}`}>
-                  
-                  {/* Metadata line */}
-                  <div className="flex flex-wrap items-center gap-3.5 sm:gap-6 text-xs text-gray-400 font-mono mb-6 pb-6 border-b border-white/10">
-                    <span className="px-3 py-1 bg-[#EA580C]/15 border border-[#EA580C]/25 rounded-full text-[#EA580C] font-semibold flex items-center gap-1">
-                      <Tag className="w-3.5 h-3.5 text-orange-400" />
-                      <span>{isRtl ? activeProject.categoryAr : activeProject.categoryEn}</span>
-                    </span>
-
-                    <span className="flex items-center gap-1 text-white/70">
-                      <Calendar className="w-4 h-4 text-orange-400" />
-                      <span>{t.projectDate} {activeProject.date}</span>
-                    </span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-2xl sm:text-3.5xl font-extrabold text-white font-sans tracking-tight mb-4">
-                    {isRtl ? activeProject.titleAr : activeProject.titleEn}
-                  </h3>
-
-                  {/* Highlights paragraph */}
-                  <p className="text-white/85 text-sm sm:text-base leading-relaxed mb-6 font-medium italic">
-                    {isRtl ? activeProject.descriptionAr : activeProject.descriptionEn}
-                  </p>
-
-                  {/* Rich Deep Content */}
-                  <div className="text-white/70 text-xs sm:text-sm leading-relaxed space-y-4 mb-8">
-                    <p>{isRtl ? activeProject.contentAr : activeProject.contentEn}</p>
-                  </div>
-
-                  {/* CTA Footer with Back Button and optional Live Link */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 pt-6 mt-4 border-t border-white/10">
-                    <button
-                      onClick={() => setActiveProject(null)}
-                      className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs font-bold uppercase tracking-wider border border-white/10 hover:border-white/20 transition-all cursor-pointer"
-                    >
-                      {isRtl ? (
-                        <>
-                          <ArrowRight className="w-4 h-4" />
-                          <span>رجوع للأعمال</span>
-                        </>
-                      ) : (
-                        <>
-                          <ArrowLeft className="w-4 h-4" />
-                          <span>Back to Works</span>
-                        </>
-                      )}
-                    </button>
-
-                    {activeProject.link && (
-                      <a
-                        href={activeProject.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#EA580C] hover:bg-orange-500 text-white text-xs font-bold uppercase tracking-wider shadow-lg active:scale-95 transition-all cursor-pointer"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        <span>{t.visitLive}</span>
-                      </a>
-                    )}
-                  </div>
-
+                {/* Main high-resolution responsive Image Viewer with motion.img */}
+                <div className="w-full h-full flex items-center justify-center max-w-5xl max-h-[85vh] sm:max-h-[90vh]">
+                  <AnimatePresence mode="popLayout">
+                    <motion.img
+                      key={activeProject.id}
+                      initial={{ opacity: 0, scale: 0.95, x: 20 }}
+                      animate={{ opacity: 1, scale: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                      src={activeProject.image}
+                      referrerPolicy="no-referrer"
+                      alt={isRtl ? activeProject.titleAr : activeProject.titleEn}
+                      className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl border border-white/5 select-none"
+                    />
+                  </AnimatePresence>
                 </div>
 
-              </motion.div>
+                {/* Floating Navigation Controls (Previous and Next arrows) */}
+                {filteredProjects.length > 1 && (
+                  <>
+                    <button
+                      onClick={handlePrevProject}
+                      className={`absolute ${isRtl ? 'right-4 sm:right-6' : 'left-4 sm:left-6'} w-12 h-12 rounded-full bg-white/5 hover:bg-[#EA580C]/80 text-white flex items-center justify-center backdrop-blur-md border border-white/10 hover:border-transparent transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95`}
+                      title={isRtl ? "السابق" : "Previous"}
+                    >
+                      {isRtl ? <ChevronRight className="w-6 h-6" /> : <ChevronLeft className="w-6 h-6" />}
+                    </button>
+                    <button
+                      onClick={handleNextProject}
+                      className={`absolute ${isRtl ? 'left-4 sm:left-6' : 'right-4 sm:right-6'} w-12 h-12 rounded-full bg-white/5 hover:bg-[#EA580C]/80 text-white flex items-center justify-center backdrop-blur-md border border-white/10 hover:border-transparent transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95`}
+                      title={isRtl ? "التالي" : "Next"}
+                    >
+                      {isRtl ? <ChevronLeft className="w-6 h-6" /> : <ChevronRight className="w-6 h-6" />}
+                    </button>
+                  </>
+                )}
+
+                {/* Image counter indicator at the bottom */}
+                {filteredProjects.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/60 border border-white/5 backdrop-blur-sm text-[11px] font-mono text-white/60 tracking-wider">
+                    {activeIndex + 1} / {filteredProjects.length}
+                  </div>
+                )}
+              </div>
+
+              {/* Sidebar Detail Info Panel (collapsible based on isImgExpanded state) */}
+              {!isImgExpanded && (
+                <motion.div
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: 'auto' }}
+                  exit={{ opacity: 0, width: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className={`w-full md:w-1/3 lg:w-[30%] bg-[#080614] border-t md:border-t-0 md:border-l border-white/10 flex flex-col h-full max-h-[45vh] md:max-h-screen overflow-y-auto ${
+                    isRtl ? 'md:border-r md:border-l-0 border-white/10 text-right rtl' : 'text-left ltr'
+                  }`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="p-6 sm:p-8 flex flex-col h-full">
+                    {/* Category and Date Tag line */}
+                    <div className="flex flex-wrap items-center gap-3 text-xs mb-6 pb-4 border-b border-white/5">
+                      <span className="px-3 py-1 bg-[#EA580C]/10 border border-[#EA580C]/20 rounded-md text-[#EA580C] font-semibold flex items-center gap-1.5">
+                        <Tag className="w-3.5 h-3.5 text-orange-400" />
+                        <span>{isRtl ? activeProject.categoryAr : activeProject.categoryEn}</span>
+                      </span>
+
+                      <span className="flex items-center gap-1.5 text-white/50 font-mono">
+                        <Calendar className="w-3.5 h-3.5 text-white/40" />
+                        <span>{activeProject.date}</span>
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-4 font-sans leading-snug">
+                      {isRtl ? activeProject.titleAr : activeProject.titleEn}
+                    </h3>
+
+                    {/* Short description with highlighted styling */}
+                    <p className="text-gray-300 text-xs sm:text-sm leading-relaxed mb-6 italic border-l-2 border-[#EA580C] pl-3 py-0.5">
+                      {isRtl ? activeProject.descriptionAr : activeProject.descriptionEn}
+                    </p>
+
+                    {/* Expandable Rich content text block */}
+                    <div className="text-white/60 text-xs sm:text-sm leading-relaxed space-y-4 mb-8 overflow-y-auto pr-1 flex-grow">
+                      <p className="whitespace-pre-line">
+                        {isRtl ? activeProject.contentAr : activeProject.contentEn}
+                      </p>
+                    </div>
+
+                    {/* Actions and Footer buttons */}
+                    <div className="pt-6 mt-auto border-t border-white/5 flex flex-col gap-3">
+                      {activeProject.link && (
+                        <a
+                          href={activeProject.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#EA580C] hover:bg-orange-500 text-white text-xs font-bold uppercase tracking-wider shadow-lg active:scale-98 transition-all cursor-pointer text-center"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          <span>{t.visitLive}</span>
+                        </a>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          setActiveProject(null);
+                          setIsImgExpanded(false);
+                        }}
+                        className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs font-bold uppercase tracking-wider border border-white/5 hover:border-white/10 transition-all cursor-pointer"
+                      >
+                        {isRtl ? "العودة للمعرض" : "Back to Gallery"}
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
