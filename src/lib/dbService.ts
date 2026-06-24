@@ -5,7 +5,8 @@ import {
   doc, 
   deleteDoc, 
   getDoc,
-  updateDoc
+  updateDoc,
+  onSnapshot
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { Project, Service, Skill, ContactMessage, SiteConfig, ClientReview, AdminUser } from "../types";
@@ -281,5 +282,86 @@ export async function seedDefaultAdminUser(email: string): Promise<void> {
   } catch (error) {
     console.warn("[Offline/Sync Notice] Error seeding default admin user:", error);
   }
+}
+
+// 9. Real-time Subscription Functions for live instant updates on all devices
+export function subscribeConfig(onUpdate: (config: SiteConfig) => void): () => void {
+  const docRef = doc(db, "config", "site_config");
+  return onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      onUpdate(docSnap.data() as SiteConfig);
+    }
+  }, (error) => {
+    console.warn("Error in live config subscription:", error);
+  });
+}
+
+export function subscribeProjects(onUpdate: (projects: Project[]) => void): () => void {
+  const colRef = collection(db, "projects");
+  return onSnapshot(colRef, (snapshot) => {
+    const items: Project[] = [];
+    snapshot.forEach((doc) => {
+      items.push({ id: doc.id, ...doc.data() } as unknown as Project);
+    });
+    // Sort projects by sortOrder if available
+    items.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+    onUpdate(items);
+  }, (error) => {
+    console.warn("Error in live projects subscription:", error);
+  });
+}
+
+export function subscribeServices(onUpdate: (services: Service[]) => void): () => void {
+  const colRef = collection(db, "services");
+  return onSnapshot(colRef, (snapshot) => {
+    const items: Service[] = [];
+    snapshot.forEach((doc) => {
+      items.push({ id: doc.id, ...doc.data() } as unknown as Service);
+    });
+    onUpdate(items);
+  }, (error) => {
+    console.warn("Error in live services subscription:", error);
+  });
+}
+
+export function subscribeSkills(onUpdate: (skills: Skill[]) => void): () => void {
+  const colRef = collection(db, "skills");
+  return onSnapshot(colRef, (snapshot) => {
+    const items: Skill[] = [];
+    snapshot.forEach((doc) => {
+      items.push({ id: doc.id, ...doc.data() } as unknown as Skill);
+    });
+    onUpdate(items);
+  }, (error) => {
+    console.warn("Error in live skills subscription:", error);
+  });
+}
+
+export function subscribeReviews(onUpdate: (reviews: ClientReview[]) => void): () => void {
+  const colRef = collection(db, "reviews");
+  return onSnapshot(colRef, (snapshot) => {
+    const items: ClientReview[] = [];
+    snapshot.forEach((doc) => {
+      items.push({ id: doc.id, ...doc.data() } as unknown as ClientReview);
+    });
+    onUpdate(items);
+  }, (error) => {
+    console.warn("Error in live reviews subscription:", error);
+  });
+}
+
+export function subscribeMessages(onUpdate: (messages: ContactMessage[]) => void): () => void {
+  const colRef = collection(db, "messages");
+  return onSnapshot(colRef, (snapshot) => {
+    const items: ContactMessage[] = [];
+    snapshot.forEach((doc) => {
+      items.push({ id: doc.id, ...doc.data() } as unknown as ContactMessage);
+    });
+    // Sort messages by timestamp or date if available
+    items.sort((a, b) => new Date(b.date || "").getTime() - new Date(a.date || "").getTime());
+    onUpdate(items);
+  }, (error) => {
+    console.warn("Error in live messages subscription:", error);
+  });
 }
 

@@ -18,7 +18,13 @@ import {
   getReviewsDB, saveReviewDB, deleteReviewDB,
   getConfigDB, saveConfigDB,
   getMessagesDB, saveMessageDB, deleteMessageDB,
-  seedDefaultAdminUser
+  seedDefaultAdminUser,
+  subscribeConfig,
+  subscribeProjects,
+  subscribeServices,
+  subscribeSkills,
+  subscribeReviews,
+  subscribeMessages
 } from './lib/dbService';
 
 import {
@@ -112,115 +118,108 @@ export default function App() {
       try { setMessages(JSON.parse(localMsg)); } catch (e) {}
     }
 
-    // Now async sync from Firestore cloud database
-    const syncFromCloud = async () => {
-      // 1. Sync Config
+    // Background seeder to ensure default values exist in Firestore on first-run
+    const seedDatabase = async () => {
       try {
+        // 1. Seed Config if missing
         const cloudConfig = await getConfigDB();
-        if (cloudConfig) {
-          setConfig(cloudConfig);
-          localStorage.setItem('malek_config', JSON.stringify(cloudConfig));
-        } else {
+        if (!cloudConfig) {
           await saveConfigDB(DEFAULT_CONFIG);
         }
-      } catch (err) {
-        console.warn("Could not sync Site Config with Firestore cloud, using local cache:", err);
-      }
 
-      // 2. Sync Projects
-      try {
+        // 2. Seed Projects if missing
         const cloudProj = await getProjectsDB();
-        if (cloudProj && cloudProj.length > 0) {
-          const existingIds = new Set(cloudProj.map(p => p.id));
-          const missingProjects = DEFAULT_PROJECTS.filter(p => !existingIds.has(p.id));
-          if (missingProjects.length > 0) {
-            for (const proj of missingProjects) {
-              await saveProjectDB(proj);
-            }
-            const updatedProj = await getProjectsDB();
-            setProjects(updatedProj || cloudProj);
-            localStorage.setItem('malek_projects', JSON.stringify(updatedProj || cloudProj));
-          } else {
-            setProjects(cloudProj);
-            localStorage.setItem('malek_projects', JSON.stringify(cloudProj));
-          }
-        } else {
+        if (!cloudProj || cloudProj.length === 0) {
           for (const proj of DEFAULT_PROJECTS) {
             await saveProjectDB(proj);
           }
-          const freshProj = await getProjectsDB();
-          setProjects(freshProj || DEFAULT_PROJECTS);
-          localStorage.setItem('malek_projects', JSON.stringify(freshProj || DEFAULT_PROJECTS));
         }
-      } catch (err) {
-        console.warn("Could not sync Projects with Firestore cloud, using local cache:", err);
-      }
 
-      // 3. Sync Services
-      try {
+        // 3. Seed Services if missing
         const cloudServ = await getServicesDB();
-        if (cloudServ && cloudServ.length > 0) {
-          setServices(cloudServ);
-          localStorage.setItem('malek_services', JSON.stringify(cloudServ));
-        } else {
+        if (!cloudServ || cloudServ.length === 0) {
           for (const serv of DEFAULT_SERVICES) {
             await saveServiceDB(serv);
           }
         }
-      } catch (err) {
-        console.warn("Could not sync Services with Firestore cloud, using local cache:", err);
-      }
 
-      // 4. Sync Skills
-      try {
+        // 4. Seed Skills if missing
         const cloudSkills = await getSkillsDB();
-        if (cloudSkills && cloudSkills.length > 0) {
-          setSkills(cloudSkills);
-          localStorage.setItem('malek_skills', JSON.stringify(cloudSkills));
-        } else {
+        if (!cloudSkills || cloudSkills.length === 0) {
           for (const sk of DEFAULT_SKILLS) {
             await saveSkillDB(sk);
           }
         }
-      } catch (err) {
-        console.warn("Could not sync Skills with Firestore cloud, using local cache:", err);
-      }
 
-      // 5. Sync Reviews
-      try {
+        // 5. Seed Reviews if missing
         const cloudReviews = await getReviewsDB();
-        if (cloudReviews && cloudReviews.length > 0) {
-          setReviews(cloudReviews);
-          localStorage.setItem('malek_client_reviews', JSON.stringify(cloudReviews));
-        } else {
+        if (!cloudReviews || cloudReviews.length === 0) {
           for (const rev of defaultReviews) {
             await saveReviewDB(rev);
           }
         }
-      } catch (err) {
-        console.warn("Could not sync Reviews with Firestore cloud, using local cache:", err);
-      }
 
-      // 6. Sync Messages
-      try {
-        const cloudMsg = await getMessagesDB();
-        if (cloudMsg) {
-          setMessages(cloudMsg);
-          localStorage.setItem('malek_messages', JSON.stringify(cloudMsg));
-        }
-      } catch (err) {
-        console.warn("Could not sync Messages with Firestore cloud, using local cache:", err);
-      }
-
-      // 7. Seed Default Admin User
-      try {
+        // 6. Seed Default Admin
         await seedDefaultAdminUser('malikalwesabi@gmail.com');
       } catch (err) {
-        console.warn("Could not seed default admin user with Firestore cloud:", err);
+        console.warn("[Seeding Notice] Database seeding warning:", err);
       }
     };
 
-    syncFromCloud();
+    seedDatabase();
+
+    // Set up real-time subscription listeners to sync updates instantly to all devices
+    const unsubConfig = subscribeConfig((cloudConfig) => {
+      if (cloudConfig) {
+        setConfig(cloudConfig);
+        localStorage.setItem('malek_config', JSON.stringify(cloudConfig));
+      }
+    });
+
+    const unsubProjects = subscribeProjects((cloudProj) => {
+      if (cloudProj) {
+        setProjects(cloudProj);
+        localStorage.setItem('malek_projects', JSON.stringify(cloudProj));
+      }
+    });
+
+    const unsubServices = subscribeServices((cloudServ) => {
+      if (cloudServ) {
+        setServices(cloudServ);
+        localStorage.setItem('malek_services', JSON.stringify(cloudServ));
+      }
+    });
+
+    const unsubSkills = subscribeSkills((cloudSkills) => {
+      if (cloudSkills) {
+        setSkills(cloudSkills);
+        localStorage.setItem('malek_skills', JSON.stringify(cloudSkills));
+      }
+    });
+
+    const unsubReviews = subscribeReviews((cloudReviews) => {
+      if (cloudReviews) {
+        setReviews(cloudReviews);
+        localStorage.setItem('malek_client_reviews', JSON.stringify(cloudReviews));
+      }
+    });
+
+    const unsubMessages = subscribeMessages((cloudMsg) => {
+      if (cloudMsg) {
+        setMessages(cloudMsg);
+        localStorage.setItem('malek_messages', JSON.stringify(cloudMsg));
+      }
+    });
+
+    // Cleanup subscription listeners on component unmount
+    return () => {
+      unsubConfig();
+      unsubProjects();
+      unsubServices();
+      unsubSkills();
+      unsubReviews();
+      unsubMessages();
+    };
   }, []);
 
   // Wrapper handlers that replicate local state writes to cloud Firestore in background

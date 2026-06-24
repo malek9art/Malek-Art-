@@ -693,6 +693,7 @@ export default function AdminPanel({
   const handleSaveConfig = (e: React.FormEvent) => {
     e.preventDefault();
     const updated: SiteConfig = {
+      ...config,
       aboutTextAr: cAboutAr,
       aboutTextEn: cAboutEn,
       heroTextAr: cHeroAr,
