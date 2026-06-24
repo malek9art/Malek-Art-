@@ -187,6 +187,10 @@ export async function hashPassword(password: string): Promise<string> {
 // 8. Admin authentication database operations with local storage resilient fallbacks
 export async function getAdminUserDB(email: string): Promise<AdminUser | null> {
   const trimmedEmail = email.toLowerCase().trim();
+  const isDefaultAdmin = trimmedEmail === 'malikalwesabi@gmail.com' || 
+                         trimmedEmail === 'admin@malek.art' || 
+                         trimmedEmail === 'admin@malek';
+
   try {
     const docRef = doc(db, "admin_users", trimmedEmail);
     const docSnap = await getDoc(docRef);
@@ -194,6 +198,16 @@ export async function getAdminUserDB(email: string): Promise<AdminUser | null> {
       const data = docSnap.data() as AdminUser;
       localStorage.setItem(`malek_admin_${trimmedEmail}`, JSON.stringify(data));
       return data;
+    } else if (isDefaultAdmin) {
+      // If default admin does not exist in Cloud, seed it on-the-fly
+      const defaultAdmin: AdminUser = {
+        email: trimmedEmail,
+        passwordHash: "",
+        isFirstLogin: true,
+        createdAt: new Date().toISOString()
+      };
+      await saveAdminUserDB(defaultAdmin);
+      return defaultAdmin;
     }
   } catch (error) {
     console.warn("[Offline/Sync Notice] Error fetching admin user from cloud:", error);
@@ -205,6 +219,16 @@ export async function getAdminUserDB(email: string): Promise<AdminUser | null> {
     try {
       return JSON.parse(local) as AdminUser;
     } catch (e) {}
+  } else if (isDefaultAdmin) {
+    // If absolutely offline and no local record, create a local-only default admin
+    const defaultAdmin: AdminUser = {
+      email: trimmedEmail,
+      passwordHash: "",
+      isFirstLogin: true,
+      createdAt: new Date().toISOString()
+    };
+    localStorage.setItem(`malek_admin_${trimmedEmail}`, JSON.stringify(defaultAdmin));
+    return defaultAdmin;
   }
   return null;
 }
