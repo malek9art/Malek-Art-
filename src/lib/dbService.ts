@@ -9,7 +9,7 @@ import {
   onSnapshot
 } from "firebase/firestore";
 import { db } from "./firebase";
-import { Project, Service, Skill, ContactMessage, SiteConfig, ClientReview, AdminUser } from "../types";
+import { Project, Service, Skill, ContactMessage, SiteConfig, ClientReview, AdminUser, CustomFontData } from "../types";
 
 // Helper to convert Firebase query snapshot to list
 async function getCollectionData<T>(collectionName: string): Promise<T[]> {
@@ -369,5 +369,50 @@ export function subscribeMessages(onUpdate: (messages: ContactMessage[]) => void
   }, (error) => {
     console.warn("Error in live messages subscription:", error);
   });
+}
+
+// 7. Custom Uploaded Font Functions (stored under config/custom_font, which is
+//    covered by the existing `match /config/{id}` security rule — public read,
+//    authenticated write — so no rules redeploy is required).
+export async function getCustomFontDB(): Promise<CustomFontData | null> {
+  try {
+    const docRef = doc(db, "config", "custom_font");
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? (docSnap.data() as CustomFontData) : null;
+  } catch (error) {
+    console.warn("[Offline/Sync Notice] Could not fetch custom font:", error);
+    return null;
+  }
+}
+
+export async function saveCustomFontDB(font: CustomFontData): Promise<void> {
+  try {
+    const docRef = doc(db, "config", "custom_font");
+    await setDoc(docRef, font);
+  } catch (error) {
+    console.warn("[Offline/Sync Notice] Error saving custom font:", error);
+    throw error;
+  }
+}
+
+export async function clearCustomFontDB(): Promise<void> {
+  try {
+    await deleteDoc(doc(db, "config", "custom_font"));
+  } catch (error) {
+    console.warn("[Offline/Sync Notice] Error clearing custom font:", error);
+  }
+}
+
+export function subscribeCustomFont(onUpdate: (font: CustomFontData | null) => void): () => void {
+  const docRef = doc(db, "config", "custom_font");
+  return onSnapshot(
+    docRef,
+    (docSnap) => {
+      onUpdate(docSnap.exists() ? (docSnap.data() as CustomFontData) : null);
+    },
+    (error) => {
+      console.warn("Error in live custom font subscription:", error);
+    }
+  );
 }
 

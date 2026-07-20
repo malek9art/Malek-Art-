@@ -17,6 +17,7 @@ import {
   getSkillsDB, saveSkillDB, deleteSkillDB,
   getReviewsDB, saveReviewDB, deleteReviewDB,
   getConfigDB, saveConfigDB,
+  getCustomFontDB,
   getMessagesDB, saveMessageDB, deleteMessageDB,
   seedDefaultAdminUser,
   subscribeConfig,
@@ -24,9 +25,10 @@ import {
   subscribeServices,
   subscribeSkills,
   subscribeReviews,
-  subscribeMessages
+  subscribeMessages,
+  subscribeCustomFont
 } from './lib/dbService';
-import { applyFont } from './lib/fonts';
+import { applyFont, injectCustomFontFaces, CUSTOM_FONT_ID } from './lib/fonts';
 
 import {
   DEFAULT_PROJECTS,
@@ -37,7 +39,7 @@ import {
   DEFAULT_CONFIG,
   TRANSLATIONS,
 } from './data';
-import { Project, Service, Skill, ContactMessage, SiteConfig, ClientReview } from './types';
+import { Project, Service, Skill, ContactMessage, SiteConfig, ClientReview, CustomFontData } from './types';
 
 import { useAuth } from './auth/authContext';
 
@@ -63,6 +65,7 @@ export default function App() {
   const [config, setConfig] = useState<SiteConfig>(DEFAULT_CONFIG);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [reviews, setReviews] = useState<ClientReview[]>([]);
+  const [customFontData, setCustomFontData] = useState<CustomFontData | null>(null);
 
   // 1. First-run Seeder & Local Storage Hydrator & Firestore Cloud Sync
   useEffect(() => {
@@ -377,14 +380,43 @@ export default function App() {
     localStorage.setItem('malek_lang', lang);
   }, [lang]);
 
+  // Load the admin-uploaded custom font (instant from local, then cloud + live).
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('malek_custom_font');
+      if (saved) {
+        const parsed = JSON.parse(saved) as CustomFontData;
+        setCustomFontData(parsed);
+        injectCustomFontFaces(parsed);
+      }
+    } catch {}
+    getCustomFontDB()
+      .then((d) => {
+        if (d && d.family) {
+          setCustomFontData(d);
+          localStorage.setItem('malek_custom_font', JSON.stringify(d));
+          injectCustomFontFaces(d);
+        }
+      })
+      .catch(() => {});
+    const unsub = subscribeCustomFont((d) => {
+      const data = d && d.family ? d : null;
+      setCustomFontData(data);
+      if (data) localStorage.setItem('malek_custom_font', JSON.stringify(data));
+      else localStorage.removeItem('malek_custom_font');
+      injectCustomFontFaces(data);
+    });
+    return () => unsub();
+  }, []);
+
   // Apply the selected global font family (with on-demand Google Fonts injection).
   useEffect(() => {
-    applyFont({
-      fontFamily: config.fontFamily,
-      customFontFamily: config.customFontFamily,
-      customFontUrl: config.customFontUrl,
-    });
-  }, [config.fontFamily, config.customFontFamily, config.customFontUrl]);
+    const customName =
+      config.fontFamily === CUSTOM_FONT_ID
+        ? customFontData?.family || config.customFontFamily || ''
+        : config.customFontFamily || '';
+    applyFont({ fontFamily: config.fontFamily, customFontFamily: customName });
+  }, [config.fontFamily, config.customFontFamily, customFontData]);
 
   // Handle active navigation highlighting on scroll triggers
   useEffect(() => {

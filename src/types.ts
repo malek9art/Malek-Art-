@@ -147,3 +147,16 @@ export interface AdminUser {
   isFirstLogin: boolean;
   createdAt: string;
 }
+
+export interface CustomFontWeight {
+  src: string; // base64 data URL of the font file
+  fmt: string; // 'woff2' | 'woff' | 'truetype' | 'opentype'
+}
+
+export interface CustomFontData {
+  family: string;
+  regular?: CustomFontWeight;
+  medium?: CustomFontWeight;
+  bold?: CustomFontWeight;
+  uploadedAt?: string;
+}

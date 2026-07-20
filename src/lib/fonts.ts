@@ -1,14 +1,13 @@
 /**
- * Font registry + global font application.
+ * Font registry + global font application, including support for a custom
+ * font uploaded from the admin panel (stored as base64 in Firestore and
+ * injected at runtime as @font-face rules).
  *
- * Fonts are split into:
- *  - "local" fonts: bundled in the repo (Thmanyah Sans, and Thmanyah Serif Text
- *    once its .woff2 files are dropped into src/assets/fonts/thmanyah/).
- *  - "google" fonts: loaded on demand via a <link> to fonts.googleapis.com.
- *
- * The active font is applied by setting the `--font-active` CSS custom property
+ * The active font is applied via the `--font-active` CSS custom property
  * on <html> (consumed by index.css: `html { font-family: var(--font-active) }`).
  */
+
+import { CustomFontData } from '../types';
 
 export type FontSource = 'local' | 'google';
 
@@ -34,16 +33,6 @@ export const FONT_OPTIONS: FontOption[] = [
     labelEn: 'Thmanyah Sans (Default)',
     family:
       '"Thmanyah Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    source: 'local',
-    preview: 'Aa أبجد 0123',
-  },
-  {
-    id: 'thmanyah-serif',
-    labelAr: 'ثمانية سيريف تكست (الخط المرفق)',
-    labelEn: 'Thmanyah Serif Text (Attached)',
-    // Falls back to a true serif (Georgia) until the bundled @font-face files
-    // for "Thmanyah Serif Text" are added — see index.css.
-    family: '"Thmanyah Serif Text", Georgia, "Times New Roman", serif',
     source: 'local',
     preview: 'Aa أبجد 0123',
   },
@@ -79,9 +68,9 @@ export const FONT_OPTIONS: FontOption[] = [
   },
   {
     id: CUSTOM_FONT_ID,
-    labelAr: 'خط مخصص (Google Fonts)',
-    labelEn: 'Custom (Google Fonts)',
-    family: '"Thmanyah Sans", sans-serif', // overridden at apply time
+    labelAr: 'خط مخصص (رفع من اللوحة)',
+    labelEn: 'Custom Font (Upload)',
+    family: '"Thmanyah Sans", sans-serif', // overridden at apply time by the uploaded family
     source: 'local',
     preview: 'Aa أبجد 0123',
   },
@@ -92,41 +81,30 @@ export function getFontById(id?: string): FontOption {
   return FONT_OPTIONS.find((f) => f.id === id) || FONT_OPTIONS[0];
 }
 
-const DYNAMIC_LINK_ID = 'dynamic-font-stylesheet';
-
 export interface FontConfig {
   fontFamily?: string;
   customFontFamily?: string;
-  customFontUrl?: string;
 }
 
-/**
- * Resolve the chosen font to a CSS family stack + optional Google Fonts URL.
- */
-export function resolveFont(cfg: FontConfig): { family: string; href?: string } {
-  const font = getFontById(cfg.fontFamily);
-
-  if (cfg.fontFamily === CUSTOM_FONT_ID && cfg.customFontFamily?.trim()) {
-    const family = `"${cfg.customFontFamily.trim()}", "Thmanyah Sans", sans-serif`;
-    return { family, href: cfg.customFontUrl?.trim() || undefined };
-  }
-
-  return {
-    family: font.family,
-    href: font.source === 'google' ? font.googleHref : undefined,
-  };
-}
+const DYNAMIC_LINK_ID = 'dynamic-font-stylesheet';
 
 /**
- * Apply a font choice to the document: sets --font-active and injects/removes
- * a Google Fonts <link> as needed. Safe to call from multiple consumers
- * (App on config change, AdminPanel for live preview).
+ * Apply a font choice: set --font-active and (for Google presets) inject the
+ * Google Fonts <link>. For the custom uploaded font, the @font-face rules are
+ * injected separately by injectCustomFontFaces().
  */
 export function applyFont(cfg: FontConfig): void {
   if (typeof document === 'undefined') return;
-  const { family, href } = resolveFont(cfg);
+  const font = getFontById(cfg.fontFamily);
+
+  let family = font.family;
+  if (cfg.fontFamily === CUSTOM_FONT_ID) {
+    const name = cfg.customFontFamily?.trim();
+    family = name ? `"${name}", "Thmanyah Sans", sans-serif` : font.family;
+  }
   document.documentElement.style.setProperty('--font-active', family);
 
+  const href = font.source === 'google' ? font.googleHref : undefined;
   let link = document.getElementById(DYNAMIC_LINK_ID) as HTMLLinkElement | null;
   if (href) {
     if (!link) {
@@ -139,4 +117,62 @@ export function applyFont(cfg: FontConfig): void {
   } else if (link) {
     link.remove();
   }
+}
+
+/* ===================== Custom uploaded font ===================== */
+
+const FACES_STYLE_ID = 'custom-font-faces';
+
+/** Map a font filename to a CSS @font-face `format()` hint. */
+export function fontFormat(filename: string): string {
+  const ext = (filename || '').toLowerCase().split('.').pop() || '';
+  if (ext === 'woff2') return 'woff2';
+  if (ext === 'woff') return 'woff';
+  if (ext === 'ttf') return 'truetype';
+  if (ext === 'otf') return 'opentype';
+  return 'woff2';
+}
+
+/** Read a File as a base64 data URL. */
+export function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error('Failed to read file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Inject (or remove) the @font-face rules for the custom uploaded font.
+ * Call whenever the stored custom font changes.
+ */
+export function injectCustomFontFaces(data: CustomFontData | null): void {
+  if (typeof document === 'undefined') return;
+
+  const weights =
+    data && data.family
+      ? [
+          { weight: 400, file: data.regular },
+          { weight: 500, file: data.medium },
+          { weight: 700, file: data.bold },
+        ].filter((x) => x.file && x.file.src)
+      : [];
+
+  const existing = document.getElementById(FACES_STYLE_ID) as HTMLStyleElement | null;
+  if (!weights.length) {
+    existing?.remove();
+    return;
+  }
+
+  const style =
+    existing ?? (document.createElement('style') as HTMLStyleElement);
+  style.id = FACES_STYLE_ID;
+  style.textContent = weights
+    .map(
+      (x) =>
+        `@font-face { font-family: "${data!.family}"; src: url("${x.file!.src}") format("${x.file!.fmt}"); font-weight: ${x.weight}; font-display: swap; }`
+    )
+    .join('\n');
+  if (!existing) document.head.appendChild(style);
 }
