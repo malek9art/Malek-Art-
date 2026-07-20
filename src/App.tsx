@@ -26,6 +26,7 @@ import {
   subscribeReviews,
   subscribeMessages
 } from './lib/dbService';
+import { applyFont } from './lib/fonts';
 
 import {
   DEFAULT_PROJECTS,
@@ -375,6 +376,15 @@ export default function App() {
     html.dir = lang === 'ar' ? 'rtl' : 'ltr';
     localStorage.setItem('malek_lang', lang);
   }, [lang]);
+
+  // Apply the selected global font family (with on-demand Google Fonts injection).
+  useEffect(() => {
+    applyFont({
+      fontFamily: config.fontFamily,
+      customFontFamily: config.customFontFamily,
+      customFontUrl: config.customFontUrl,
+    });
+  }, [config.fontFamily, config.customFontFamily, config.customFontUrl]);
 
   // Handle active navigation highlighting on scroll triggers
   useEffect(() => {

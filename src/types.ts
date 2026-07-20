@@ -109,6 +109,9 @@ export interface SiteConfig {
   resumeEducationEn?: string;
   resumeSummaryAr?: string;
   resumeSummaryEn?: string;
+  fontFamily?: string;
+  customFontFamily?: string;
+  customFontUrl?: string;
 }
 
 export interface ClientReview {

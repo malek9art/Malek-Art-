@@ -51,6 +51,7 @@
   --vignette:       #07051b;
   --scroll-track:   #07051b;
   --scroll-thumb:   #1e1b4b;
+  --font-active:    var(--font-sans);
   color-scheme: dark;
 }
 
@@ -76,7 +77,7 @@ html.light {
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 80px;
-  font-family: var(--font-sans);
+  font-family: var(--font-active, var(--font-sans));
   background: var(--page-bg-solid);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

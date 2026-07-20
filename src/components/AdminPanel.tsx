@@ -4,6 +4,7 @@ import { Shield, Key, Grid, Layout, Layers, FileText, Trash2, Edit3, Plus, Check
 import { Project, Service, ContactMessage, SiteConfig, SocialLink, SmartDesignRequest, Skill, ClientReview, AdminUser } from '../types';
 import { getAdminUserDB, saveAdminUserDB } from '../lib/dbService';
 import { compressImage, ImageValidationError } from '../lib/imageCompress';
+import { FONT_OPTIONS, CUSTOM_FONT_ID, applyFont, getFontById } from '../lib/fonts';
 import { useAuth } from '../auth/authContext';
 
 interface AdminPanelProps {
@@ -239,6 +240,11 @@ export default function AdminPanel({
   const [cLogoEn, setCLogoEn] = useState(config.logoTextEn || '');
   const [cAccent, setCAccent] = useState(config.accentColor || '#EA580C');
 
+  // Global typography selector state
+  const [cFont, setCFont] = useState(config.fontFamily || 'thmanyah-sans');
+  const [cCustomFamily, setCCustomFamily] = useState(config.customFontFamily || '');
+  const [cCustomUrl, setCCustomUrl] = useState(config.customFontUrl || '');
+
   // Custom Social links
   const [cSocFB, setCSocFB] = useState(config.socialFacebook || '');
   const [cSocTW, setCSocTW] = useState(config.socialTwitter || '');
@@ -357,6 +363,9 @@ export default function AdminPanel({
       setCLogoAr(config.logoTextAr || '');
       setCLogoEn(config.logoTextEn || '');
       setCAccent(config.accentColor || '#EA580C');
+      setCFont(config.fontFamily || 'thmanyah-sans');
+      setCCustomFamily(config.customFontFamily || '');
+      setCCustomUrl(config.customFontUrl || '');
 
       setCSocFB(config.socialFacebook || '');
       setCSocTW(config.socialTwitter || '');
@@ -378,6 +387,17 @@ export default function AdminPanel({
       setcAIPromptEn(config.aiCustomPromptEn || '');
     }
   }, [config]);
+
+  // Live font preview while editing; restores the saved font on unmount.
+  useEffect(() => {
+    applyFont({ fontFamily: cFont, customFontFamily: cCustomFamily, customFontUrl: cCustomUrl });
+    return () =>
+      applyFont({
+        fontFamily: config.fontFamily,
+        customFontFamily: config.customFontFamily,
+        customFontUrl: config.customFontUrl,
+      });
+  }, [cFont, cCustomFamily, cCustomUrl]);
 
   const [feedback, setFeedback] = useState('');
   const isRtl = currentLang === 'ar';
@@ -704,6 +724,9 @@ export default function AdminPanel({
       stat3LabelEn: cStat3LabelEn,
       aiCustomPromptAr: cAIPromptAr,
       aiCustomPromptEn: cAIPromptEn,
+      fontFamily: cFont,
+      customFontFamily: cCustomFamily,
+      customFontUrl: cCustomUrl,
     };
     setConfig(updated);
     localStorage.setItem('malek_config', JSON.stringify(updated));
@@ -1716,6 +1739,65 @@ export default function AdminPanel({
                           required
                         />
                       </div>
+                    </div>
+
+                    {/* GLOBAL TYPOGRAPHY / FONT FAMILY SELECTOR */}
+                    <div className="mt-6 pt-4 border-t border-white/5">
+                      <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">
+                        {isRtl ? 'نوع الخط العام للموقع (Typography)' : 'Global Website Font (Typography)'}
+                      </label>
+                      <select
+                        value={cFont}
+                        onChange={(e) => setCFont(e.target.value)}
+                        className="w-full text-xs sm:text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white focus:outline-none focus:border-[#EA580C]"
+                      >
+                        {FONT_OPTIONS.map((f) => (
+                          <option key={f.id} value={f.id}>
+                            {isRtl ? f.labelAr : f.labelEn}
+                          </option>
+                        ))}
+                      </select>
+                      <p
+                        className="mt-2 text-base text-white/70"
+                        style={{ fontFamily: getFontById(cFont).family }}
+                      >
+                        {isRtl ? 'معاينة الخط: ' : 'Preview: '}
+                        <span className="font-bold">{getFontById(cFont).preview}</span>
+                      </p>
+                      <p className="text-[10px] text-white/40 mt-1.5 leading-relaxed">
+                        {isRtl
+                          ? 'التبديل يُطبَّق فورًا على كامل الواجهة (معاينة حيّة) ويُحفظ عند الضغط على «حفظ التغييرات».'
+                          : 'Switching previews instantly across the whole site and persists when you press Save.'}
+                      </p>
+
+                      {cFont === CUSTOM_FONT_ID && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                          <div>
+                            <label className="block text-[11px] font-semibold text-white/80 mb-1.5">
+                              {isRtl ? 'اسم عائلة الخط (Font Family)' : 'Font Family Name'}
+                            </label>
+                            <input
+                              type="text"
+                              value={cCustomFamily}
+                              onChange={(e) => setCCustomFamily(e.target.value)}
+                              placeholder="Cairo"
+                              className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-2.5 text-white focus:outline-none font-mono"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-semibold text-white/80 mb-1.5">
+                              {isRtl ? 'رابط Google Fonts CSS' : 'Google Fonts CSS URL'}
+                            </label>
+                            <input
+                              type="url"
+                              value={cCustomUrl}
+                              onChange={(e) => setCCustomUrl(e.target.value)}
+                              placeholder="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap"
+                              className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-2.5 text-white focus:outline-none font-mono"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>
