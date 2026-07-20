@@ -10,17 +10,17 @@ import { useAuth } from '../auth/authContext';
 interface AdminPanelProps {
   currentLang: 'ar' | 'en';
   projects: Project[];
-  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
+  setProjects: (value: React.SetStateAction<Project[]>) => Promise<boolean>;
   services: Service[];
-  setServices: React.Dispatch<React.SetStateAction<Service[]>>;
+  setServices: (value: React.SetStateAction<Service[]>) => Promise<boolean>;
   skills: Skill[];
-  setSkills: React.Dispatch<React.SetStateAction<Skill[]>>;
+  setSkills: (value: React.SetStateAction<Skill[]>) => Promise<boolean>;
   reviews: ClientReview[];
-  setReviews: React.Dispatch<React.SetStateAction<ClientReview[]>>;
+  setReviews: (value: React.SetStateAction<ClientReview[]>) => Promise<boolean>;
   config: SiteConfig;
-  setConfig: React.Dispatch<React.SetStateAction<SiteConfig>>;
+  setConfig: (value: React.SetStateAction<SiteConfig>) => Promise<boolean>;
   messages: ContactMessage[];
-  setMessages: React.Dispatch<React.SetStateAction<ContactMessage[]>>;
+  setMessages: (value: React.SetStateAction<ContactMessage[]>) => Promise<boolean>;
   isLoggedIn: boolean;
   setIsLoggedIn: (status: boolean) => void;
   t: any;
@@ -87,7 +87,7 @@ export default function AdminPanel({
     }
   }, [config]);
 
-  const handleAddSkill = (e: React.FormEvent) => {
+  const handleAddSkill = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSkillNameAr.trim() || !newSkillNameEn.trim()) return;
 
@@ -101,12 +101,16 @@ export default function AdminPanel({
     };
 
     const updated = [...skills, newSkill];
-    setSkills(updated);
+    const cloudOk = await setSkills(updated);
     localStorage.setItem('malek_skills', JSON.stringify(updated));
 
     setNewSkillNameAr('');
     setNewSkillNameEn('');
-    
+
+    if (!cloudOk) {
+      showSyncError();
+      return;
+    }
     setSavedConfirmModal({
       isOpen: true,
       title: isRtl ? "تمت إضافة المهارة" : "Skill Successfully Registered",
@@ -115,38 +119,42 @@ export default function AdminPanel({
     });
   };
 
-  const handleDeleteSkill = (id: string) => {
+  const handleDeleteSkill = async (id: string) => {
     const updated = skills.filter(sk => sk.id !== id);
-    setSkills(updated);
+    const cloudOk = await setSkills(updated);
     localStorage.setItem('malek_skills', JSON.stringify(updated));
+    if (!cloudOk) showSyncError();
   };
 
-  const handleUpdateSkillPercentage = (id: string, newPct: number) => {
+  const handleUpdateSkillPercentage = async (id: string, newPct: number) => {
     const pct = Math.min(100, Math.max(0, Number(newPct)));
     const updated = skills.map(sk => sk.id === id ? { ...sk, percentage: pct } : sk);
-    setSkills(updated);
+    const cloudOk = await setSkills(updated);
     localStorage.setItem('malek_skills', JSON.stringify(updated));
+    if (!cloudOk) showSyncError();
   };
 
   // Client reviews approval & deletion actions
-  const handleToggleReviewStatus = (id: string) => {
+  const handleToggleReviewStatus = async (id: string) => {
     const updated = reviews.map(rev => {
       if (rev.id === id) {
         return { ...rev, status: rev.status === 'approved' ? 'pending' : 'approved' };
       }
       return rev;
     });
-    setReviews(updated);
+    const cloudOk = await setReviews(updated);
     localStorage.setItem('malek_client_reviews', JSON.stringify(updated));
+    if (!cloudOk) showSyncError();
   };
 
-  const handleDeleteReview = (id: string) => {
+  const handleDeleteReview = async (id: string) => {
     const updated = reviews.filter(rev => rev.id !== id);
-    setReviews(updated);
+    const cloudOk = await setReviews(updated);
     localStorage.setItem('malek_client_reviews', JSON.stringify(updated));
+    if (!cloudOk) showSyncError();
   };
 
-  const handleSaveResumeSetup = (e: React.FormEvent) => {
+  const handleSaveResumeSetup = async (e: React.FormEvent) => {
     e.preventDefault();
     const updatedConfig: SiteConfig = {
       ...config,
@@ -160,13 +168,17 @@ export default function AdminPanel({
       resumeEducationAr: resEduAr,
       resumeEducationEn: resEduEn
     };
-    setConfig(updatedConfig);
+    const cloudOk = await setConfig(updatedConfig);
     localStorage.setItem('malek_config', JSON.stringify(updatedConfig));
+    if (!cloudOk) {
+      showSyncError();
+      return;
+    }
 
     setSavedConfirmModal({
       isOpen: true,
       title: isRtl ? "تم تحديث السيرة الذاتية" : "Resume Settings Live",
-      message: isRtl ? "تم حفظ كامل الحقول ومزامنتها في ملف التصدير وقالب الطباعة PDF." : "All fields synced into physical PDF and print templates.",
+      message: isRtl ? "تم حفظ كامل الحقول ومزامنتها سحابياً وفي ملف التصدير وقالب الطباعة PDF." : "All fields synced to the cloud, into physical PDF and print templates.",
       type: 'config_saved'
     });
   };
@@ -190,7 +202,7 @@ export default function AdminPanel({
     isOpen: boolean;
     title: string;
     message: string;
-    type: 'project_added' | 'project_updated' | 'service_updated' | 'config_saved' | 'deleted' | 'info';
+    type: 'project_added' | 'project_updated' | 'service_updated' | 'config_saved' | 'deleted' | 'info' | 'sync_error';
   } | null>(null);
 
   // Form Management states
@@ -547,8 +559,22 @@ export default function AdminPanel({
     setTimeout(() => setFeedback(''), 3500);
   };
 
+  // Honest "cloud sync failed" dialog: data is kept locally on THIS device only,
+  // so the user is never misled by a fake success message while other devices
+  // keep showing the old/default content.
+  const showSyncError = () => {
+    setSavedConfirmModal({
+      isOpen: true,
+      title: isRtl ? "فشلت المزامنة مع السحابة!" : "Cloud Sync Failed!",
+      message: isRtl
+        ? "تم حفظ التعديل على هذا الجهاز فقط، ولن يظهر على الأجهزة الأخرى. تحقق من: 1) نشر قواعد أمان Firestore الصحيحة، 2) تسجيل دخولك بحساب المسؤول، 3) اتصال الإنترنت — ثم أعد الحفظ."
+        : "The change was saved on THIS device only and will NOT appear on other devices. Please check: 1) Firestore security rules are published, 2) you are signed in as admin, 3) internet connection — then save again.",
+      type: 'sync_error'
+    });
+  };
+
   // CRUD PROJECT: Save Add or Edit
-  const handleSaveProject = (e: React.FormEvent) => {
+  const handleSaveProject = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (editingProject) {
@@ -573,8 +599,13 @@ export default function AdminPanel({
         }
         return p;
       });
-      setProjects(updated);
+      const cloudOk = await setProjects(updated);
       localStorage.setItem('malek_projects', JSON.stringify(updated));
+      if (!cloudOk) {
+        showSyncError();
+        closeProjectUI();
+        return;
+      }
       setSavedConfirmModal({
         isOpen: true,
         title: isRtl ? "تعديل مشروع" : "Project Updated",
@@ -599,8 +630,13 @@ export default function AdminPanel({
         sortOrder: Number(pOrder),
       };
       const updated = [...projects, newProj];
-      setProjects(updated);
+      const cloudOk = await setProjects(updated);
       localStorage.setItem('malek_projects', JSON.stringify(updated));
+      if (!cloudOk) {
+        showSyncError();
+        closeProjectUI();
+        return;
+      }
       setSavedConfirmModal({
         isOpen: true,
         title: isRtl ? "إضافة مشروع جديد" : "New Project Added",
@@ -659,13 +695,17 @@ export default function AdminPanel({
     setAiFormulateError('');
   };
 
-  const handleDeleteProject = (id: string) => {
+  const handleDeleteProject = async (id: string) => {
     const proj = projects.find(p => p.id === id);
     const title = proj ? (isRtl ? proj.titleAr : proj.titleEn) : '';
     if (window.confirm(t.adminDeleteConfirm)) {
       const updated = projects.filter(p => p.id !== id);
-      setProjects(updated);
+      const cloudOk = await setProjects(updated);
       localStorage.setItem('malek_projects', JSON.stringify(updated));
+      if (!cloudOk) {
+        showSyncError();
+        return;
+      }
       setSavedConfirmModal({
         isOpen: true,
         title: isRtl ? "حذف مشروع" : "Project Removed",
@@ -676,7 +716,7 @@ export default function AdminPanel({
   };
 
   // CRUD SERVICE: Save Edit or Create
-  const handleSaveService = (e: React.FormEvent) => {
+  const handleSaveService = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (isCreatingService) {
@@ -690,9 +730,13 @@ export default function AdminPanel({
       };
       
       const updated = [...services, newService];
-      setServices(updated);
+      const cloudOk = await setServices(updated);
       localStorage.setItem('malek_services', JSON.stringify(updated));
       setIsCreatingService(false);
+      if (!cloudOk) {
+        showSyncError();
+        return;
+      }
       
       // Reset fields
       setSTitleAr('');
@@ -726,22 +770,30 @@ export default function AdminPanel({
       return s;
     });
 
-    setServices(updated);
-    localStorage.setItem('malek_services', JSON.stringify(updated));
-    setEditingService(null);
-    setSavedConfirmModal({
-      isOpen: true,
-      title: isRtl ? "تعديل الخدمة" : "Service Updated",
+      const cloudOk = await setServices(updated);
+      localStorage.setItem('malek_services', JSON.stringify(updated));
+      setEditingService(null);
+      if (!cloudOk) {
+        showSyncError();
+        return;
+      }
+      setSavedConfirmModal({
+        isOpen: true,
+        title: isRtl ? "تعديل الخدمة" : "Service Updated",
       message: isRtl ? `تم بنجاح تحديث مواصفات وتفاصيل خدمة "${sTitleAr || sTitleEn}" وتعميمها على واجهات العرض!` : `Service "${sTitleEn || sTitleAr}" features have been successfully saved into live system!`,
       type: 'service_updated'
     });
   };
 
-  const handleDeleteService = (id: string, name: string) => {
+  const handleDeleteService = async (id: string, name: string) => {
     if (window.confirm(isRtl ? `هل أنت متأكد من رغبتك في حذف وإزالة خدمة "${name}" نهائياً من العرض؟` : `Are you sure you want to permanently delete "${name}" from your services list?`)) {
       const updated = services.filter(s => s.id !== id);
-      setServices(updated);
+      const cloudOk = await setServices(updated);
       localStorage.setItem('malek_services', JSON.stringify(updated));
+      if (!cloudOk) {
+        showSyncError();
+        return;
+      }
       setSavedConfirmModal({
         isOpen: true,
         title: isRtl ? "حذف خدمة" : "Service Deleted",
@@ -762,7 +814,7 @@ export default function AdminPanel({
   };
 
   // CRUD CONFIG: Save global text and advanced dynamic specifications
-  const handleSaveConfig = (e: React.FormEvent) => {
+  const handleSaveConfig = async (e: React.FormEvent) => {
     e.preventDefault();
     const updated: SiteConfig = {
       ...config,
@@ -803,25 +855,34 @@ export default function AdminPanel({
       customFontFamily: cCustomFamily,
       customFontUrl: cCustomUrl,
     };
-    setConfig(updated);
+    // Persist locally AND to the cloud; the confirmation reflects the REAL sync result.
+    const cloudOk = await setConfig(updated);
     localStorage.setItem('malek_config', JSON.stringify(updated));
+    if (!cloudOk) {
+      showSyncError();
+      return;
+    }
     setSavedConfirmModal({
       isOpen: true,
       title: isRtl ? "تحديث الهوية والإعدادات" : "Configurations Saved",
       message: isRtl 
-        ? "تم حفظ وتعميم نصوص الموقع، الألوان، الأصول البصرية، نسب الإنجاز والمعلومات الشخصية بنجاح تام!" 
-        : "Brand details, colors, custom backdrops, social matrices and milestones updated successfully!",
+        ? "تم حفظ ومزامنة نصوص الموقع، الألوان، الأصول البصرية، نسب الإنجاز والمعلومات الشخصية مع السحابة بنجاح — ستظهر الآن على جميع الأجهزة!" 
+        : "Brand details, colors, custom backdrops, social matrices and milestones synced to the cloud — now visible on all devices!",
       type: 'config_saved'
     });
   };
 
   // CRUD MESSAGES: Delete message entries
-  const handleDeleteMessage = (id: string) => {
+  const handleDeleteMessage = async (id: string) => {
     const msg = messages.find(m => m.id === id);
     const sender = msg ? msg.name : '';
     const updated = messages.filter(m => m.id !== id);
-    setMessages(updated);
+    const cloudOk = await setMessages(updated);
     localStorage.setItem('malek_messages', JSON.stringify(updated));
+    if (!cloudOk) {
+      showSyncError();
+      return;
+    }
     setSavedConfirmModal({
       isOpen: true,
       title: isRtl ? "حذف رسالة العميل" : "Lead Deleted",
@@ -3340,9 +3401,15 @@ export default function AdminPanel({
                 {/* Visual Accent Circle glow */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-[#EA580C]/20 blur-3xl rounded-full -z-10" />
 
-                <div className="mx-auto w-14 h-14 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center mb-5 animate-pulse">
-                  <CheckCircle className="w-7 h-7 text-green-400" />
-                </div>
+                {savedConfirmModal.type === 'sync_error' ? (
+                  <div className="mx-auto w-14 h-14 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mb-5 animate-pulse">
+                    <AlertTriangle className="w-7 h-7 text-red-400" />
+                  </div>
+                ) : (
+                  <div className="mx-auto w-14 h-14 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center mb-5 animate-pulse">
+                    <CheckCircle className="w-7 h-7 text-green-400" />
+                  </div>
+                )}
 
                 <h3 className="text-base sm:text-lg font-extrabold text-white mb-2">
                   {savedConfirmModal.title}
@@ -3361,15 +3428,24 @@ export default function AdminPanel({
                         savedConfirmModal.type === 'project_updated' ? 'تعديل وحفظ بيانات مشروع قائمة الذخيرة' :
                         savedConfirmModal.type === 'service_updated' ? 'تعديل وحفظ ميزات خدمة العرض' :
                         savedConfirmModal.type === 'config_saved' ? 'تعديل هوية وألوان الإنجاز البصرية الفورية' :
-                        savedConfirmModal.type === 'deleted' ? 'إزالة وحذف نهائي من قاعدة البيانات' : 'عملية تعديل بيانات النظام'
+                        savedConfirmModal.type === 'deleted' ? 'إزالة وحذف نهائي من قاعدة البيانات' :
+                        savedConfirmModal.type === 'sync_error' ? 'فشل اتصال بقاعدة البيانات السحابية' : 'عملية تعديل بيانات النظام'
                       }</p>
-                      <p className="mt-1">● حالة العملية: ناجحة ومحفوظة بنجاح (Local Storage Verified)</p>
+                      <p className="mt-1">● حالة العملية: {
+                        savedConfirmModal.type === 'sync_error'
+                          ? 'فشلت المزامنة السحابية — محفوظ محلياً فقط (LOCAL ONLY)'
+                          : 'ناجحة ومُزامنة مع قاعدة البيانات السحابية (Firestore Cloud Verified)'
+                      }</p>
                     </div>
                   ) : (
                     <div>
                       <p className="font-sans font-bold text-accent mb-1">OPERATION METRICS:</p>
                       <p>● Event Node Type: {savedConfirmModal.type.toUpperCase()}</p>
-                      <p className="mt-1">● Status Code: PERSISTED_SUCCESSFULLY (Local Storage Synced)</p>
+                      <p className="mt-1">● Status Code: {
+                        savedConfirmModal.type === 'sync_error'
+                          ? 'CLOUD_SYNC_FAILED (Persisted Locally Only)'
+                          : 'CLOUD_SYNCED_SUCCESSFULLY (Firestore Verified)'
+                      }</p>
                     </div>
                   )}
                 </div>
