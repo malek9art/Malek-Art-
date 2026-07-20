@@ -434,7 +434,7 @@ export default function App() {
       {/* Subtle Animated Grid Pattern Overlay */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern animate-grid-slow opacity-30"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#07051b_85%)] opacity-90"></div>
+        <div className="absolute inset-0 bg-vignette opacity-90"></div>
       </div>
 
       {/* 1. Navbar */}
@@ -593,8 +593,8 @@ export default function App() {
                     {(config?.logoTextEn || 'Malek')[0].toUpperCase()}
                   </div>
                 )}
-                <span className="text-lg font-extrabold tracking-widest uppercase bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
-                  {config?.logoTextAr && isRtl ? config.logoTextAr : (config?.logoTextEn || 'MALEK LOGIC')}
+                <span className="text-lg font-extrabold tracking-widest uppercase brand-gradient">
+                  {(config?.logoTextEn || 'MALEK LOGIC')}
                 </span>
               </div>
               <p className="text-xs text-gray-400 leading-relaxed max-w-sm">
