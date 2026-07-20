@@ -31,29 +31,105 @@
   --color-accent-dim: var(--color-accent-dim, rgba(234, 88, 12, 0.15));
 }
 
+/* =====================================================================
+   THEME TOKENS
+   Dark = default (identical to the original look).
+   Light = opt-in via <html class="light">.
+   ===================================================================== */
+:root {
+  --page-bg:        #07051b;
+  --page-bg-solid:  #07051b;
+  --footer-bg:      #040212;
+  --nav-bg:         rgba(11, 10, 26, 0.85);
+  --nav-solid:      #090816;
+  --text-strong:    #ffffff;
+  --text-muted:     rgba(255, 255, 255, 0.72);
+  --surface:        rgba(255, 255, 255, 0.05);
+  --surface-2:      rgba(255, 255, 255, 0.08);
+  --border-soft:    rgba(255, 255, 255, 0.10);
+  --grid-line:      rgba(255, 255, 255, 0.025);
+  --vignette:       #07051b;
+  --scroll-track:   #07051b;
+  --scroll-thumb:   #1e1b4b;
+  --font-active:    var(--font-sans);
+  color-scheme: dark;
+}
+
+html.light {
+  --page-bg:        #eef1f8;
+  --page-bg-solid:  #eef1f8;
+  --footer-bg:      #e7ebf4;
+  --nav-bg:         rgba(255, 255, 255, 0.80);
+  --nav-solid:      #ffffff;
+  --text-strong:    #0f172a;
+  --text-muted:     #475569;
+  --surface:        rgba(15, 23, 42, 0.04);
+  --surface-2:      rgba(15, 23, 42, 0.06);
+  --border-soft:    rgba(15, 23, 42, 0.12);
+  --grid-line:      rgba(15, 23, 42, 0.05);
+  --vignette:       #eef1f8;
+  --scroll-track:   #e2e8f0;
+  --scroll-thumb:   #9aa6b8;
+  color-scheme: light;
+}
+
+/* ===== Base typography & rendering ===== */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+  font-family: var(--font-active, var(--font-sans));
+  background: var(--page-bg-solid);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--page-bg-solid);
+  color: var(--text-strong);
+  letter-spacing: 0.005em;
+}
+
+/* Smooth theme transition on structural surfaces (enabled after first paint).
+   Scoped — does NOT override component hover transitions (scale/opacity). */
+html.theme-ready,
+html.theme-ready body,
+html.theme-ready nav,
+html.theme-ready header,
+html.theme-ready section,
+html.theme-ready footer,
+html.theme-ready .bg-grid-pattern,
+html.theme-ready .bg-vignette,
+html.theme-ready .bg-white\/5,
+html.theme-ready .bg-white\/10,
+html.theme-ready .bg-white\/15,
+html.theme-ready .bg-black\/30,
+html.theme-ready .bg-black\/40,
+html.theme-ready .bg-\[\#07051b\],
+html.theme-ready .bg-\[\#040316\],
+html.theme-ready .bg-\[\#040212\],
+html.theme-ready .bg-\[\#0b0a1a\]\/85,
+html.theme-ready .bg-\[\#090816\]\/95 {
+  transition: background-color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Custom globally eye-safe scrollbar rules */
 ::-webkit-scrollbar {
   width: 8px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #07051b;
+  background: var(--scroll-track);
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #1e1b4b;
+  background: var(--scroll-thumb);
   border-radius: 999px;
-  border: 2px solid #07051b;
+  border: 2px solid var(--scroll-track);
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: #4f46e5;
-}
-
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 80px;
-  font-family: var(--font-sans);
 }
 
 @keyframes grid-move {
@@ -67,11 +143,139 @@ html {
 
 .bg-grid-pattern {
   background-size: 40px 40px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
 }
 
 .animate-grid-slow {
   animation: grid-move 30s linear infinite;
 }
+
+/* Theme-aware radial vignette overlay (replaces a hard-coded dark gradient) */
+.bg-vignette {
+  background: radial-gradient(circle at center, transparent 20%, var(--vignette) 85%);
+}
+
+/* Theme-aware brand wordmark gradient */
+.brand-gradient {
+  background: linear-gradient(to right, #ffffff, #d1d5db);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+html.light .brand-gradient {
+  background: linear-gradient(to right, #0f172a, #475569);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* =====================================================================
+   LIGHT MODE OVERRIDES
+   All rules below are scoped to html.light ONLY.
+   Dark mode (default) is 100% unchanged.
+   ===================================================================== */
+
+/* --- Solid dark backgrounds -> light --- */
+html.light .bg-\[\#07051b\],
+html.light .bg-\[\#040316\],
+html.light .bg-\[\#040212\],
+html.light .bg-\[\#090816\],
+html.light .bg-\[\#0b0a1a\],
+html.light .bg-\[\#121125\] { background-color: var(--page-bg-solid) !important; }
+
+html.light .bg-\[\#0b0a1a\]\/85,
+html.light .bg-\[\#090816\]\/95 { background-color: var(--nav-bg) !important; }
+
+html.light .bg-\[\#1e1b4b\]\/20,
+html.light .bg-\[\#1e1b4b\]\/30,
+html.light .bg-\[\#1e1b4b\]\/40 { background-color: var(--surface-2) !important; }
+
+/* --- Translucent white panels -> soft dark-on-light surfaces --- */
+html.light .bg-white\/5 { background-color: var(--surface) !important; }
+html.light .bg-white\/10,
+html.light .bg-white\/15,
+html.light .bg-white\/20 { background-color: var(--surface-2) !important; }
+
+/* --- Black-tinted fields/inputs -> light cards --- */
+html.light .bg-black\/10,
+html.light .bg-black\/15,
+html.light .bg-black\/20 { background-color: rgba(15, 23, 42, 0.03) !important; }
+html.light .bg-black\/25,
+html.light .bg-black\/30,
+html.light .bg-black\/35 { background-color: rgba(15, 23, 42, 0.04) !important; }
+html.light .bg-black\/40,
+html.light .bg-black\/50,
+html.light .bg-black\/60 { background-color: #ffffff !important; }
+
+/* --- Indigo-tinted surfaces --- */
+html.light .bg-indigo-500\/10,
+html.light .bg-indigo-500\/20,
+html.light .bg-indigo-950\/20 { background-color: rgba(79, 70, 229, 0.08) !important; }
+
+/* --- Borders -> soft slate --- */
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20,
+html.light .border-white\/25,
+html.light .border-white\/30,
+html.light .border-white\/50 { border-color: var(--border-soft) !important; }
+html.light .border-indigo-500\/5,
+html.light .border-indigo-500\/10,
+html.light .border-indigo-500\/15,
+html.light .border-indigo-500\/20 { border-color: var(--border-soft) !important; }
+
+/* --- Muted text -> readable slate --- */
+html.light .text-gray-200,
+html.light .text-gray-300,
+html.light .text-gray-400,
+html.light .text-gray-500,
+html.light .text-gray-600 { color: var(--text-muted) !important; }
+
+html.light .text-white\/30,
+html.light .text-white\/40,
+html.light .text-white\/50,
+html.light .text-white\/55,
+html.light .text-white\/60,
+html.light .text-white\/65,
+html.light .text-white\/70,
+html.light .text-white\/80,
+html.light .text-white\/90 { color: var(--text-muted) !important; }
+
+/* --- Accent text colors -> darker shades for light-bg contrast --- */
+html.light .text-indigo-300,
+html.light .text-indigo-400 { color: #4f46e5 !important; }
+html.light .text-emerald-400 { color: #059669 !important; }
+html.light .text-green-400 { color: #16a34a !important; }
+
+/* --- Solid white text -> dark by default in light mode --- */
+html.light .text-white { color: var(--text-strong); }
+
+/* ...but keep white text on solid colored fills (buttons, badges, gradients) */
+html.light .bg-accent.text-white,
+html.light .bg-accent .text-white,
+html.light .bg-\[\#EA580C\].text-white,
+html.light .bg-\[\#EA580C\] .text-white,
+html.light .bg-orange-500.text-white,
+html.light .bg-orange-500 .text-white,
+html.light .bg-indigo-600.text-white,
+html.light .bg-indigo-600 .text-white,
+html.light .bg-indigo-500.text-white,
+html.light .bg-indigo-500 .text-white,
+html.light .bg-emerald-500.text-white,
+html.light .bg-emerald-500 .text-white,
+html.light .bg-green-500.text-white,
+html.light .bg-green-500 .text-white,
+html.light .bg-red-500.text-white,
+html.light .bg-red-500 .text-white,
+html.light .bg-yellow-500.text-white,
+html.light .bg-yellow-500 .text-white,
+html.light [class*="bg-gradient-to"].text-white,
+html.light [class*="bg-gradient-to"] .text-white { color: #ffffff; }
+
+/* --- Selection --- */
+html.light ::selection { background: #EA580C; color: #ffffff; }

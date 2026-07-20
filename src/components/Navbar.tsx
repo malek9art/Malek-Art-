@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Menu, X, Globe, Shield, LogOut, Home, User, Briefcase, FolderGit2, Sparkles, Mail } from 'lucide-react';
+import { Menu, X, Globe, Shield, LogOut, Home, User, Briefcase, FolderGit2, Sparkles, Mail, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useTheme } from '../theme/useTheme';
 
 interface NavbarProps {
   currentLang: 'ar' | 'en';
@@ -28,6 +29,7 @@ export default function Navbar({
   config,
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { theme, toggle: toggleTheme } = useTheme();
 
   const navItems = [
     { id: 'home', label: t.navHome, icon: Home },
@@ -109,7 +111,7 @@ export default function Navbar({
               </div>
             )}
             <span className="text-sm sm:text-base font-bold text-white tracking-widest uppercase font-sans">
-              {config?.logoTextAr && isRtl ? config.logoTextAr : (config?.logoTextEn || 'MALEK LOGIC')} <span className="text-indigo-400">|</span> {isRtl ? 'الرئيسية' : 'PORTFOLIO'}
+              {(config?.logoTextEn || 'MALEK LOGIC')} <span className="text-indigo-400">|</span> {isRtl ? 'الرئيسية' : 'PORTFOLIO'}
             </span>
           </div>
 
@@ -137,6 +139,20 @@ export default function Navbar({
 
             {/* Action Triggers */}
             <div className="flex items-center gap-2">
+              {/* Theme Switcher (Day/Night) */}
+              <button
+                onClick={toggleTheme}
+                id="theme-toggle-btn"
+                className="px-3 py-1.5 rounded-full border border-white/20 bg-white/5 text-gray-300 hover:text-white transition-all duration-300 flex items-center gap-1.5 text-xs font-mono"
+                title={theme === 'light' ? (isRtl ? 'التبديل للوضع الداكن' : 'Switch to Dark mode') : (isRtl ? 'التبديل للوضع النهاري' : 'Switch to Light mode')}
+                aria-label="Toggle color theme"
+              >
+                {theme === 'light'
+                  ? <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                  : <Sun className="w-3.5 h-3.5 text-orange-400" />}
+                <span>{theme === 'light' ? (isRtl ? 'داكن' : 'Dark') : (isRtl ? 'نهاري' : 'Light')}</span>
+              </button>
+
               {/* Language Switcher */}
               <button
                 onClick={toggleLanguage}
@@ -178,6 +194,17 @@ export default function Navbar({
 
           {/* Mobile hamburger button */}
           <div className="flex md:hidden items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-gray-300 hover:text-white transition-all duration-200 flex items-center gap-1 text-xs"
+              aria-label="Toggle color theme"
+            >
+              {theme === 'light'
+                ? <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                : <Sun className="w-3.5 h-3.5 text-orange-400" />}
+              <span>{theme === 'light' ? (isRtl ? 'داكن' : 'Dark') : (isRtl ? 'نهاري' : 'Light')}</span>
+            </button>
+
             <button
               onClick={toggleLanguage}
               className="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-gray-300 hover:text-white transition-all duration-200 flex items-center gap-1 text-xs"

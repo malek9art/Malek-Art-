@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Shield, Key, Grid, Layout, Layers, FileText, Trash2, Edit3, Plus, CheckCircle, AlertTriangle, LogOut, FileCode, Mail, Trash, Sparkles, Brain, Star, CheckCheck, Landmark } from 'lucide-react';
-import { Project, Service, ContactMessage, SiteConfig, SocialLink, SmartDesignRequest, Skill, ClientReview, AdminUser } from '../types';
-import { getAdminUserDB, saveAdminUserDB } from '../lib/dbService';
+import { Project, Service, ContactMessage, SiteConfig, SocialLink, SmartDesignRequest, Skill, ClientReview, AdminUser, CustomFontData } from '../types';
+import { getAdminUserDB, saveAdminUserDB, saveCustomFontDB, clearCustomFontDB } from '../lib/dbService';
+import { compressImage, ImageValidationError } from '../lib/imageCompress';
+import { FONT_OPTIONS, CUSTOM_FONT_ID, applyFont, getFontById, injectCustomFontFaces, fontFormat, readFileAsDataUrl } from '../lib/fonts';
 import { useAuth } from '../auth/authContext';
 
 interface AdminPanelProps {
@@ -238,6 +240,18 @@ export default function AdminPanel({
   const [cLogoEn, setCLogoEn] = useState(config.logoTextEn || '');
   const [cAccent, setCAccent] = useState(config.accentColor || '#EA580C');
 
+  // Global typography selector state
+  const [cFont, setCFont] = useState(config.fontFamily || 'thmanyah-sans');
+  const [cCustomFamily, setCCustomFamily] = useState(config.customFontFamily || '');
+  const [cCustomUrl, setCCustomUrl] = useState(config.customFontUrl || '');
+
+  // Custom font file upload state (Regular / Medium / Bold)
+  const [cfRegular, setCfRegular] = useState<File | null>(null);
+  const [cfMedium, setCfMedium] = useState<File | null>(null);
+  const [cfBold, setCfBold] = useState<File | null>(null);
+  const [customFontStatus, setCustomFontStatus] = useState<string>('');
+  const [cfUploading, setCfUploading] = useState(false);
+
   // Custom Social links
   const [cSocFB, setCSocFB] = useState(config.socialFacebook || '');
   const [cSocTW, setCSocTW] = useState(config.socialTwitter || '');
@@ -356,6 +370,9 @@ export default function AdminPanel({
       setCLogoAr(config.logoTextAr || '');
       setCLogoEn(config.logoTextEn || '');
       setCAccent(config.accentColor || '#EA580C');
+      setCFont(config.fontFamily || 'thmanyah-sans');
+      setCCustomFamily(config.customFontFamily || '');
+      setCCustomUrl(config.customFontUrl || '');
 
       setCSocFB(config.socialFacebook || '');
       setCSocTW(config.socialTwitter || '');
@@ -377,6 +394,30 @@ export default function AdminPanel({
       setcAIPromptEn(config.aiCustomPromptEn || '');
     }
   }, [config]);
+
+  // Load any previously uploaded custom font from local storage on mount.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('malek_custom_font');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data?.family) {
+          setCustomFontStatus(data.family);
+          injectCustomFontFaces(data);
+        }
+      }
+    } catch {}
+  }, []);
+
+  // Live font preview while editing; restores the saved font on unmount.
+  useEffect(() => {
+    applyFont({ fontFamily: cFont, customFontFamily: cCustomFamily });
+    return () =>
+      applyFont({
+        fontFamily: config.fontFamily,
+        customFontFamily: config.customFontFamily,
+      });
+  }, [cFont, cCustomFamily]);
 
   const [feedback, setFeedback] = useState('');
   const isRtl = currentLang === 'ar';
@@ -444,6 +485,61 @@ export default function AdminPanel({
   const handleLogout = async () => {
     await authLogout();
     setIsLoggedIn(false);
+  };
+
+  // Upload custom font files (Regular/Medium/Bold) from the admin panel and apply site-wide.
+  const handleUploadCustomFont = async () => {
+    if (!cCustomFamily.trim()) {
+      showFeedback(isRtl ? '⚠ الرجاء إدخال اسم عائلة الخط أولًا.' : '⚠ Please enter a font family name first.');
+      return;
+    }
+    if (!cfRegular && !cfMedium && !cfBold) {
+      showFeedback(isRtl ? '⚠ اختر ملف خط واحد على الأقل (يُفضّل Regular).' : '⚠ Pick at least one font file (Regular preferred).');
+      return;
+    }
+    setCfUploading(true);
+    try {
+      const build = async (f: File | null) =>
+        f ? { src: await readFileAsDataUrl(f), fmt: fontFormat(f.name) } : undefined;
+      const data: CustomFontData = {
+        family: cCustomFamily.trim(),
+        regular: await build(cfRegular),
+        medium: await build(cfMedium),
+        bold: await build(cfBold),
+        uploadedAt: new Date().toISOString(),
+      };
+      await saveCustomFontDB(data);
+      localStorage.setItem('malek_custom_font', JSON.stringify(data));
+      injectCustomFontFaces(data);
+      applyFont({ fontFamily: CUSTOM_FONT_ID, customFontFamily: data.family });
+      setCustomFontStatus(data.family);
+      setConfig({ ...config, fontFamily: CUSTOM_FONT_ID, customFontFamily: data.family } as SiteConfig);
+      setCFont(CUSTOM_FONT_ID);
+      setCfRegular(null);
+      setCfMedium(null);
+      setCfBold(null);
+      showFeedback(isRtl ? `✓ تم رفع الخط «${data.family}» وتطبيقه على كامل الموقع` : `✓ Font "${data.family}" uploaded & applied site-wide`);
+    } catch (e: any) {
+      console.error('Custom font upload error:', e);
+      showFeedback(isRtl ? '⚠ تعذّر رفع الخط. تأكد من الاتصال وحجم الملف (أقل من ~400KB).' : '⚠ Failed to upload the font. Check connection and file size (< ~400KB).');
+    } finally {
+      setCfUploading(false);
+    }
+  };
+
+  const handleRemoveCustomFont = async () => {
+    if (!window.confirm(isRtl ? 'حذف الخط المرفوع والعودة للخط الافتراضي؟' : 'Remove the uploaded font and revert to default?')) return;
+    try {
+      await clearCustomFontDB();
+      localStorage.removeItem('malek_custom_font');
+      injectCustomFontFaces(null);
+      setCustomFontStatus('');
+      setConfig({ ...config, fontFamily: 'thmanyah-sans', customFontFamily: '' } as SiteConfig);
+      setCFont('thmanyah-sans');
+      showFeedback(isRtl ? '✓ تم حذف الخط المرفوع' : '✓ Uploaded font removed');
+    } catch (e: any) {
+      showFeedback(isRtl ? '⚠ تعذّر حذف الخط' : '⚠ Failed to remove font');
+    }
   };
 
   const showFeedback = (text: string) => {
@@ -703,6 +799,9 @@ export default function AdminPanel({
       stat3LabelEn: cStat3LabelEn,
       aiCustomPromptAr: cAIPromptAr,
       aiCustomPromptEn: cAIPromptEn,
+      fontFamily: cFont,
+      customFontFamily: cCustomFamily,
+      customFontUrl: cCustomUrl,
     };
     setConfig(updated);
     localStorage.setItem('malek_config', JSON.stringify(updated));
@@ -1193,17 +1292,26 @@ export default function AdminPanel({
                           type="file"
                           accept="image/*"
                           onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onload = () => {
-                                if (typeof reader.result === 'string') {
-                                  setPImage(reader.result);
-                                  showFeedback(isRtl ? "تم تحميل وتحديث صورة المشروع بنجاح!" : "Project image uploaded and updated!");
-                                }
-                              };
-                              reader.readAsDataURL(file);
-                            }
+                            const input = e.target;
+                            const file = input.files?.[0];
+                            if (!file) return;
+                            (async () => {
+                              try {
+                                const { dataUrl, bytes } = await compressImage(file);
+                                setPImage(dataUrl);
+                                const kb = Math.round(bytes / 1024);
+                                showFeedback(isRtl
+                                  ? `✓ تم ضغط وتحديث صورة المشروع بنجاح (${kb}KB مضغوط)`
+                                  : `✓ Project image compressed & updated (${kb}KB)`);
+                              } catch (err: any) {
+                                const msg = err instanceof ImageValidationError
+                                  ? err.message
+                                  : (isRtl ? 'تعذّر معالجة الصورة، جرّب صورة أخرى.' : 'Could not process the image, try another.');
+                                showFeedback(`⚠ ${msg}`);
+                              } finally {
+                                input.value = '';
+                              }
+                            })();
                           }}
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         />
@@ -1707,6 +1815,115 @@ export default function AdminPanel({
                         />
                       </div>
                     </div>
+
+                    {/* GLOBAL TYPOGRAPHY / FONT FAMILY SELECTOR */}
+                    <div className="mt-6 pt-4 border-t border-white/5">
+                      <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">
+                        {isRtl ? 'نوع الخط العام للموقع (Typography)' : 'Global Website Font (Typography)'}
+                      </label>
+                      <select
+                        value={cFont}
+                        onChange={(e) => setCFont(e.target.value)}
+                        className="w-full text-xs sm:text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white focus:outline-none focus:border-[#EA580C]"
+                      >
+                        {FONT_OPTIONS.map((f) => (
+                          <option key={f.id} value={f.id}>
+                            {isRtl ? f.labelAr : f.labelEn}
+                          </option>
+                        ))}
+                      </select>
+                      <p
+                        className="mt-2 text-base text-white/70"
+                        style={{ fontFamily: getFontById(cFont).family }}
+                      >
+                        {isRtl ? 'معاينة الخط: ' : 'Preview: '}
+                        <span className="font-bold">{getFontById(cFont).preview}</span>
+                      </p>
+                      <p className="text-[10px] text-white/40 mt-1.5 leading-relaxed">
+                        {isRtl
+                          ? 'التبديل يُطبَّق فورًا على كامل الواجهة (معاينة حيّة) ويُحفظ عند الضغط على «حفظ التغييرات».'
+                          : 'Switching previews instantly across the whole site and persists when you press Save.'}
+                      </p>
+
+                      {cFont === CUSTOM_FONT_ID && (
+                        <div className="mt-4 p-4 rounded-2xl bg-black/30 border border-white/10 space-y-3">
+                          <div>
+                            <label className="block text-[11px] font-semibold text-white/80 mb-1.5">
+                              {isRtl ? 'اسم عائلة الخط (Font Family)' : 'Font Family Name'}
+                            </label>
+                            <input
+                              type="text"
+                              value={cCustomFamily}
+                              onChange={(e) => setCCustomFamily(e.target.value)}
+                              placeholder="Thmanyah Serif Text"
+                              className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-2.5 text-white focus:outline-none font-mono"
+                            />
+                          </div>
+                          <p className="text-[10px] text-white/40 leading-relaxed">
+                            {isRtl
+                              ? 'ارفع ملفات الخط لكل وزن (الأفضل woff2). الحد الأقصى ~400KB لكل ملف لضمان قبول قاعدة البيانات.'
+                              : 'Upload a font file per weight (woff2 preferred). Max ~400KB each to stay within the database limit.'}
+                          </p>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-[10px] font-semibold text-white/60 mb-1">Regular (400)</label>
+                              <input
+                                type="file"
+                                accept=".woff2,.woff,.ttf,.otf"
+                                onChange={(e) => setCfRegular(e.target.files?.[0] || null)}
+                                className="w-full text-[10px] text-white/70 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#EA580C] file:text-white file:cursor-pointer cursor-pointer"
+                              />
+                              {cfRegular && <span className="text-[9px] text-emerald-400 block mt-1 truncate">{cfRegular.name}</span>}
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-semibold text-white/60 mb-1">Medium (500)</label>
+                              <input
+                                type="file"
+                                accept=".woff2,.woff,.ttf,.otf"
+                                onChange={(e) => setCfMedium(e.target.files?.[0] || null)}
+                                className="w-full text-[10px] text-white/70 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#EA580C] file:text-white file:cursor-pointer cursor-pointer"
+                              />
+                              {cfMedium && <span className="text-[9px] text-emerald-400 block mt-1 truncate">{cfMedium.name}</span>}
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-semibold text-white/60 mb-1">Bold (700)</label>
+                              <input
+                                type="file"
+                                accept=".woff2,.woff,.ttf,.otf"
+                                onChange={(e) => setCfBold(e.target.files?.[0] || null)}
+                                className="w-full text-[10px] text-white/70 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#EA580C] file:text-white file:cursor-pointer cursor-pointer"
+                              />
+                              {cfBold && <span className="text-[9px] text-emerald-400 block mt-1 truncate">{cfBold.name}</span>}
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={handleUploadCustomFont}
+                              disabled={cfUploading}
+                              className="px-4 py-2 rounded-full bg-[#EA580C] hover:bg-orange-500 text-white text-[11px] font-bold uppercase tracking-wider cursor-pointer transition-all disabled:opacity-50 flex items-center gap-1.5"
+                            >
+                              {cfUploading && <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>}
+                              <span>{isRtl ? 'رفع وتطبيق الخط' : 'Upload & Apply'}</span>
+                            </button>
+                            {customFontStatus && (
+                              <button
+                                type="button"
+                                onClick={handleRemoveCustomFont}
+                                className="px-4 py-2 rounded-full bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 text-[11px] font-bold uppercase tracking-wider cursor-pointer transition-all"
+                              >
+                                {isRtl ? 'حذف الخط المرفوع' : 'Remove uploaded font'}
+                              </button>
+                            )}
+                          </div>
+                          {customFontStatus && (
+                            <p className="text-[10px] text-emerald-400">
+                              {isRtl ? `✓ الخط الحالي المرفوع والمُطبَّق: ${customFontStatus}` : `✓ Currently uploaded & active: ${customFontStatus}`}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -1841,17 +2058,26 @@ export default function AdminPanel({
                               type="file"
                               accept="image/*"
                               onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  const reader = new FileReader();
-                                  reader.onload = () => {
-                                    if (typeof reader.result === 'string') {
-                                      setCProfile(reader.result);
-                                      showFeedback(isRtl ? "تم تحميل وتحديث صورة البروفايل بنجاح!" : "Image parsed and updated from local file!");
-                                    }
-                                  };
-                                  reader.readAsDataURL(file);
-                                }
+                                const input = e.target;
+                                const file = input.files?.[0];
+                                if (!file) return;
+                                (async () => {
+                                  try {
+                                    const { dataUrl, bytes } = await compressImage(file, { maxDim: 600, quality: 0.8 });
+                                    setCProfile(dataUrl);
+                                    const kb = Math.round(bytes / 1024);
+                                    showFeedback(isRtl
+                                      ? `✓ تم ضغط وتحديث صورة البروفايل (${kb}KB مضغوط)`
+                                      : `✓ Profile image compressed & updated (${kb}KB)`);
+                                  } catch (err: any) {
+                                    const msg = err instanceof ImageValidationError
+                                      ? err.message
+                                      : (isRtl ? 'تعذّر معالجة الصورة، جرّب صورة أخرى.' : 'Could not process the image, try another.');
+                                    showFeedback(`⚠ ${msg}`);
+                                  } finally {
+                                    input.value = '';
+                                  }
+                                })();
                               }}
                               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                             />
@@ -1913,17 +2139,26 @@ export default function AdminPanel({
                             type="file"
                             accept="image/*"
                             onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onload = () => {
-                                  if (typeof reader.result === 'string') {
-                                    setCLogoImg(reader.result);
-                                    showFeedback(isRtl ? "تم تحميل وتحديث صورة شعار العلامة بنجاح!" : "Brand Logo image parsed and updated from local file!");
-                                  }
-                                };
-                                reader.readAsDataURL(file);
-                              }
+                              const input = e.target;
+                              const file = input.files?.[0];
+                              if (!file) return;
+                              (async () => {
+                                try {
+                                  const { dataUrl, bytes } = await compressImage(file, { maxDim: 500, quality: 0.85 });
+                                  setCLogoImg(dataUrl);
+                                  const kb = Math.round(bytes / 1024);
+                                  showFeedback(isRtl
+                                    ? `✓ تم ضغط وتحديث شعار العلامة (${kb}KB مضغوط)`
+                                    : `✓ Brand logo compressed & updated (${kb}KB)`);
+                                } catch (err: any) {
+                                  const msg = err instanceof ImageValidationError
+                                    ? err.message
+                                    : (isRtl ? 'تعذّر معالجة الصورة، جرّب صورة أخرى.' : 'Could not process the image, try another.');
+                                  showFeedback(`⚠ ${msg}`);
+                                } finally {
+                                  input.value = '';
+                                }
+                              })();
                             }}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           />
@@ -1981,17 +2216,26 @@ export default function AdminPanel({
                             type="file"
                             accept="image/*"
                             onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onload = () => {
-                                  if (typeof reader.result === 'string') {
-                                    setCHeroBgImg(reader.result);
-                                    showFeedback(isRtl ? "تم تحديث صورة خلفية قسم الهيرو بنجاح!" : "Hero background backdrop parsed and updated!");
-                                  }
-                                };
-                                reader.readAsDataURL(file);
-                              }
+                              const input = e.target;
+                              const file = input.files?.[0];
+                              if (!file) return;
+                              (async () => {
+                                try {
+                                  const { dataUrl, bytes } = await compressImage(file, { maxDim: 1920, quality: 0.7 });
+                                  setCHeroBgImg(dataUrl);
+                                  const kb = Math.round(bytes / 1024);
+                                  showFeedback(isRtl
+                                    ? `✓ تم ضغط وتحديث خلفية الهيرو (${kb}KB مضغوط)`
+                                    : `✓ Hero background compressed & updated (${kb}KB)`);
+                                } catch (err: any) {
+                                  const msg = err instanceof ImageValidationError
+                                    ? err.message
+                                    : (isRtl ? 'تعذّر معالجة الصورة، جرّب صورة أخرى.' : 'Could not process the image, try another.');
+                                  showFeedback(`⚠ ${msg}`);
+                                } finally {
+                                  input.value = '';
+                                }
+                              })();
                             }}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           />
