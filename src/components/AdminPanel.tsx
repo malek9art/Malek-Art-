@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Shield, Key, Grid, Layout, Layers, FileText, Trash2, Edit3, Plus, CheckCircle, AlertTriangle, LogOut, FileCode, Mail, Trash, Sparkles, Brain, Star, CheckCheck, Landmark } from 'lucide-react';
 import { Project, Service, ContactMessage, SiteConfig, SocialLink, SmartDesignRequest, Skill, ClientReview, AdminUser } from '../types';
-import { getAdminUserDB, saveAdminUserDB, hashPassword } from '../lib/dbService';
+import { getAdminUserDB, saveAdminUserDB } from '../lib/dbService';
+import { useAuth } from '../auth/authContext';
 
 interface AdminPanelProps {
   currentLang: 'ar' | 'en';
@@ -378,8 +379,13 @@ export default function AdminPanel({
   }, [config]);
 
   const [feedback, setFeedback] = useState('');
-
   const isRtl = currentLang === 'ar';
+
+  const { user: authUser, isAuthenticated, login: authLogin, logout: authLogout } = useAuth();
+
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated);
+  }, [isAuthenticated, setIsLoggedIn]);
 
   const handleVerifyEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -388,32 +394,12 @@ export default function AdminPanel({
     setIsVerifying(true);
     setPassError('');
     try {
-      let admin = await getAdminUserDB(emailKey);
-      
-      // Dynamic on-the-fly seeding for known admin emails to prevent lockouts
-      if (!admin && (emailKey === 'malikalwesabi@gmail.com' || emailKey === 'admin@malek.art' || emailKey === 'admin@malek')) {
-        const defaultAdmin: AdminUser = {
-          email: emailKey,
-          passwordHash: "", // No password set initially
-          isFirstLogin: true,
-          createdAt: new Date().toISOString()
-        };
-        await saveAdminUserDB(defaultAdmin);
-        admin = defaultAdmin;
+      const designatedAdmin = (import.meta.env.VITE_ADMIN_EMAIL || "malikalwesabi@gmail.com").toLowerCase().trim();
+      if (emailKey !== designatedAdmin && emailKey !== 'admin@malek.art' && emailKey !== 'admin@malek') {
+        setPassError(isRtl ? 'البريد الإلكتروني المدخل غير مخصص للمسؤول.' : 'The entered email is not designated as administrator.');
+        return;
       }
-
-      if (!admin) {
-        setPassError(isRtl ? 'هذا البريد الإلكتروني غير مصادق عليه في قاعدة البيانات.' : 'This email is not registered/authenticated as administrator in the database.');
-      } else {
-        setFoundAdmin(admin);
-        if (admin.isFirstLogin || !admin.passwordHash) {
-          setLoginStep('setPassword');
-        } else {
-          setLoginStep('enterPassword');
-        }
-      }
-    } catch (error) {
-      setPassError(isRtl ? 'حدث خطأ أثناء التحقق من قاعدة البيانات.' : 'An error occurred during database lookup.');
+      setLoginStep('enterPassword');
     } finally {
       setIsVerifying(false);
     }
@@ -421,53 +407,43 @@ export default function AdminPanel({
 
   const handleSetupPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPassword.trim() || !confirmPassword.trim()) return;
-    if (newPassword.length < 6) {
-      setPassError(isRtl ? 'يجب أن تكون كلمة المرور 6 أحرف على الأقل.' : 'Password must be at least 6 characters.');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setPassError(isRtl ? 'كلمتا المرور غير متطابقتين.' : 'Passwords do not match.');
-      return;
-    }
+    setPassError(isRtl 
+      ? 'إدارة الحسابات وكلمات المرور تتم الآن حصرياً عبر كونسول Firebase Authentication الرسمية.' 
+      : 'User accounts and password setup are managed directly in the official Firebase Authentication Console.');
+  };
+
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!password.trim() || !adminEmail.trim()) return;
     setIsVerifying(true);
     setPassError('');
     try {
-      const hash = await hashPassword(newPassword);
-      const updatedAdmin: AdminUser = {
-        email: adminEmail.toLowerCase().trim(),
-        passwordHash: hash,
-        isFirstLogin: false,
-        createdAt: foundAdmin?.createdAt || new Date().toISOString()
-      };
-      await saveAdminUserDB(updatedAdmin);
-      setIsLoggedIn(true);
-      showFeedback(isRtl ? 'تم إعداد وتأكيد كلمة المرور بنجاح!' : 'Your admin password was set successfully!');
-    } catch (error) {
-      setPassError(isRtl ? 'حدث خطأ أثناء حفظ كلمة المرور.' : 'An error occurred while saving password.');
+      const result = await authLogin(adminEmail.trim(), password);
+      if (result.success) {
+        if (result.user?.role !== 'admin') {
+          setPassError(isRtl 
+            ? 'تم التحقق بنجاح ولكن الحساب لا يملك دور مسؤول (Admin Role) في قاعدة البيانات.' 
+            : 'Authenticated successfully, but account lacks Admin Role in database.');
+          await authLogout();
+          return;
+        }
+        setIsLoggedIn(true);
+        setPassError('');
+      } else {
+        setPassError(isRtl 
+          ? `تعذر الدخول بـ Firebase Auth: ${result.error || 'تأكد من وجود البريد في Firebase Authentication وإدخال كلمة المرور الصحيحة.'}` 
+          : (result.error || 'Firebase Authentication failed. Verify user exists in Firebase Auth console and password is correct.'));
+      }
+    } catch (error: any) {
+      setPassError(isRtl ? 'حدث خطأ أثناء إجراء المصادقة عبر Firebase.' : 'An error occurred contacting Firebase Auth.');
     } finally {
       setIsVerifying(false);
     }
   };
 
-  const handlePasswordLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!password.trim() || !foundAdmin) return;
-    setIsVerifying(true);
-    setPassError('');
-    try {
-      const hash = await hashPassword(password);
-      if (hash === foundAdmin.passwordHash) {
-        setIsLoggedIn(true);
-        setPassError('');
-      } else {
-        setPassError(isRtl ? 'كلمة المرور غير صحيحة.' : 'Incorrect password.');
-      }
-    } catch (error) {
-      setPassError(isRtl ? 'حدث خطأ أثناء تسجيل الدخول.' : 'An error occurred during verification.');
-    } finally {
-      setIsVerifying(false);
-    }
+  const handleLogout = async () => {
+    await authLogout();
+    setIsLoggedIn(false);
   };
 
   const showFeedback = (text: string) => {
@@ -999,7 +975,7 @@ export default function AdminPanel({
 
           {/* Quick exit button */}
           <button
-            onClick={() => setIsLoggedIn(false)}
+            onClick={handleLogout}
             id="admin-exit-vault"
             className="px-4 py-2 text-xs font-semibold border border-white/10 rounded-full text-gray-300 hover:text-white hover:bg-white/5 flex items-center gap-1.5 cursor-pointer"
           >

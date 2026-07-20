@@ -32,7 +32,6 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
         <html>
           <head>
             <title>${document.title}</title>
-            <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
             <script src="https://cdn.tailwindcss.com"></script>
             <script>
               tailwind.config = {
@@ -42,7 +41,7 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                       accent: '#ea580c',
                     },
                     fontFamily: {
-                      sans: "${isRtl ? 'IBM Plex Sans Arabic' : 'IBM Plex Sans'}, -apple-system, BlinkMacSystemFont, sans-serif"
+                      sans: "Thmanyah Sans, -apple-system, BlinkMacSystemFont, sans-serif"
                     }
                   }
                 }

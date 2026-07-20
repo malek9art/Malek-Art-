@@ -177,7 +177,10 @@ export async function deleteMessageDB(id: string): Promise<void> {
   }
 }
 
-// 7. SHA-256 Client-side hashing for password protection (Web standards compatible)
+/**
+ * @deprecated Legacy SHA-256 Client-side hashing.
+ * Authentication has been migrated to official Firebase Authentication SDK.
+ */
 export async function hashPassword(password: string): Promise<string> {
   const msgBuffer = new TextEncoder().encode(password);
   const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
@@ -185,7 +188,10 @@ export async function hashPassword(password: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
-// 8. Admin authentication database operations with local storage resilient fallbacks
+/**
+ * @deprecated Legacy client-side user database lookup.
+ * Authentication is now managed directly via Firebase Auth and useAuth().
+ */
 export async function getAdminUserDB(email: string): Promise<AdminUser | null> {
   const trimmedEmail = email.toLowerCase().trim();
   const isDefaultAdmin = trimmedEmail === 'malikalwesabi@gmail.com' || 

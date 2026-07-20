@@ -38,7 +38,10 @@ import {
 } from './data';
 import { Project, Service, Skill, ContactMessage, SiteConfig, ClientReview } from './types';
 
+import { useAuth } from './auth/authContext';
+
 export default function App() {
+  const { isAuthenticated } = useAuth();
   const [lang, setLang] = useState<'ar' | 'en'>(() => {
     const cached = localStorage.getItem('malek_lang');
     return (cached === 'ar' || cached === 'en') ? cached : 'ar';
@@ -47,6 +50,10 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<string>('home');
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsAdminLoggedIn(isAuthenticated);
+  }, [isAuthenticated]);
 
   // Core CMS state lists managed on client-side with persistent Local Storage mirroring
   const [projects, setProjects] = useState<Project[]>([]);
