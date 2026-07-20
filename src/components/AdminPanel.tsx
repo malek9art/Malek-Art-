@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Shield, Key, Grid, Layout, Layers, FileText, Trash2, Edit3, Plus, CheckCircle, AlertTriangle, LogOut, FileCode, Mail, Trash, Sparkles, Brain, Star, CheckCheck, Landmark } from 'lucide-react';
 import { Project, Service, ContactMessage, SiteConfig, SocialLink, SmartDesignRequest, Skill, ClientReview, AdminUser } from '../types';
 import { getAdminUserDB, saveAdminUserDB } from '../lib/dbService';
+import { compressImage, ImageValidationError } from '../lib/imageCompress';
 import { useAuth } from '../auth/authContext';
 
 interface AdminPanelProps {
@@ -1193,17 +1194,26 @@ export default function AdminPanel({
                           type="file"
                           accept="image/*"
                           onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onload = () => {
-                                if (typeof reader.result === 'string') {
-                                  setPImage(reader.result);
-                                  showFeedback(isRtl ? "تم تحميل وتحديث صورة المشروع بنجاح!" : "Project image uploaded and updated!");
-                                }
-                              };
-                              reader.readAsDataURL(file);
-                            }
+                            const input = e.target;
+                            const file = input.files?.[0];
+                            if (!file) return;
+                            (async () => {
+                              try {
+                                const { dataUrl, bytes } = await compressImage(file);
+                                setPImage(dataUrl);
+                                const kb = Math.round(bytes / 1024);
+                                showFeedback(isRtl
+                                  ? `✓ تم ضغط وتحديث صورة المشروع بنجاح (${kb}KB مضغوط)`
+                                  : `✓ Project image compressed & updated (${kb}KB)`);
+                              } catch (err: any) {
+                                const msg = err instanceof ImageValidationError
+                                  ? err.message
+                                  : (isRtl ? 'تعذّر معالجة الصورة، جرّب صورة أخرى.' : 'Could not process the image, try another.');
+                                showFeedback(`⚠ ${msg}`);
+                              } finally {
+                                input.value = '';
+                              }
+                            })();
                           }}
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         />
@@ -1841,17 +1851,26 @@ export default function AdminPanel({
                               type="file"
                               accept="image/*"
                               onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  const reader = new FileReader();
-                                  reader.onload = () => {
-                                    if (typeof reader.result === 'string') {
-                                      setCProfile(reader.result);
-                                      showFeedback(isRtl ? "تم تحميل وتحديث صورة البروفايل بنجاح!" : "Image parsed and updated from local file!");
-                                    }
-                                  };
-                                  reader.readAsDataURL(file);
-                                }
+                                const input = e.target;
+                                const file = input.files?.[0];
+                                if (!file) return;
+                                (async () => {
+                                  try {
+                                    const { dataUrl, bytes } = await compressImage(file, { maxDim: 600, quality: 0.8 });
+                                    setCProfile(dataUrl);
+                                    const kb = Math.round(bytes / 1024);
+                                    showFeedback(isRtl
+                                      ? `✓ تم ضغط وتحديث صورة البروفايل (${kb}KB مضغوط)`
+                                      : `✓ Profile image compressed & updated (${kb}KB)`);
+                                  } catch (err: any) {
+                                    const msg = err instanceof ImageValidationError
+                                      ? err.message
+                                      : (isRtl ? 'تعذّر معالجة الصورة، جرّب صورة أخرى.' : 'Could not process the image, try another.');
+                                    showFeedback(`⚠ ${msg}`);
+                                  } finally {
+                                    input.value = '';
+                                  }
+                                })();
                               }}
                               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                             />
@@ -1913,17 +1932,26 @@ export default function AdminPanel({
                             type="file"
                             accept="image/*"
                             onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onload = () => {
-                                  if (typeof reader.result === 'string') {
-                                    setCLogoImg(reader.result);
-                                    showFeedback(isRtl ? "تم تحميل وتحديث صورة شعار العلامة بنجاح!" : "Brand Logo image parsed and updated from local file!");
-                                  }
-                                };
-                                reader.readAsDataURL(file);
-                              }
+                              const input = e.target;
+                              const file = input.files?.[0];
+                              if (!file) return;
+                              (async () => {
+                                try {
+                                  const { dataUrl, bytes } = await compressImage(file, { maxDim: 500, quality: 0.85 });
+                                  setCLogoImg(dataUrl);
+                                  const kb = Math.round(bytes / 1024);
+                                  showFeedback(isRtl
+                                    ? `✓ تم ضغط وتحديث شعار العلامة (${kb}KB مضغوط)`
+                                    : `✓ Brand logo compressed & updated (${kb}KB)`);
+                                } catch (err: any) {
+                                  const msg = err instanceof ImageValidationError
+                                    ? err.message
+                                    : (isRtl ? 'تعذّر معالجة الصورة، جرّب صورة أخرى.' : 'Could not process the image, try another.');
+                                  showFeedback(`⚠ ${msg}`);
+                                } finally {
+                                  input.value = '';
+                                }
+                              })();
                             }}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           />
@@ -1981,17 +2009,26 @@ export default function AdminPanel({
                             type="file"
                             accept="image/*"
                             onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onload = () => {
-                                  if (typeof reader.result === 'string') {
-                                    setCHeroBgImg(reader.result);
-                                    showFeedback(isRtl ? "تم تحديث صورة خلفية قسم الهيرو بنجاح!" : "Hero background backdrop parsed and updated!");
-                                  }
-                                };
-                                reader.readAsDataURL(file);
-                              }
+                              const input = e.target;
+                              const file = input.files?.[0];
+                              if (!file) return;
+                              (async () => {
+                                try {
+                                  const { dataUrl, bytes } = await compressImage(file, { maxDim: 1920, quality: 0.7 });
+                                  setCHeroBgImg(dataUrl);
+                                  const kb = Math.round(bytes / 1024);
+                                  showFeedback(isRtl
+                                    ? `✓ تم ضغط وتحديث خلفية الهيرو (${kb}KB مضغوط)`
+                                    : `✓ Hero background compressed & updated (${kb}KB)`);
+                                } catch (err: any) {
+                                  const msg = err instanceof ImageValidationError
+                                    ? err.message
+                                    : (isRtl ? 'تعذّر معالجة الصورة، جرّب صورة أخرى.' : 'Could not process the image, try another.');
+                                  showFeedback(`⚠ ${msg}`);
+                                } finally {
+                                  input.value = '';
+                                }
+                              })();
                             }}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           />

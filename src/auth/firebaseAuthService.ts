@@ -15,38 +15,45 @@ import { User, AuthResult, Permissions, Roles } from "./authTypes";
 export class FirebaseAuthService implements IAuthService {
   
   private async fetchUserRoleAndPermissions(email: string): Promise<{ role: Roles; permissions: Permissions[] }> {
+    const allPermissions: Permissions[] = [
+      'manage_projects', 'manage_services', 'manage_skills', 'manage_config',
+      'manage_users', 'read_messages', 'delete_messages', 'approve_reviews'
+    ];
+    const trimmedEmail = email.toLowerCase().trim();
+
+    // 1) Designated super-admin / owner account.
+    //    This is the bootstrap owner and is ALWAYS granted the 'admin' role with
+    //    full permissions, REGARDLESS of what the Firestore admin_users document says.
+    //    This guarantees the owner can never be permanently locked out of their own
+    //    panel by a misconfigured role (e.g. a document with role = 'editor'/'viewer').
+    const designatedAdmin = (import.meta.env.VITE_ADMIN_EMAIL || "malikalwesabi@gmail.com").toLowerCase().trim();
+    if (
+      trimmedEmail === designatedAdmin ||
+      trimmedEmail === "admin@malek.art" ||
+      trimmedEmail === "admin@malek"
+    ) {
+      return { role: 'admin', permissions: allPermissions };
+    }
+
+    // 2) For any other account, resolve the role from Firestore.
     try {
-      const trimmedEmail = email.toLowerCase().trim();
       const adminDocRef = doc(db, "admin_users", trimmedEmail);
       const docSnap = await getDoc(adminDocRef);
-      
+
       if (docSnap.exists()) {
         const data = docSnap.data();
         if (data.role === 'admin' || data.role === 'editor' || data.role === 'viewer') {
           return {
             role: data.role as Roles,
-            permissions: Array.isArray(data.permissions) ? data.permissions : [
-              'manage_projects', 'manage_services', 'manage_skills', 'manage_config', 'manage_users', 'read_messages', 'delete_messages', 'approve_reviews'
-            ]
+            permissions: Array.isArray(data.permissions) ? data.permissions : allPermissions
           };
         }
-      }
-      
-      // Fallback for designated VITE_ADMIN_EMAIL or default admin email if recorded
-      const designatedAdmin = (import.meta.env.VITE_ADMIN_EMAIL || "malikalwesabi@gmail.com").toLowerCase().trim();
-      if (trimmedEmail === designatedAdmin || trimmedEmail === "admin@malek.art" || trimmedEmail === "admin@malek") {
-        return {
-          role: 'admin',
-          permissions: [
-            'manage_projects', 'manage_services', 'manage_skills', 'manage_config', 'manage_users', 'read_messages', 'delete_messages', 'approve_reviews'
-          ]
-        };
       }
     } catch (e) {
       console.warn("Could not fetch user role/permissions from Firestore:", e);
     }
 
-    // Default unprivileged viewer role
+    // 3) Default unprivileged viewer role
     return {
       role: 'viewer',
       permissions: []
