@@ -4,11 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Malek Logic | Portfolio & AI Project Advisor</title>
-    <script type="module" crossorigin src="./assets/index-D6UtKMp_.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-D9mEk_Yc.css">
+    <script>
+      // Apply theme BEFORE first paint to avoid a flash of the wrong color scheme.
+      (function () {
+        try {
+          var t = localStorage.getItem('malek_theme');
+          if (t !== 'light' && t !== 'dark') {
+            t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+          }
+          var el = document.documentElement;
+          el.classList.add(t);
+          el.style.background = t === 'light' ? '#eef1f8' : '#07051b';
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" crossorigin src="./assets/index-95yVe9hw.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-YJHKA8-O.css">
   </head>
   <body>
     <div id="root"></div>
   </body>
 </html>
-
