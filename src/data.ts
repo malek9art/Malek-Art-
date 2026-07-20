@@ -243,8 +243,8 @@ export const DEFAULT_TESTIMONIALS: Testimonial[] = [
 ];
 
 export const DEFAULT_CONFIG: SiteConfig = {
-  aboutTextAr: "أنا مالك أحمد (مالك أرت)، مصمم ومطور واجهات ويب محترف مقيم في العالم الرقمي. لأكثر من 5 سنوات، كرست شغفي لتحويل الأفكار الإبداعية إلى واجهات تفاعلية مذهلة وتجارب مستخدم لا تُنسى. أجمع بين اللمسة الفنية الأنيقة والمهارة التقنية العالية لتقديم حلول متكاملة تضمن تفوق عملائي.",
-  aboutTextEn: "I am Malek, professional UI/UX Designer & Frontend Developer, known digitally as Malek Art. For over 5 years, I've committed my energy to transforming challenging concepts into pixel-perfect interfaces and immersive interactive systems. I bridge visual elegance with modern code standards to yield products that standout.",
+  aboutTextAr: "أنا مالك أحمد (مالك لوجيك)، مصمم ومطور واجهات ويب محترف مقيم في العالم الرقمي. لأكثر من 5 سنوات، كرست شغفي لتحويل الأفكار الإبداعية إلى واجهات تفاعلية مذهلة وتجارب مستخدم لا تُنسى. أجمع بين اللمسة الفنية الأنيقة والمهارة التقنية العالية لتقديم حلول متكاملة تضمن تفوق عملائي.",
+  aboutTextEn: "I am Malek, professional UI/UX Designer & Frontend Developer, known digitally as Malek Logic. For over 5 years, I've committed my energy to transforming challenging concepts into pixel-perfect interfaces and immersive interactive systems. I bridge visual elegance with modern code standards to yield products that standout.",
   heroTextAr: "أصنع تجارب رقمية إبداعية تروي قصتك",
   heroTextEn: "Designing Digital Experiences That Tell Your Story",
   heroSubAr: "دمج احترافي بين الإبداع البصري القائم على الـ Glassmorphism والتطوير البرمجي الفائق لصنع واجهات رقمية مذهلة وقابلة للتوسع.",
@@ -252,12 +252,12 @@ export const DEFAULT_CONFIG: SiteConfig = {
   profileImg: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop",
   logoImg: "",
   heroBgImg: "",
-  nameAr: "المهندس مالك أحمد",
+  nameAr: "المهندس مالك لوجيك",
   nameEn: "Malek Ahmed",
   professionAr: "مصمم ومطور تفاعلي",
   professionEn: "UI/UX & Web Dev Artist",
-  logoTextAr: "مالك أرت",
-  logoTextEn: "MALEK ART",
+  logoTextAr: "مالك لوجيك",
+  logoTextEn: "MALEK LOGIC",
   accentColor: "#EA580C",
   socialFacebook: "https://facebook.com/malekart",
   socialTwitter: "https://twitter.com/malekart",
@@ -286,8 +286,8 @@ export const DEFAULT_CONFIG: SiteConfig = {
   resumeLocation: "الرياض، المملكة العربية السعودية / Riyadh, KSA",
   resumeSummaryAr: "مصمم ومطور تفاعلي شغوف، ذو خبرة تفوق الخمس سنوات في تحويل الأفكار الإبداعية إلى منتجات رقمية فريدة تدمج بين جمال التصميم وقوة الأداء التقني واستهداف تجارب مستخدم حرة.",
   resumeSummaryEn: "Highly passionate UI/UX Designer & Web Developer with 5+ years of active experience bringing creative visual ideas to life through robust frontend architectures and sleek design specs.",
-  resumeExperienceAr: "• مصمم واجهات رائد - استوديو مالك أرت الرياض (2023 - الآن): قيادة تصميم واجهات المستخدم لأكثر من 30 تطبيقاً رقمياً استثنائياً وتصميم أنظمة تصميم موحدة.\n• مطور واجهات ويب - منصات إبداعية رقمية (2021 - 2023): بناء وتطوير منصات ويب متجاوبة وتفاعلية لعملاء في الشرق الأوسط باستخدام React وTailwind.\n• مصمم مستقل ومستشار للشركات الناشئة والمصانع الرقمية (2019 - 2021)",
-  resumeExperienceEn: "• Lead UI/UX Designer - Malek Art Studio Riyadh (2023 - Present): Leading design files for 30+ innovative software solutions and configuring highly interactive design systems.\n• Frontend Engineer - Creative Digital Platforms (2021 - 2023): Developing lightweight responsive web apps using modern React, Tailwind, and high-DPI assets.\n• Freelance Interaction Designer & Startup Consultant (2019 - 2021)",
+  resumeExperienceAr: "• مصمم واجهات رائد - استوديو مالك لوجيك الرياض (2023 - الآن): قيادة تصميم واجهات المستخدم لأكثر من 30 تطبيقاً رقمياً استثنائياً وتصميم أنظمة تصميم موحدة.\n• مطور واجهات ويب - منصات إبداعية رقمية (2021 - 2023): بناء وتطوير منصات ويب متجاوبة وتفاعلية لعملاء في الشرق الأوسط باستخدام React وTailwind.\n• مصمم مستقل ومستشار للشركات الناشئة والمصانع الرقمية (2019 - 2021)",
+  resumeExperienceEn: "• Lead UI/UX Designer - Malek Logic Studio Riyadh (2023 - Present): Leading design files for 30+ innovative software solutions and configuring highly interactive design systems.\n• Frontend Engineer - Creative Digital Platforms (2021 - 2023): Developing lightweight responsive web apps using modern React, Tailwind, and high-DPI assets.\n• Freelance Interaction Designer & Startup Consultant (2019 - 2021)",
   resumeEducationAr: "• بكالوريوس في علوم الحاسوب وتقنيات الويب\n• شهادة متخصصة معتمدة في هندسة تجربة المستخدم وتفاعل الإنسان مع الحاسوب",
   resumeEducationEn: "• Bachelor's Degree in Computer Science & Web Technologies\n• Advanced Professional Certification in UX Architecture & Human-Computer Interaction"
 };
@@ -304,7 +304,7 @@ export const TRANSLATIONS = {
     navAdminExit: "خروج من الإدارة",
     
     heroTitlePrefix: "مرحباً في عالم",
-    heroTitleName: "مالك أرت | Malek Art",
+    heroTitleName: "مالك لوجيك | Malek Logic",
     heroAccentTitle: "مصمم ومطور واجهات ويب",
     heroCtaWork: "شاهد أعمالي",
     heroCtaContact: "تواصل مباشر",
@@ -410,8 +410,8 @@ export const TRANSLATIONS = {
     adminMsgDate: "تاريخ الاستلام:",
     adminDeleteMsg: "حذف الرسالة",
     
-    footerRights: "جميع الحقوق محفوظة. تم تصميمه بكل شغف وإبداع بواسطة مالك أرت © 2026",
-    footerRightsEn: "All Rights Reserved. Handcrafted with passion & code by Malek Art © 2026"
+    footerRights: "جميع الحقوق محفوظة. تم تصميمه بكل شغف وإبداع بواسطة مالك لوجيك © 2026",
+    footerRightsEn: "All Rights Reserved. Handcrafted with passion & code by Malek Logic © 2026"
   },
   en: {
     navHome: "Home",
@@ -424,7 +424,7 @@ export const TRANSLATIONS = {
     navAdminExit: "Exit CMS",
     
     heroTitlePrefix: "Welcome to the world of",
-    heroTitleName: "Malek Art",
+    heroTitleName: "Malek Logic",
     heroAccentTitle: "UI/UX Designer & Web Developer",
     heroCtaWork: "View Portfolio",
     heroCtaContact: "Get in Touch",
@@ -530,7 +530,7 @@ export const TRANSLATIONS = {
     adminMsgDate: "Composed At:",
     adminDeleteMsg: "Purge Node",
     
-    footerRights: "All Rights Reserved. Handcrafted with passion & code by Malek Art © 2026",
-    footerRightsEn: "All Rights Reserved. Handcrafted with passion & code by Malek Art © 2026"
+    footerRights: "All Rights Reserved. Handcrafted with passion & code by Malek Logic © 2026",
+    footerRightsEn: "All Rights Reserved. Handcrafted with passion & code by Malek Logic © 2026"
   }
 };

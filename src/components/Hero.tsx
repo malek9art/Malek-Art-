@@ -204,7 +204,7 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
                       {isRtl ? "متاح للتوظيف" : "Available for Projects"}
                     </span>
                     <h3 className="text-base sm:text-lg font-extrabold text-white leading-tight">
-                      {isRtl ? (config.nameAr || "المهندس مالك أحمد") : (config.nameEn || "Malek Ahmed")}
+                      {isRtl ? (config.nameAr || "المهندس مالك لوجيك") : (config.nameEn || "Malek Ahmed")}
                     </h3>
                     <p className="text-xs text-white/60 font-medium">
                       {isRtl ? (config.professionAr || "مطور ومصمّم واجهات تفاعلية") : (config.professionEn || "UI/UX & Web Developer")}

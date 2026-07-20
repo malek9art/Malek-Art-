@@ -1,4 +1,4 @@
-# 🌟 MALEK ART | Professional Portfolio & AI-Powered Project Advisor
+# 🌟 MALEK LOGIC | Professional Portfolio & AI-Powered Project Advisor
 
 > **بوابة معرض الأعمال الاحترافية ومستشار التخطيط الذكي المدعوم بالذكاء الاصطناعي (Gemini AI)**
 
@@ -24,14 +24,14 @@
 ---
 
 ## 🇸🇦 عن المشروع
-**مالك أرت (Malek Art)** هو موقع إلكتروني تعريفي ومعرض أعمال إبداعي مخصص للمصممين ومطوري الويب. يتميز الموقع بتصميمه العصري القائم على أسلوب **الـ Glassmorphism** والتأثيرات الحركية الغامرة لتمنح العميل تجربة فريدة.
+**مالك لوجيك (Malek Logic)** هو موقع إلكتروني تعريفي ومعرض أعمال إبداعي مخصص للمصممين ومطوري الويب. يتميز الموقع بتصميمه العصري القائم على أسلوب **الـ Glassmorphism** والتأثيرات الحركية الغامرة لتمنح العميل تجربة فريدة.
 
 يحتوي الموقع على **لوحة تحكم كاملة لإدارة الـ CMS** لتعديل المشاريع والخدمات والنصوص بشكل فوري، بالإضافة إلى **نظام مستشار التخطيط الذكي (AI Matchmaker)** المدعوم بنموذج **Gemini 3.5 Flash** لتقديم خطط عمل تسويقية وتقنية شاملة للعملاء ومطابقتها وتوصيتها بمنتجات سابقة.
 
 ---
 
 ## 🌐 Project Overview (En)
-**Malek Art** is a premium, high-converting digital portfolio built for creative designers and web developers. Featuring a state-of-the-art visual architecture (Glassmorphism, deep shadows, and custom ambient glowing structures), it establishes a solid gold standard in digital branding. 
+**Malek Logic** is a premium, high-converting digital portfolio built for creative designers and web developers. Featuring a state-of-the-art visual architecture (Glassmorphism, deep shadows, and custom ambient glowing structures), it establishes a solid gold standard in digital branding. 
 
 Beyond standard exhibitions, it integrates an **Intelligent Project Advisor (AI Matchmaker)** powered by **Gemini 3.5**, a full-scale **Bespoke CMS Admin Panel** to manipulate content, and a responsive **Client Design Proposal Queue** that bridges interactive planning with real-time operations.
 
@@ -155,7 +155,7 @@ npm run start
 
 هذا العمل متوفر للاستخدام ومعد بالكامل ليتم رفعه على مستواعات غيث هاب العامة والخاصة. تم تصميمه بكل شغف ليكون واجهة مشرفة تنبض بالإبداع والبساطة.
 
-* **المصمم والمطور**: مالك الحربي (مالك أرت) - © 2026
+* **المصمم والمطور**: مالك الحربي (مالك لوجيك) - © 2026
 * **الترخيص**: MIT License
 
 ---

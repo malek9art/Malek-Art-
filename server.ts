@@ -370,7 +370,7 @@ Provide your response in Markdown layout. Integrate their selected design basics
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Malek Art Server running on http://localhost:${PORT}`);
+    console.log(`Malek Logic Server running on http://localhost:${PORT}`);
   });
 }
 

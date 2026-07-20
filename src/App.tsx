@@ -594,7 +594,7 @@ export default function App() {
                   </div>
                 )}
                 <span className="text-lg font-extrabold tracking-widest uppercase bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
-                  {config?.logoTextAr && isRtl ? config.logoTextAr : (config?.logoTextEn || 'MALEK ART')}
+                  {config?.logoTextAr && isRtl ? config.logoTextAr : (config?.logoTextEn || 'MALEK LOGIC')}
                 </span>
               </div>
               <p className="text-xs text-gray-400 leading-relaxed max-w-sm">

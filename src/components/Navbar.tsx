@@ -109,7 +109,7 @@ export default function Navbar({
               </div>
             )}
             <span className="text-sm sm:text-base font-bold text-white tracking-widest uppercase font-sans">
-              {config?.logoTextAr && isRtl ? config.logoTextAr : (config?.logoTextEn || 'MALEK ART')} <span className="text-indigo-400">|</span> {isRtl ? 'الرئيسية' : 'PORTFOLIO'}
+              {config?.logoTextAr && isRtl ? config.logoTextAr : (config?.logoTextEn || 'MALEK LOGIC')} <span className="text-indigo-400">|</span> {isRtl ? 'الرئيسية' : 'PORTFOLIO'}
             </span>
           </div>
 
