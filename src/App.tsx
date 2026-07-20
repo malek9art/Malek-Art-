@@ -129,8 +129,13 @@ export default function App() {
       try { setMessages(JSON.parse(localMsg)); } catch (e) {}
     }
 
-    // Background seeder to ensure default values exist in Firestore on first-run
+    // Background seeder to ensure default values exist in Firestore on first-run.
     const seedDatabase = async () => {
+      // Firestore rules restrict writes to authenticated admins. Skip seeding for
+      // anonymous visitors entirely — otherwise every visitor generates a burst of
+      // permission-denied write errors (and this is why the panel must be logged-in
+      // to publish anything).
+      if (!isAuthenticated) return;
       try {
         // 1. Seed Config if missing
         const cloudConfig = await getConfigDB();
@@ -222,7 +227,9 @@ export default function App() {
       }
     });
 
-    // Cleanup subscription listeners on component unmount
+    // Cleanup subscription listeners on component unmount.
+    // Re-runs when auth state changes so that an admin login triggers the one-time
+    // first-run seeding (writes require auth per Firestore rules).
     return () => {
       unsubConfig();
       unsubProjects();
@@ -231,10 +238,15 @@ export default function App() {
       unsubReviews();
       unsubMessages();
     };
-  }, []);
+  }, [isAuthenticated]);
 
-  // Wrapper handlers that replicate local state writes to cloud Firestore in background
-  const handleSetProjects = (newProjects: React.SetStateAction<Project[]>) => {
+  // Wrapper handlers that update local state instantly, then PERSIST to cloud Firestore.
+  // They await the cloud write and return `Promise<boolean>` so callers (e.g. AdminPanel)
+  // can show the user the REAL sync result instead of a fake "saved" confirmation.
+  // (Previously the cloud sync ran in a fire-and-forget IIFE whose only error handling
+  // was console.error — writes could be rejected by Firestore rules while the UI still
+  // showed a success message, which made cross-device sync appear broken.)
+  const handleSetProjects = async (newProjects: React.SetStateAction<Project[]>): Promise<boolean> => {
     const updated = typeof newProjects === 'function' 
       ? (newProjects as (prev: Project[]) => Project[])(projects) 
       : newProjects;
@@ -242,23 +254,22 @@ export default function App() {
     setProjects(updated);
     localStorage.setItem('malek_projects', JSON.stringify(updated));
 
-    // Sync in background
-    (async () => {
-      try {
-        const deleted = projects.filter(p => !updated.some((u: Project) => u.id === p.id));
-        for (const p of deleted) {
-          await deleteProjectDB(p.id);
-        }
-        for (const p of updated) {
-          await saveProjectDB(p);
-        }
-      } catch (err) {
-        console.error("Firebase sync error on projects:", err);
+    try {
+      const deleted = projects.filter(p => !updated.some((u: Project) => u.id === p.id));
+      for (const p of deleted) {
+        await deleteProjectDB(p.id);
       }
-    })();
+      for (const p of updated) {
+        await saveProjectDB(p);
+      }
+      return true;
+    } catch (err) {
+      console.error("Firebase sync error on projects:", err);
+      return false;
+    }
   };
 
-  const handleSetServices = (newServices: React.SetStateAction<Service[]>) => {
+  const handleSetServices = async (newServices: React.SetStateAction<Service[]>): Promise<boolean> => {
     const updated = typeof newServices === 'function' 
       ? (newServices as (prev: Service[]) => Service[])(services) 
       : newServices;
@@ -266,23 +277,22 @@ export default function App() {
     setServices(updated);
     localStorage.setItem('malek_services', JSON.stringify(updated));
 
-    // Sync in background
-    (async () => {
-      try {
-        const deleted = services.filter(s => !updated.some((u: Service) => u.id === s.id));
-        for (const s of deleted) {
-          await deleteServiceDB(s.id);
-        }
-        for (const s of updated) {
-          await saveServiceDB(s);
-        }
-      } catch (err) {
-        console.error("Firebase sync error on services:", err);
+    try {
+      const deleted = services.filter(s => !updated.some((u: Service) => u.id === s.id));
+      for (const s of deleted) {
+        await deleteServiceDB(s.id);
       }
-    })();
+      for (const s of updated) {
+        await saveServiceDB(s);
+      }
+      return true;
+    } catch (err) {
+      console.error("Firebase sync error on services:", err);
+      return false;
+    }
   };
 
-  const handleSetSkills = (newSkills: React.SetStateAction<Skill[]>) => {
+  const handleSetSkills = async (newSkills: React.SetStateAction<Skill[]>): Promise<boolean> => {
     const updated = typeof newSkills === 'function' 
       ? (newSkills as (prev: Skill[]) => Skill[])(skills) 
       : newSkills;
@@ -290,23 +300,22 @@ export default function App() {
     setSkills(updated);
     localStorage.setItem('malek_skills', JSON.stringify(updated));
 
-    // Sync in background
-    (async () => {
-      try {
-        const deleted = skills.filter(s => !updated.some((u: Skill) => u.id === s.id));
-        for (const s of deleted) {
-          await deleteSkillDB(s.id);
-        }
-        for (const s of updated) {
-          await saveSkillDB(s);
-        }
-      } catch (err) {
-        console.error("Firebase sync error on skills:", err);
+    try {
+      const deleted = skills.filter(s => !updated.some((u: Skill) => u.id === s.id));
+      for (const s of deleted) {
+        await deleteSkillDB(s.id);
       }
-    })();
+      for (const s of updated) {
+        await saveSkillDB(s);
+      }
+      return true;
+    } catch (err) {
+      console.error("Firebase sync error on skills:", err);
+      return false;
+    }
   };
 
-  const handleSetReviews = (newReviews: React.SetStateAction<ClientReview[]>) => {
+  const handleSetReviews = async (newReviews: React.SetStateAction<ClientReview[]>): Promise<boolean> => {
     const updated = typeof newReviews === 'function' 
       ? (newReviews as (prev: ClientReview[]) => ClientReview[])(reviews) 
       : newReviews;
@@ -314,23 +323,22 @@ export default function App() {
     setReviews(updated);
     localStorage.setItem('malek_client_reviews', JSON.stringify(updated));
 
-    // Sync in background
-    (async () => {
-      try {
-        const deleted = reviews.filter(r => !updated.some((u: ClientReview) => u.id === r.id));
-        for (const r of deleted) {
-          await deleteReviewDB(r.id);
-        }
-        for (const r of updated) {
-          await saveReviewDB(r);
-        }
-      } catch (err) {
-        console.error("Firebase sync error on reviews:", err);
+    try {
+      const deleted = reviews.filter(r => !updated.some((u: ClientReview) => u.id === r.id));
+      for (const r of deleted) {
+        await deleteReviewDB(r.id);
       }
-    })();
+      for (const r of updated) {
+        await saveReviewDB(r);
+      }
+      return true;
+    } catch (err) {
+      console.error("Firebase sync error on reviews:", err);
+      return false;
+    }
   };
 
-  const handleSetConfig = (newConfig: React.SetStateAction<SiteConfig>) => {
+  const handleSetConfig = async (newConfig: React.SetStateAction<SiteConfig>): Promise<boolean> => {
     const updated = typeof newConfig === 'function' 
       ? (newConfig as (prev: SiteConfig) => SiteConfig)(config) 
       : newConfig;
@@ -338,38 +346,36 @@ export default function App() {
     setConfig(updated);
     localStorage.setItem('malek_config', JSON.stringify(updated));
 
-    // Sync in background
-    (async () => {
-      try {
-        await saveConfigDB(updated);
-      } catch (err) {
-        console.error("Firebase sync error on config:", err);
-      }
-    })();
+    try {
+      await saveConfigDB(updated);
+      return true;
+    } catch (err) {
+      console.error("Firebase sync error on config:", err);
+      return false;
+    }
   };
 
-  const handleSetMessages = (newMessages: React.SetStateAction<ContactMessage[]>) => {
+  const handleSetMessages = async (newMessages: React.SetStateAction<ContactMessage[]>): Promise<boolean> => {
     const updated = typeof newMessages === 'function' 
-      ? (newMessages as (prev: ContactMessage[]) => ContactMessage[])(messages) 
+      ? (newMessages as (prev: ContactMessage[]) => ContactMessage[])(messages)
       : newMessages;
     
     setMessages(updated);
     localStorage.setItem('malek_messages', JSON.stringify(updated));
 
-    // Sync in background
-    (async () => {
-      try {
-        const deleted = messages.filter(m => !updated.some((u: ContactMessage) => u.id === m.id));
-        for (const m of deleted) {
-          await deleteMessageDB(m.id);
-        }
-        for (const m of updated) {
-          await saveMessageDB(m);
-        }
-      } catch (err) {
-        console.error("Firebase sync error on messages:", err);
+    try {
+      const deleted = messages.filter(m => !updated.some((u: ContactMessage) => u.id === m.id));
+      for (const m of deleted) {
+        await deleteMessageDB(m.id);
       }
-    })();
+      for (const m of updated) {
+        await saveMessageDB(m);
+      }
+      return true;
+    } catch (err) {
+      console.error("Firebase sync error on messages:", err);
+      return false;
+    }
   };
 
   // 2. RTL direction toggler based on primitive lang value
@@ -447,24 +453,16 @@ export default function App() {
     const updated = [msg, ...messages];
     setMessages(updated);
     localStorage.setItem('malek_messages', JSON.stringify(updated));
-    // Save to Firestore in background
-    try {
-      saveMessageDB(msg);
-    } catch (e) {
-      console.error("Error saving new message to Firebase:", e);
-    }
+    // Save to Firestore in background (public create is allowed by the rules)
+    saveMessageDB(msg).catch(e => console.error("Error saving new message to Firebase:", e));
   };
 
   const handleNewReview = (newRev: ClientReview) => {
     const updated = [newRev, ...reviews];
     setReviews(updated);
     localStorage.setItem('malek_client_reviews', JSON.stringify(updated));
-    // Save to Firestore in background
-    try {
-      saveReviewDB(newRev);
-    } catch (e) {
-      console.error("Error saving new review to Firebase:", e);
-    }
+    // Save to Firestore in background (public create is allowed by the rules)
+    saveReviewDB(newRev).catch(e => console.error("Error saving new review to Firebase:", e));
   };
 
   const currentTranslations = TRANSLATIONS[lang];
