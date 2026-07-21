@@ -16,10 +16,10 @@ export default function About({ currentLang, config, skills, t }: AboutProps) {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
 
   return (
-    <section id="about" className="relative py-24 sm:py-32 bg-[#0a0724] overflow-hidden">
+    <section id="about" className="relative py-24 sm:py-32 bg-[#081B36] overflow-hidden">
       {/* Glow Ambient Bulbs */}
-      <div className="absolute top-1/2 left-0 w-80 h-80 bg-orange-600/5 rounded-full filter blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-0 right-10 w-96 h-96 bg-indigo-600/5 rounded-full filter blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/2 left-0 w-80 h-80 bg-brand-hover/5 rounded-full filter blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-0 right-10 w-96 h-96 bg-brand-primary/5 rounded-full filter blur-[100px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -72,7 +72,7 @@ export default function About({ currentLang, config, skills, t }: AboutProps) {
               className="relative group mx-auto lg:mx-0 max-w-sm sm:max-w-md w-full"
             >
               {/* Decorative Indigo Gradient Border */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600 to-[#EA580C] rounded-[32px] filter blur-md opacity-30 group-hover:opacity-50 transition-all duration-500 scale-102"></div>
+              <div className="absolute inset-0 bg-gradient-to-tr from-brand-primary to-[#1C99ED] rounded-[32px] filter blur-md opacity-30 group-hover:opacity-50 transition-all duration-500 scale-102"></div>
               
               <div className="relative overflow-hidden rounded-[32px] bg-white/5 border border-white/10 p-4 backdrop-blur-lg shadow-2xl">
                 <img
@@ -83,7 +83,7 @@ export default function About({ currentLang, config, skills, t }: AboutProps) {
                 />
                 
                 {/* Visual Glass Tag */}
-                <div className="absolute bottom-8 left-8 right-8 p-4 rounded-xl backdrop-blur-lg bg-indigo-950/80 border border-white/10 flex items-center justify-between text-start shadow-xl">
+                <div className="absolute bottom-8 left-8 right-8 p-4 rounded-xl backdrop-blur-lg bg-navy-900/80 border border-white/10 flex items-center justify-between text-start shadow-xl">
                   <div>
                     <h4 className="text-sm font-bold text-white font-sans">{isRtl ? (config.nameAr || "المهندس مالك أحمد") : (config.nameEn || "Malek Ahmed")}</h4>
                     <p className="text-[11px] text-gray-300 mt-0.5">{isRtl ? (config.professionAr || "مصمم ومطور تفاعلي") : (config.professionEn || "UI/UX & Web Dev Artist")}</p>
@@ -117,7 +117,7 @@ export default function About({ currentLang, config, skills, t }: AboutProps) {
                 <button
                   type="button"
                   onClick={() => setIsResumeOpen(true)}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold uppercase tracking-wider border border-orange-500/20 transition-all shadow-md active:scale-95 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-brand-hover hover:bg-brand-accent text-white text-xs font-bold uppercase tracking-wider border border-brand-accent/20 transition-all shadow-md active:scale-95 cursor-pointer"
                 >
                   <Download className="w-4 h-4 text-white" />
                   <span>{t.downloadCv}</span>
@@ -137,7 +137,7 @@ export default function About({ currentLang, config, skills, t }: AboutProps) {
               className="p-8 sm:p-10 rounded-[32px] bg-white/5 border border-white/10 backdrop-blur-lg shadow-xl"
             >
               <h3 className="text-lg sm:text-xl font-bold text-white mb-6 flex items-center gap-2 border-b border-white/10 pb-4 uppercase tracking-wider text-xs">
-                <Sparkles className="w-5 h-5 text-[#818CF8]" />
+                <Sparkles className="w-5 h-5 text-[#1C99ED]" />
                 <span>{t.aboutSkillsTitle}</span>
               </h3>
 
@@ -161,7 +161,7 @@ export default function About({ currentLang, config, skills, t }: AboutProps) {
                         whileInView={{ width: `${skill.percentage}%` }}
                         viewport={{ once: true }}
                         transition={{ duration: 1, delay: index * 0.1, ease: 'easeOut' }}
-                        className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-accent group-hover:from-indigo-400 group-hover:to-accent transition-all relative"
+                        className="h-full rounded-full bg-gradient-to-r from-brand-accent to-accent group-hover:from-brand-accent group-hover:to-accent transition-all relative"
                       >
                         {/* Shimmer pulse inside the progress */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent w-full h-full animate-pulse pointer-events-none"></div>

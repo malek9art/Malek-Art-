@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Shield, Grid, Layout, Layers, FileText, Trash2, Edit3, Plus, CheckCircle, LogOut, FileCode, Mail, Trash, Sparkles, Brain, Star, CheckCheck } from 'lucide-react';
+import { Shield, Grid, Layout, Layers, FileText, Trash2, Edit3, Plus, CheckCircle, LogOut, FileCode, Mail, Trash, Sparkles, Brain, Star, CheckCheck, Eye, EyeOff } from 'lucide-react';
 import { Project, Service, ContactMessage, SiteConfig, SocialLink, SmartDesignRequest, Skill, ClientReview, CustomFontData } from '../types';
 import { saveCustomFontDB, clearCustomFontDB } from '../lib/dbService';
 import { compressImage, ImageValidationError } from '../lib/imageCompress';
@@ -218,6 +218,7 @@ export default function AdminPanel({
   const [pLink, setPLink] = useState('');
   const [pDate, setPDate] = useState('2026-06');
   const [pOrder, setPOrder] = useState(1);
+  const [pIsVisible, setPIsVisible] = useState(true);
 
   // Edit Service Fields State
   const [sTitleAr, setSTitleAr] = useState('');
@@ -244,7 +245,7 @@ export default function AdminPanel({
   const [cProfessionEn, setCProfessionEn] = useState(config.professionEn || '');
   const [cLogoAr, setCLogoAr] = useState(config.logoTextAr || '');
   const [cLogoEn, setCLogoEn] = useState(config.logoTextEn || '');
-  const [cAccent, setCAccent] = useState(config.accentColor || '#EA580C');
+  const [cAccent, setCAccent] = useState(config.accentColor || '#1C99ED');
 
   // Global typography selector state
   const [cFont, setCFont] = useState(config.fontFamily || 'thmanyah-sans');
@@ -375,7 +376,7 @@ export default function AdminPanel({
       setCProfessionEn(config.professionEn || '');
       setCLogoAr(config.logoTextAr || '');
       setCLogoEn(config.logoTextEn || '');
-      setCAccent(config.accentColor || '#EA580C');
+      setCAccent(config.accentColor || '#1C99ED');
       setCFont(config.fontFamily || 'thmanyah-sans');
       setCCustomFamily(config.customFontFamily || '');
       setCCustomUrl(config.customFontUrl || '');
@@ -533,6 +534,7 @@ export default function AdminPanel({
             categoryAr: pCatAr,
             categoryEn: pCatEn,
             link: pLink,
+            isVisible: pIsVisible,
             date: pDate,
             sortOrder: Number(pOrder),
           };
@@ -566,6 +568,7 @@ export default function AdminPanel({
         categoryAr: pCatAr,
         categoryEn: pCatEn,
         link: pLink,
+        isVisible: pIsVisible,
         date: pDate,
         sortOrder: Number(pOrder),
       };
@@ -606,6 +609,7 @@ export default function AdminPanel({
     setPLink(p.link || '');
     setPDate(p.date);
     setPOrder(p.sortOrder);
+    setPIsVisible(p.isVisible !== false);
   };
 
   const startAddProject = () => {
@@ -626,6 +630,7 @@ export default function AdminPanel({
     setPLink('');
     setPDate('2026-06');
     setPOrder(projects.length + 1);
+    setPIsVisible(true);
   };
 
   const closeProjectUI = () => {
@@ -633,6 +638,22 @@ export default function AdminPanel({
     setIsAddingProject(false);
     setProjAiKeywords('');
     setAiFormulateError('');
+  };
+
+  const handleToggleProjectVisibility = async (id: string) => {
+    const project = projects.find(p => p.id === id);
+    if (!project) return;
+
+    const updated = projects.map(p => p.id === id ? { ...p, isVisible: p.isVisible === false } : p);
+    const cloudOk = await setProjects(updated);
+    localStorage.setItem('malek_projects', JSON.stringify(updated));
+    if (!cloudOk) {
+      showSyncError();
+      return;
+    }
+    showFeedback(isRtl
+      ? (project.isVisible === false ? '✓ تم إظهار المشروع في المعرض العام' : '✓ تم إخفاء المشروع من المعرض العام')
+      : (project.isVisible === false ? '✓ Project is now visible in the public portfolio' : '✓ Project hidden from the public portfolio'));
   };
 
   const handleDeleteProject = async (id: string) => {
@@ -838,14 +859,14 @@ export default function AdminPanel({
 
   // Dashboard CMS workspace UI
   return (
-    <section className="min-h-screen pt-32 pb-24 bg-[#040316] relative">
+    <section className="min-h-screen pt-32 pb-24 bg-[#041024] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-start">
         
         {/* Workspace Title header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-white/10 pb-6 mb-8 gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-2">
-              <Shield className="w-7 h-7 text-[#EA580C] animate-pulse" />
+              <Shield className="w-7 h-7 text-[#1C99ED] animate-pulse" />
               <span>{t.adminWelcome}</span>
             </h2>
             <p className="text-xs text-white/60 mt-1 max-w-lg leading-relaxed">
@@ -859,7 +880,7 @@ export default function AdminPanel({
             id="admin-exit-vault"
             className="px-4 py-2 text-xs font-semibold border border-white/10 rounded-full text-gray-300 hover:text-white hover:bg-white/5 flex items-center gap-1.5 cursor-pointer"
           >
-            <LogOut className="w-4 h-4 text-[#EA580C]" />
+            <LogOut className="w-4 h-4 text-[#1C99ED]" />
             <span>{isRtl ? "قفل الجلسة" : "Lock Database Session"}</span>
           </button>
         </div>
@@ -884,11 +905,11 @@ export default function AdminPanel({
           {[
             { id: 'projects', label: t.adminTabProjects, icon: <Layout className="w-4.5 h-4.5" /> },
             { id: 'services', label: t.adminTabServices, icon: <Layers className="w-4.5 h-4.5" /> },
-            { id: 'skills', label: isRtl ? "إدارة المهارات" : "Skills Armory", icon: <Brain className="w-4.5 h-4.5 text-indigo-400" /> },
-            { id: 'reviews', label: isRtl ? `المراجعات (${reviews.length})` : `Client Reviews (${reviews.length})`, icon: <Star className="w-4.5 h-4.5 text-yellow-400" /> },
-            { id: 'resume', label: isRtl ? "مكونات السيرة الذاتية" : "Resume PDF Fields", icon: <FileText className="w-4.5 h-4.5 text-amber-500" /> },
+            { id: 'skills', label: isRtl ? "إدارة المهارات" : "Skills Armory", icon: <Brain className="w-4.5 h-4.5 text-brand-accent" /> },
+            { id: 'reviews', label: isRtl ? `المراجعات (${reviews.length})` : `Client Reviews (${reviews.length})`, icon: <Star className="w-4.5 h-4.5 text-warning" /> },
+            { id: 'resume', label: isRtl ? "مكونات السيرة الذاتية" : "Resume PDF Fields", icon: <FileText className="w-4.5 h-4.5 text-warning" /> },
             { id: 'text', label: isRtl ? "الهوية والألوان والإنجازات" : "Branding & Stats", icon: <FileText className="w-4.5 h-4.5" /> },
-            { id: 'requests', label: isRtl ? `طلبـات التصميـم (${designRequests.length})` : `Design Requests (${designRequests.length})`, icon: <Sparkles className="w-4.5 h-4.5 text-yellow-400 animate-pulse" /> },
+            { id: 'requests', label: isRtl ? `طلبـات التصميـم (${designRequests.length})` : `Design Requests (${designRequests.length})`, icon: <Sparkles className="w-4.5 h-4.5 text-warning animate-pulse" /> },
             { id: 'ai', label: isRtl ? "تخصيص مساعد الذكاء" : "AI Customizer", icon: <Grid className="w-4.5 h-4.5" /> },
             { id: 'analytics', label: isRtl ? "تحليلات متقدمة" : "Advanced Analytics", icon: <FileCode className="w-4.5 h-4.5" /> },
             { id: 'messages', label: `${t.adminTabMessages} (${messages.length})`, icon: <Mail className="w-4.5 h-4.5" /> }
@@ -921,7 +942,7 @@ export default function AdminPanel({
                 <button
                   onClick={startAddProject}
                   id="admin-add-new-project-btn"
-                  className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-full bg-[#EA580C] hover:bg-orange-500 text-white flex items-center gap-1.5 shadow cursor-pointer whitespace-nowrap"
+                  className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-full bg-[#1C99ED] hover:bg-brand-accent text-white flex items-center gap-1.5 shadow cursor-pointer whitespace-nowrap"
                 >
                   <Plus className="w-4 h-4" />
                   <span>{t.adminAddProject}</span>
@@ -943,9 +964,9 @@ export default function AdminPanel({
                 <form onSubmit={handleSaveProject} className="space-y-6">
                   
                   {/* AI INTEGRATION FORMULATOR TOOL */}
-                  <div className="p-5 rounded-[24px] bg-indigo-500/10 border border-indigo-500/20 space-y-3 text-start">
-                    <div className="flex items-center gap-2 text-indigo-300">
-                      <Sparkles className="w-5 h-5 text-[#EA580C] animate-pulse" />
+                  <div className="p-5 rounded-[24px] bg-brand-accent/10 border border-brand-accent/20 space-y-3 text-start">
+                    <div className="flex items-center gap-2 text-brand-accent">
+                      <Sparkles className="w-5 h-5 text-[#1C99ED] animate-pulse" />
                       <span className="text-xs uppercase tracking-wider font-bold font-mono">
                         {isRtl ? "المعالج الذكي وصائغ النصوص التلقائي بالذكاء الاصطناعي" : "AI CONTENT FORMULATOR & ASSISTANT"}
                       </span>
@@ -967,7 +988,7 @@ export default function AdminPanel({
                         type="button"
                         onClick={() => handleAiFormulate('project')}
                         disabled={isAiFormulating}
-                        className="px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 shadow transition-all disabled:opacity-50 cursor-pointer whitespace-nowrap"
+                        className="px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-xl bg-brand-primary hover:bg-brand-primary text-white flex items-center gap-1.5 shadow transition-all disabled:opacity-50 cursor-pointer whitespace-nowrap"
                       >
                         {isAiFormulating ? (
                           <div className="w-4.5 h-4.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -1068,7 +1089,7 @@ export default function AdminPanel({
                         className="w-full text-xs sm:text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white focus:outline-none"
                         required
                       />
-                      <div className="border border-dashed border-white/15 hover:border-orange-500 rounded-2xl bg-black/10 p-3 text-center cursor-pointer transition-all relative">
+                      <div className="border border-dashed border-white/15 hover:border-brand-accent rounded-2xl bg-black/10 p-3 text-center cursor-pointer transition-all relative">
                         <input
                           type="file"
                           accept="image/*"
@@ -1097,7 +1118,7 @@ export default function AdminPanel({
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         />
                         <div className="text-[11px] text-white/70">
-                          <p className="font-bold text-orange-400 mb-0.5">{isRtl ? "أو اضغط هنا لرفع صورة من جهازك" : "Or click here to upload an image from your device"}</p>
+                          <p className="font-bold text-brand-accent mb-0.5">{isRtl ? "أو اضغط هنا لرفع صورة من جهازك" : "Or click here to upload an image from your device"}</p>
                           <p className="text-[9px] text-white/40">Base64 encoded directly to database (max 2MB recommended)</p>
                         </div>
                       </div>
@@ -1158,8 +1179,23 @@ export default function AdminPanel({
                     </div>
                   </div>
 
+                  {/* Public visibility control */}
+                  <label className="flex items-center gap-3 w-fit rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={pIsVisible}
+                      onChange={(e) => setPIsVisible(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <span className="w-10 h-6 rounded-full bg-white/15 peer-checked:bg-brand-accent relative transition-colors after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-4 rtl:peer-checked:after:-translate-x-4" />
+                    <span className="flex items-center gap-2 text-xs font-bold text-white">
+                      {pIsVisible ? <Eye className="w-4 h-4 text-brand-accent" /> : <EyeOff className="w-4 h-4 text-white/50" />}
+                      {pIsVisible ? (isRtl ? 'إظهار المشروع في المعرض' : 'Show project in portfolio') : (isRtl ? 'إخفاء المشروع من المعرض' : 'Hide project from portfolio')}
+                    </span>
+                  </label>
+
                   {/* Buttons save / cancel */}
-                  <div className="flex gap-4 pt-4 justify-end">
+                  <div className="flex flex-wrap gap-3 pt-4 justify-end">
                     <button
                       type="button"
                       onClick={closeProjectUI}
@@ -1169,7 +1205,7 @@ export default function AdminPanel({
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-2.5 rounded-full bg-[#EA580C] hover:bg-orange-500 text-white font-bold text-xs uppercase tracking-wider cursor-pointer shadow-md"
+                      className="px-5 py-2.5 rounded-full bg-[#1C99ED] hover:bg-brand-accent text-white font-bold text-xs uppercase tracking-wider cursor-pointer shadow-md"
                     >
                       {t.adminSave}
                     </button>
@@ -1183,12 +1219,13 @@ export default function AdminPanel({
             {!isAddingProject && !editingProject && (
               <div className="overflow-x-auto rounded-[24px] border border-white/10 bg-white/5 backdrop-blur-md">
                 <table className="w-full text-sm text-left text-gray-300">
-                  <thead className="text-[10px] uppercase bg-[#1e1b4b]/40 text-white/90 border-b border-white/10 tracking-widest font-mono">
+                  <thead className="text-[10px] uppercase bg-[#12233D]/40 text-white/90 border-b border-white/10 tracking-widest font-mono">
                     <tr>
                       <th scope="col" className="px-6 py-4 text-center">Image</th>
                       <th scope="col" className="px-6 py-4">{isRtl ? "اسم المشروع" : "Project Title"}</th>
                       <th scope="col" className="px-6 py-4">Category</th>
                       <th scope="col" className="px-6 py-4">Sort</th>
+                      <th scope="col" className="px-6 py-4 text-center">{isRtl ? 'الظهور' : 'Visibility'}</th>
                       <th scope="col" className="px-6 py-4 text-center">Actions</th>
                     </tr>
                   </thead>
@@ -1207,11 +1244,22 @@ export default function AdminPanel({
                           <div className="text-sm font-bold">{isRtl ? p.titleAr : p.titleEn}</div>
                           <div className="text-[10px] text-white/50 font-mono mt-0.5">{p.date}</div>
                         </td>
-                        <td className="px-6 py-3 text-xs text-indigo-300 font-semibold font-mono uppercase tracking-wider">
+                        <td className="px-6 py-3 text-xs text-brand-accent font-semibold font-mono uppercase tracking-wider">
                           {isRtl ? p.categoryAr : p.categoryEn}
                         </td>
-                        <td className="px-6 py-3 font-mono text-xs text-[#EA580C] font-semibold">
+                        <td className="px-6 py-3 font-mono text-xs text-[#1C99ED] font-semibold">
                           {p.sortOrder}
+                        </td>
+                        <td className="px-6 py-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleProjectVisibility(p.id)}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[10px] font-bold transition-colors cursor-pointer ${p.isVisible === false ? 'bg-white/10 text-white/50 hover:bg-brand-accent/15 hover:text-brand-accent' : 'bg-brand-accent/15 text-brand-accent hover:bg-brand-accent hover:text-white'}`}
+                            title={p.isVisible === false ? (isRtl ? 'إظهار المشروع' : 'Show project') : (isRtl ? 'إخفاء المشروع' : 'Hide project')}
+                          >
+                            {p.isVisible === false ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            <span>{p.isVisible === false ? (isRtl ? 'مخفي' : 'Hidden') : (isRtl ? 'ظاهر' : 'Visible')}</span>
+                          </button>
                         </td>
                         <td className="px-6 py-3 text-center">
                           <div className="flex gap-2.5 justify-center items-center">
@@ -1220,7 +1268,7 @@ export default function AdminPanel({
                             <button
                               type="button"
                               onClick={() => startEditProject(p)}
-                              className="p-2 rounded-xl bg-[#EA580C]/10 text-[#EA580C] hover:text-white hover:bg-[#EA580C] transition-colors cursor-pointer"
+                              className="p-2 rounded-xl bg-[#1C99ED]/10 text-[#1C99ED] hover:text-white hover:bg-[#1C99ED] transition-colors cursor-pointer"
                               title={t.adminEditProject}
                             >
                               <Edit3 className="w-4 h-4" />
@@ -1259,16 +1307,16 @@ export default function AdminPanel({
                 className="p-6 sm:p-8 rounded-[32px] bg-white/5 border border-white/10 backdrop-blur-lg"
               >
                 <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-[#EA580C]" />
+                  <Layers className="w-5 h-5 text-[#1C99ED]" />
                   <span>{isCreatingService ? (isRtl ? "إضافة خدمة رقمية جديدة" : "Add New Digital Service") : (isRtl ? "تعديل الخدمة الرقمية" : "Configure Service")}</span>
                 </h3>
 
                 <form onSubmit={handleSaveService} className="space-y-6">
                   
                   {/* AI INTEGRATION FORMULATOR TOOL FOR SERVICE */}
-                  <div className="p-5 rounded-[24px] bg-indigo-500/10 border border-indigo-500/20 space-y-3 text-start">
-                    <div className="flex items-center gap-2 text-indigo-300">
-                      <Sparkles className="w-5 h-5 text-[#EA580C] animate-pulse" />
+                  <div className="p-5 rounded-[24px] bg-brand-accent/10 border border-brand-accent/20 space-y-3 text-start">
+                    <div className="flex items-center gap-2 text-brand-accent">
+                      <Sparkles className="w-5 h-5 text-[#1C99ED] animate-pulse" />
                       <span className="text-xs uppercase tracking-wider font-bold font-mono">
                         {isRtl ? "الصياغة والترجمة الذكية للخدمة بالذكاء الاصطناعي" : "AI SERVICE CO-PILOT CONFIGURATOR"}
                       </span>
@@ -1290,7 +1338,7 @@ export default function AdminPanel({
                         type="button"
                         onClick={() => handleAiFormulate('service')}
                         disabled={isAiFormulating}
-                        className="px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 shadow transition-all disabled:opacity-50 cursor-pointer whitespace-nowrap"
+                        className="px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-xl bg-brand-primary hover:bg-brand-primary text-white flex items-center gap-1.5 shadow transition-all disabled:opacity-50 cursor-pointer whitespace-nowrap"
                       >
                         {isAiFormulating ? (
                           <div className="w-4.5 h-4.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -1382,7 +1430,7 @@ export default function AdminPanel({
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-2.5 rounded-full bg-[#EA580C] hover:bg-orange-500 text-white font-bold text-xs uppercase tracking-wider shadow cursor-pointer"
+                      className="px-5 py-2.5 rounded-full bg-[#1C99ED] hover:bg-brand-accent text-white font-bold text-xs uppercase tracking-wider shadow cursor-pointer"
                     >
                       {isCreatingService ? (isRtl ? "إنشاء الخدمة" : "Create Service") : t.adminSave}
                     </button>
@@ -1421,7 +1469,7 @@ export default function AdminPanel({
                     <div key={item.id} className="p-8 rounded-[32px] bg-white/5 border border-white/10 flex flex-col justify-between backdrop-blur-md">
                       <div>
                         <div className="flex justify-between items-start mb-2">
-                          <span className="text-[10px] uppercase font-mono tracking-widest text-[#EA580C] font-bold block">
+                          <span className="text-[10px] uppercase font-mono tracking-widest text-[#1C99ED] font-bold block">
                             Icon: {item.icon}
                           </span>
                           <button
@@ -1464,7 +1512,7 @@ export default function AdminPanel({
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-white/10 pb-5 mb-8 gap-4">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-widest font-mono flex items-center gap-2">
-                  <Layout className="w-4.5 h-4.5 text-[#EA580C]" />
+                  <Layout className="w-4.5 h-4.5 text-[#1C99ED]" />
                   <span>{isRtl ? "الهوية ومظهر ومكونات الموقع" : "Brand Identity & Site Appearance"}</span>
                 </h3>
                 <p className="text-[11px] text-white/55 mt-1 leading-relaxed">
@@ -1487,7 +1535,7 @@ export default function AdminPanel({
                     onClick={() => setActiveTextSubTab(sTab.id as any)}
                     className={`flex-1 lg:flex-none px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer whitespace-nowrap ${
                       activeTextSubTab === sTab.id
-                        ? 'bg-[#EA580C] text-white shadow-md'
+                        ? 'bg-[#1C99ED] text-white shadow-md'
                         : 'text-gray-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
@@ -1605,7 +1653,7 @@ export default function AdminPanel({
                       <select
                         value={cFont}
                         onChange={(e) => setCFont(e.target.value)}
-                        className="w-full text-xs sm:text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white focus:outline-none focus:border-[#EA580C]"
+                        className="w-full text-xs sm:text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white focus:outline-none focus:border-[#1C99ED]"
                       >
                         {FONT_OPTIONS.map((f) => (
                           <option key={f.id} value={f.id}>
@@ -1652,7 +1700,7 @@ export default function AdminPanel({
                                 type="file"
                                 accept=".woff2,.woff,.ttf,.otf"
                                 onChange={(e) => setCfRegular(e.target.files?.[0] || null)}
-                                className="w-full text-[10px] text-white/70 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#EA580C] file:text-white file:cursor-pointer cursor-pointer"
+                                className="w-full text-[10px] text-white/70 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#1C99ED] file:text-white file:cursor-pointer cursor-pointer"
                               />
                               {cfRegular && <span className="text-[9px] text-emerald-400 block mt-1 truncate">{cfRegular.name}</span>}
                             </div>
@@ -1662,7 +1710,7 @@ export default function AdminPanel({
                                 type="file"
                                 accept=".woff2,.woff,.ttf,.otf"
                                 onChange={(e) => setCfMedium(e.target.files?.[0] || null)}
-                                className="w-full text-[10px] text-white/70 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#EA580C] file:text-white file:cursor-pointer cursor-pointer"
+                                className="w-full text-[10px] text-white/70 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#1C99ED] file:text-white file:cursor-pointer cursor-pointer"
                               />
                               {cfMedium && <span className="text-[9px] text-emerald-400 block mt-1 truncate">{cfMedium.name}</span>}
                             </div>
@@ -1672,7 +1720,7 @@ export default function AdminPanel({
                                 type="file"
                                 accept=".woff2,.woff,.ttf,.otf"
                                 onChange={(e) => setCfBold(e.target.files?.[0] || null)}
-                                className="w-full text-[10px] text-white/70 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#EA580C] file:text-white file:cursor-pointer cursor-pointer"
+                                className="w-full text-[10px] text-white/70 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#1C99ED] file:text-white file:cursor-pointer cursor-pointer"
                               />
                               {cfBold && <span className="text-[9px] text-emerald-400 block mt-1 truncate">{cfBold.name}</span>}
                             </div>
@@ -1682,7 +1730,7 @@ export default function AdminPanel({
                               type="button"
                               onClick={handleUploadCustomFont}
                               disabled={cfUploading}
-                              className="px-4 py-2 rounded-full bg-[#EA580C] hover:bg-orange-500 text-white text-[11px] font-bold uppercase tracking-wider cursor-pointer transition-all disabled:opacity-50 flex items-center gap-1.5"
+                              className="px-4 py-2 rounded-full bg-[#1C99ED] hover:bg-brand-accent text-white text-[11px] font-bold uppercase tracking-wider cursor-pointer transition-all disabled:opacity-50 flex items-center gap-1.5"
                             >
                               {cfUploading && <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>}
                               <span>{isRtl ? 'رفع وتطبيق الخط' : 'Upload & Apply'}</span>
@@ -1774,7 +1822,7 @@ export default function AdminPanel({
                     </div>
 
                     <div className="pt-4 border-t border-white/5">
-                      <h4 className="text-xs font-bold text-indigo-400 font-mono uppercase tracking-widest mb-4">
+                      <h4 className="text-xs font-bold text-brand-accent font-mono uppercase tracking-widest mb-4">
                         {isRtl ? "السرد التعريفي وقصة المسيرة (About Narrative)" : "Detailed Biographical Biography (About Text)"}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1834,7 +1882,7 @@ export default function AdminPanel({
                           />
                           
                           {/* Profile Local Uploader */}
-                          <div className="border border-dashed border-white/15 hover:border-indigo-400 rounded-2xl bg-black/20 p-4 text-center cursor-pointer transition-all relative">
+                          <div className="border border-dashed border-white/15 hover:border-brand-accent rounded-2xl bg-black/20 p-4 text-center cursor-pointer transition-all relative">
                             <input
                               type="file"
                               accept="image/*"
@@ -1915,7 +1963,7 @@ export default function AdminPanel({
                           placeholder="https://example.com/logo.png"
                           className="w-full text-xs sm:text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white focus:outline-none font-mono"
                         />
-                        <div className="border border-dashed border-white/15 hover:border-orange-500 rounded-2xl bg-black/10 p-4 text-center cursor-pointer transition-all relative">
+                        <div className="border border-dashed border-white/15 hover:border-brand-accent rounded-2xl bg-black/10 p-4 text-center cursor-pointer transition-all relative">
                           <input
                             type="file"
                             accept="image/*"
@@ -1944,7 +1992,7 @@ export default function AdminPanel({
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           />
                           <div className="text-[11px] text-white/70">
-                            <p className="font-bold text-orange-400 mb-0.5">{isRtl ? "اسحب أو اضغط لتحميل صورة الشعار" : "Drag or click to upload logo file"}</p>
+                            <p className="font-bold text-brand-accent mb-0.5">{isRtl ? "اسحب أو اضغط لتحميل صورة الشعار" : "Drag or click to upload logo file"}</p>
                             <p className="text-[9px] text-white/40">Recommended: square SVG, transparent PNG</p>
                           </div>
                         </div>
@@ -1992,7 +2040,7 @@ export default function AdminPanel({
                           placeholder="https://images.unsplash.com/photo-..."
                           className="w-full text-xs sm:text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white focus:outline-none font-mono"
                         />
-                        <div className="border border-dashed border-white/15 hover:border-indigo-400 rounded-2xl bg-black/10 p-4 text-center cursor-pointer transition-all relative">
+                        <div className="border border-dashed border-white/15 hover:border-brand-accent rounded-2xl bg-black/10 p-4 text-center cursor-pointer transition-all relative">
                           <input
                             type="file"
                             accept="image/*"
@@ -2021,7 +2069,7 @@ export default function AdminPanel({
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           />
                           <div className="text-[11px] text-white/70">
-                            <p className="font-bold text-indigo-400 mb-0.5">{isRtl ? "اسحب أو اضغط لتحميل خلفية الهيرو" : "Drag or click to upload Hero section image"}</p>
+                            <p className="font-bold text-brand-accent mb-0.5">{isRtl ? "اسحب أو اضغط لتحميل خلفية الهيرو" : "Drag or click to upload Hero section image"}</p>
                             <p className="text-[9px] text-white/40">Clean abstract backgrounds (max 5MB)</p>
                           </div>
                         </div>
@@ -2155,7 +2203,7 @@ export default function AdminPanel({
                               className="flex items-center justify-between p-3.5 rounded-xl bg-black/35 border border-white/5 hover:border-white/10 transition-all text-start"
                             >
                               <div className="flex-1 min-w-0 pr-3 flex items-center gap-2">
-                                <span className="text-[10px] font-bold text-indigo-300 font-mono inline-block px-2 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/10">
+                                <span className="text-[10px] font-bold text-brand-accent font-mono inline-block px-2 py-0.5 rounded bg-brand-accent/10 border border-brand-accent/10">
                                   {link.platform}
                                 </span>
                                 <input
@@ -2373,7 +2421,7 @@ export default function AdminPanel({
                       </div>
 
                       {/* Subject */}
-                      <div className="text-xs bg-[#EA580C]/10 px-3 py-1.5 rounded-full border border-[#EA580C]/20 text-[#EA580C] mb-3 font-semibold uppercase tracking-wider w-fit">
+                      <div className="text-xs bg-[#1C99ED]/10 px-3 py-1.5 rounded-full border border-[#1C99ED]/20 text-[#1C99ED] mb-3 font-semibold uppercase tracking-wider w-fit">
                         {t.adminMsgSubject} <span className="text-white">{m.subject}</span>
                       </div>
 
@@ -2406,7 +2454,7 @@ export default function AdminPanel({
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/5 p-6 rounded-[24px] border border-white/10">
               <div>
                 <h3 className="text-lg font-bold text-white flex items-center gap-2 font-sans">
-                  <Sparkles className="w-5 h-5 text-yellow-500 animate-pulse" />
+                  <Sparkles className="w-5 h-5 text-warning animate-pulse" />
                   <span>{isRtl ? "إدارة طلبات مستشار التخطيط الذكي" : "Smart Design Requests Registry"}</span>
                 </h3>
                 <p className="text-xs text-white/50 mt-1 leading-relaxed font-sans">
@@ -2460,7 +2508,7 @@ export default function AdminPanel({
                     {/* Corner ID and Status indicator */}
                     <div className="flex flex-wrap justify-between items-center gap-2 mb-6 pb-4 border-b border-white/10">
                       <div>
-                        <span className="text-xs bg-indigo-500/20 text-indigo-300 font-mono font-bold px-3 py-1 rounded-full border border-indigo-500/30">
+                        <span className="text-xs bg-brand-accent/20 text-brand-accent font-mono font-bold px-3 py-1 rounded-full border border-brand-accent/30">
                           {req.id}
                         </span>
                         <span className="text-[10px] text-white/40 font-mono ml-2">
@@ -2472,7 +2520,7 @@ export default function AdminPanel({
                         <span className={`text-[10px] uppercase font-mono font-bold px-3 py-1 rounded-full ${
                           req.status === 'processed'
                             ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                            : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                            : 'bg-warning/20 text-warning border border-warning/30'
                         }`}>
                           {req.status === 'processed'
                             ? (isRtl ? "مكتمل ومعالج ✓" : "Processed ✓")
@@ -2527,7 +2575,7 @@ export default function AdminPanel({
                           </div>
                           <div>
                             <span className="text-white/40">{isRtl ? "البريد الإلكتروني: " : "Email Address: "}</span>
-                            <a href={`mailto:${req.clientEmail}`} className="text-indigo-400 hover:underline font-mono">{req.clientEmail}</a>
+                            <a href={`mailto:${req.clientEmail}`} className="text-brand-accent hover:underline font-mono">{req.clientEmail}</a>
                           </div>
                           <div>
                             <span className="text-white/40">{isRtl ? "رقم الهاتف / واتساب: " : "Phone / WhatsApp: "}</span>
@@ -2550,21 +2598,21 @@ export default function AdminPanel({
                         </h4>
 
                         <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
-                          <div className="bg-indigo-950/20 border border-indigo-500/15 p-2 rounded-xl">
+                          <div className="bg-navy-900/20 border border-brand-accent/15 p-2 rounded-xl">
                             <span className="text-white/40 block mb-1 font-sans">{isRtl ? "نوع الخدمة" : "Service"}</span>
                             <span className="text-white font-semibold capitalize font-mono text-[9px] truncate block">
                               {req.basics?.serviceType?.replace('_', ' ') || "N/A"}
                             </span>
                           </div>
 
-                          <div className="bg-indigo-950/20 border border-indigo-500/15 p-2 rounded-xl">
+                          <div className="bg-navy-900/20 border border-brand-accent/15 p-2 rounded-xl">
                             <span className="text-white/40 block mb-1 font-sans">{isRtl ? "الطابع اللوني" : "Color"}</span>
                             <span className="text-white font-semibold capitalize font-mono text-[9px] truncate block">
                               {req.basics?.colorVibe?.replace('_', ' ') || "N/A"}
                             </span>
                           </div>
 
-                          <div className="bg-indigo-950/20 border border-indigo-500/15 p-2 rounded-xl">
+                          <div className="bg-navy-900/20 border border-brand-accent/15 p-2 rounded-xl">
                             <span className="text-white/40 block mb-1 font-sans">{isRtl ? "الأسلوب الفني" : "Aesthetic"}</span>
                             <span className="text-white font-semibold capitalize font-mono text-[9px] truncate block">
                               {req.basics?.designStyle?.replace('_', ' ') || "N/A"}
@@ -2596,8 +2644,8 @@ export default function AdminPanel({
                     </div>
 
                     {/* Collapsible/Readable AI Advisor Recommendation Content */}
-                    <div className="bg-orange-500/5 p-5 rounded-2xl border border-orange-500/20 text-start sm:p-6 mb-4">
-                      <h5 className="text-[11px] font-bold text-[#EA580C] uppercase tracking-wider mb-2 flex items-center gap-1.5 font-sans">
+                    <div className="bg-brand-accent/5 p-5 rounded-2xl border border-brand-accent/20 text-start sm:p-6 mb-4">
+                      <h5 className="text-[11px] font-bold text-[#1C99ED] uppercase tracking-wider mb-2 flex items-center gap-1.5 font-sans">
                         <Sparkles className="w-3.5 h-3.5 animate-pulse" />
                         <span>{isRtl ? "توصية مستشار التخطيط الذكي (تقرير الذكاء الاصطناعي)" : "AI Planning Consultation Sheet Proposal:"}</span>
                       </h5>
@@ -2643,7 +2691,7 @@ export default function AdminPanel({
             <div className="flex flex-col md:flex-row gap-8 justify-between items-start md:items-center p-6 bg-white/5 border border-white/10 rounded-3xl">
               <div>
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Brain className="w-5 h-5 text-indigo-400" />
+                  <Brain className="w-5 h-5 text-brand-accent" />
                   <span>{isRtl ? "ترسانة وإدارة المهارات الإبداعية" : "Dynamic Skills Portfolio CMS"}</span>
                 </h3>
                 <p className="text-xs text-white/50 mt-1">
@@ -2672,7 +2720,7 @@ export default function AdminPanel({
                       value={newSkillNameAr}
                       onChange={(e) => setNewSkillNameAr(e.target.value)}
                       placeholder="مثال: واجهات ريأكت التفاعلية"
-                      className="w-full rounded-xl bg-black/40 border border-white/10 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#EA580C]"
+                      className="w-full rounded-xl bg-black/40 border border-white/10 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#1C99ED]"
                     />
                   </div>
 
@@ -2686,7 +2734,7 @@ export default function AdminPanel({
                       value={newSkillNameEn}
                       onChange={(e) => setNewSkillNameEn(e.target.value)}
                       placeholder="e.g., React & Typescript Hooks"
-                      className="w-full rounded-xl bg-black/40 border border-white/10 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#EA580C]"
+                      className="w-full rounded-xl bg-black/40 border border-white/10 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#1C99ED]"
                     />
                   </div>
 
@@ -2699,7 +2747,7 @@ export default function AdminPanel({
                       value={newSkillCategoryAr}
                       onChange={(e) => setNewSkillCategoryAr(e.target.value)}
                       placeholder="تطوير واجهات، تجربة مستخدم، إلخ..."
-                      className="w-full rounded-xl bg-black/40 border border-white/10 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#EA580C]"
+                      className="w-full rounded-xl bg-black/40 border border-white/10 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#1C99ED]"
                     />
                   </div>
 
@@ -2712,7 +2760,7 @@ export default function AdminPanel({
                       value={newSkillCategoryEn}
                       onChange={(e) => setNewSkillCategoryEn(e.target.value)}
                       placeholder="e.g., Frontend, Design Systems, etc."
-                      className="w-full rounded-xl bg-black/40 border border-white/10 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#EA580C]"
+                      className="w-full rounded-xl bg-black/40 border border-white/10 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#1C99ED]"
                     />
                   </div>
 
@@ -2730,7 +2778,7 @@ export default function AdminPanel({
                       step="5"
                       value={newSkillPercentage}
                       onChange={(e) => setNewSkillPercentage(Number(e.target.value))}
-                      className="w-full accent-orange-500 cursor-pointer"
+                      className="w-full accent-brand-accent cursor-pointer"
                     />
                   </div>
 
@@ -2813,7 +2861,7 @@ export default function AdminPanel({
             <div className="p-6 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Star className="w-5 h-5 text-yellow-500 animate-pulse" />
+                  <Star className="w-5 h-5 text-warning animate-pulse" />
                   <span>{isRtl ? "إدارة واعتماد تقييمات قضاء العملاء" : "Clients Lounge / Feedback CMS"}</span>
                 </h3>
                 <p className="text-xs text-white/50 mt-1">
@@ -2842,7 +2890,7 @@ export default function AdminPanel({
                           <span className="text-[10px] text-white/40 block font-mono">{rev.date}</span>
                         </div>
                         {/* Rating stars */}
-                        <div className="flex gap-0.5 text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                        <div className="flex gap-0.5 text-warning bg-warning/10 px-2 py-0.5 rounded-full text-[10px] font-bold">
                           {rev.rating}/5
                         </div>
                       </div>
@@ -2859,7 +2907,7 @@ export default function AdminPanel({
                         className={`flex-1 py-1.5 rounded-full tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1 ${
                           rev.status === 'approved' 
                             ? 'bg-green-500/15 text-green-400 border border-green-500/30 hover:bg-green-500 hover:text-white' 
-                            : 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/30 hover:bg-yellow-500 hover:text-white'
+                            : 'bg-warning/15 text-warning border border-warning/30 hover:bg-warning hover:text-white'
                         }`}
                       >
                         <CheckCheck className="w-3.5 h-3.5" />
@@ -2891,7 +2939,7 @@ export default function AdminPanel({
           <div className="space-y-6 text-start font-sans">
             <div className="p-6 bg-white/5 border border-white/10 rounded-3xl">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <FileText className="w-5 h-5 text-amber-500" />
+                <FileText className="w-5 h-5 text-warning" />
                 <span>{isRtl ? "إدارة حقول السيرة الذاتية الاحترافية PDF" : "Professional Resume PDF CMS Content"}</span>
               </h3>
               <p className="text-xs text-white/50 mt-1">
@@ -2912,7 +2960,7 @@ export default function AdminPanel({
                     required
                     value={resPhone}
                     onChange={(e) => setResPhone(e.target.value)}
-                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-amber-500"
+                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-warning"
                   />
                 </div>
                 <div>
@@ -2922,7 +2970,7 @@ export default function AdminPanel({
                     required
                     value={resEmail}
                     onChange={(e) => setResEmail(e.target.value)}
-                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-amber-500"
+                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-warning"
                   />
                 </div>
                 <div>
@@ -2932,7 +2980,7 @@ export default function AdminPanel({
                     required
                     value={resLoc}
                     onChange={(e) => setResLoc(e.target.value)}
-                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-amber-500"
+                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-warning"
                   />
                 </div>
               </div>
@@ -2945,7 +2993,7 @@ export default function AdminPanel({
                     rows={4}
                     value={resSumAr}
                     onChange={(e) => setResSumAr(e.target.value)}
-                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-amber-500 leading-relaxed"
+                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-warning leading-relaxed"
                   />
                 </div>
                 <div>
@@ -2954,7 +3002,7 @@ export default function AdminPanel({
                     rows={4}
                     value={resSumEn}
                     onChange={(e) => setResSumEn(e.target.value)}
-                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-amber-500 leading-relaxed"
+                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-warning leading-relaxed"
                   />
                 </div>
               </div>
@@ -2972,7 +3020,7 @@ export default function AdminPanel({
                     value={resExpAr}
                     onChange={(e) => setResExpAr(e.target.value)}
                     placeholder="اكتوب خبراتك بالترتيب التنازلي التواريخ..."
-                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-amber-500 leading-relaxed"
+                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-warning leading-relaxed"
                   />
                 </div>
                 <div>
@@ -2986,7 +3034,7 @@ export default function AdminPanel({
                     value={resExpEn}
                     onChange={(e) => setResExpEn(e.target.value)}
                     placeholder="Write your career achievements chronologically..."
-                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-amber-500 leading-relaxed"
+                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-warning leading-relaxed"
                   />
                 </div>
               </div>
@@ -3000,7 +3048,7 @@ export default function AdminPanel({
                     required
                     value={resEduAr}
                     onChange={(e) => setResEduAr(e.target.value)}
-                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-amber-500 leading-relaxed"
+                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-warning leading-relaxed"
                   />
                 </div>
                 <div>
@@ -3010,7 +3058,7 @@ export default function AdminPanel({
                     required
                     value={resEduEn}
                     onChange={(e) => setResEduEn(e.target.value)}
-                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-amber-500 leading-relaxed"
+                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none focus:border-warning leading-relaxed"
                   />
                 </div>
               </div>
@@ -3018,7 +3066,7 @@ export default function AdminPanel({
               {/* Save Resume setups */}
               <button
                 type="submit"
-                className="w-full py-4 rounded-full bg-gradient-to-r from-amber-600 to-orange-500 text-white font-bold text-xs uppercase cursor-pointer hover:opacity-95 shadow-lg select-none"
+                className="w-full py-4 rounded-full bg-gradient-to-r from-warning to-brand-accent text-white font-bold text-xs uppercase cursor-pointer hover:opacity-95 shadow-lg select-none"
               >
                 {isRtl ? "حفظ وتثبيت محتوى السيرة الذاتية" : "Update & Propagate Resume Content live"}
               </button>

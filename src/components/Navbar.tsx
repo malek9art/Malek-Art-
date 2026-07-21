@@ -88,7 +88,7 @@ export default function Navbar({
   };
 
   return (
-    <nav className={`fixed top-4 left-4 right-4 z-50 backdrop-blur-xl bg-[#0b0a1a]/85 border border-white/10 transition-all duration-500 ease-out max-w-7xl mx-auto shadow-2xl px-2 overflow-hidden ${
+    <nav className={`fixed top-4 left-4 right-4 z-50 backdrop-blur-xl bg-[#041024]/85 border border-white/10 transition-all duration-500 ease-out max-w-7xl mx-auto shadow-2xl px-2 overflow-hidden ${
       isOpen ? 'rounded-[24px]' : 'rounded-[24px] md:rounded-full'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -106,12 +106,12 @@ export default function Navbar({
                 }}
               />
             ) : (
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#4f46e5] to-accent flex items-center justify-center shadow-lg text-white font-bold text-lg font-mono">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#0A4EA4] to-accent flex items-center justify-center shadow-lg text-white font-bold text-lg font-mono">
                 {(config?.logoTextEn || 'Malek')[0].toUpperCase()}
               </div>
             )}
             <span className="text-sm sm:text-base font-bold text-white tracking-widest uppercase font-sans">
-              {isRtl ? (config?.logoTextAr || 'مالك لوجيك') : (config?.logoTextEn || 'MALEK LOGIC')}
+              {config?.logoTextEn || 'MALEK LOGIC'}
             </span>
           </div>
 
@@ -148,8 +148,8 @@ export default function Navbar({
                 aria-label="Toggle color theme"
               >
                 {theme === 'light'
-                  ? <Moon className="w-3.5 h-3.5 text-indigo-400" />
-                  : <Sun className="w-3.5 h-3.5 text-orange-400" />}
+                  ? <Moon className="w-3.5 h-3.5 text-brand-accent" />
+                  : <Sun className="w-3.5 h-3.5 text-brand-accent" />}
                 <span>{theme === 'light' ? (isRtl ? 'داكن' : 'Dark') : (isRtl ? 'نهاري' : 'Light')}</span>
               </button>
 
@@ -160,7 +160,7 @@ export default function Navbar({
                 className="px-3 py-1.5 rounded-full border border-white/20 bg-white/5 text-gray-300 hover:text-white transition-all duration-300 flex items-center gap-1.5 text-xs font-mono"
                 title={currentLang === 'ar' ? 'Switch to English' : 'التحويل للعربية'}
               >
-                <Globe className="w-3.5 h-3.5 text-orange-400" />
+                <Globe className="w-3.5 h-3.5 text-brand-accent" />
                 <span>{currentLang === 'ar' ? 'EN' : 'عربي'}</span>
               </button>
 
@@ -200,8 +200,8 @@ export default function Navbar({
               aria-label="Toggle color theme"
             >
               {theme === 'light'
-                ? <Moon className="w-3.5 h-3.5 text-indigo-400" />
-                : <Sun className="w-3.5 h-3.5 text-orange-400" />}
+                ? <Moon className="w-3.5 h-3.5 text-brand-accent" />
+                : <Sun className="w-3.5 h-3.5 text-brand-accent" />}
               <span>{theme === 'light' ? (isRtl ? 'داكن' : 'Dark') : (isRtl ? 'نهاري' : 'Light')}</span>
             </button>
 
@@ -209,7 +209,7 @@ export default function Navbar({
               onClick={toggleLanguage}
               className="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-gray-300 hover:text-white transition-all duration-200 flex items-center gap-1 text-xs"
             >
-              <Globe className="w-3.5 h-3.5 text-orange-400" />
+              <Globe className="w-3.5 h-3.5 text-brand-accent" />
               <span>{currentLang === 'ar' ? 'EN' : 'عربي'}</span>
             </button>
 
@@ -223,7 +223,7 @@ export default function Navbar({
                 transition={{ duration: 0.2, ease: "easeInOut" }}
                 className="flex items-center justify-center animate-none"
               >
-                {isOpen ? <X className="w-6 h-6 text-[#ea580c]" /> : <Menu className="w-6 h-6 text-indigo-300" />}
+                {isOpen ? <X className="w-6 h-6 text-[#1C99ED]" /> : <Menu className="w-6 h-6 text-brand-accent" />}
               </motion.div>
             </button>
           </div>
@@ -238,7 +238,7 @@ export default function Navbar({
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="md:hidden border-t border-white/10 bg-[#090816]/95 backdrop-blur-2xl"
+            className="md:hidden border-t border-white/10 bg-[#081B36]/95 backdrop-blur-2xl"
           >
             <motion.div 
               variants={containerVariants}

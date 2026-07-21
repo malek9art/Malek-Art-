@@ -19,7 +19,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
 
   // Selected design basics states
   const [serviceType, setServiceType] = useState('landing_page');
-  const [colorVibe, setColorVibe] = useState('dark_purple');
+  const [colorVibe, setColorVibe] = useState('dark_navy');
   const [designStyle, setDesignStyle] = useState('minimalist');
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>(['bilingual', 'seo', 'motion']);
 
@@ -143,8 +143,8 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
       const trimmed = line.trim();
       if (trimmed.startsWith('###')) {
         return (
-          <h4 key={idx} className="text-lg sm:text-xl font-bold font-sans text-orange-400 mt-6 mb-3 flex items-center gap-1.5 border-b border-indigo-500/10 pb-1.5">
-            <CheckCircle className="w-5 h-5 text-indigo-400 shrink-0" />
+          <h4 key={idx} className="text-lg sm:text-xl font-bold font-sans text-brand-accent mt-6 mb-3 flex items-center gap-1.5 border-b border-brand-accent/10 pb-1.5">
+            <CheckCircle className="w-5 h-5 text-brand-accent shrink-0" />
             <span>{trimmed.replace(/###/g, '').trim()}</span>
           </h4>
         );
@@ -152,7 +152,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
       if (trimmed.startsWith('##')) {
         return (
           <h3 key={idx} className="text-xl sm:text-2xl font-black font-sans text-white mt-8 mb-4 flex items-center gap-2">
-            <Brain className="w-5 h-5 text-orange-500 shrink-0" />
+            <Brain className="w-5 h-5 text-brand-accent shrink-0" />
             <span>{trimmed.replace(/##/g, '').trim()}</span>
           </h3>
         );
@@ -163,7 +163,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
         const parts = cleanContent.split('**');
         return (
           <li key={idx} className="list-none flex items-start gap-2.5 text-xs sm:text-sm text-gray-300 mb-2.5 leading-relaxed pl-1">
-            <span className="w-2 h-2 rounded-full bg-orange-500 mt-2 shrink-0"></span>
+            <span className="w-2 h-2 rounded-full bg-brand-accent mt-2 shrink-0"></span>
             <span>
               {parts.map((p, pIdx) => pIdx % 2 === 1 ? <strong key={pIdx} className="text-white font-semibold">{p}</strong> : p)}
             </span>
@@ -175,7 +175,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
         const parts = cleanContent.split('**');
         return (
           <div key={idx} className="flex gap-3 text-xs sm:text-sm text-gray-300 mb-3.5 leading-relaxed bg-white/5 p-3 rounded-xl border border-white/5">
-            <span className="font-mono text-orange-400 font-bold shrink-0">{trimmed.match(/^\d+/)?.[0]}.</span>
+            <span className="font-mono text-brand-accent font-bold shrink-0">{trimmed.match(/^\d+/)?.[0]}.</span>
             <span>
               {parts.map((p, pIdx) => pIdx % 2 === 1 ? <strong key={pIdx} className="text-white font-semibold">{p}</strong> : p)}
             </span>
@@ -196,10 +196,10 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
   };
 
   return (
-    <section id="matchmaker" className="relative py-24 sm:py-32 bg-gradient-to-b from-[#040316] to-[#0a0724] overflow-hidden">
+    <section id="matchmaker" className="relative py-24 sm:py-32 bg-gradient-to-b from-[#041024] to-[#081B36] overflow-hidden">
       {/* Decorative Shading */}
-      <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-orange-600/5 rounded-full filter blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-1/3 left-1/4 w-96 h-96 bg-indigo-600/5 rounded-full filter blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-brand-hover/5 rounded-full filter blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-96 h-96 bg-brand-primary/5 rounded-full filter blur-[100px] pointer-events-none"></div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -210,9 +210,9 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EA580C]/10 text-[#EA580C] mb-4 text-xs font-semibold uppercase tracking-wider border border-[#EA580C]/20"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1C99ED]/10 text-[#1C99ED] mb-4 text-xs font-semibold uppercase tracking-wider border border-[#1C99ED]/20"
           >
-            <Brain className="w-4 h-4 text-[#EA580C]" />
+            <Brain className="w-4 h-4 text-[#1C99ED]" />
             <span>{t.navMatchmaker}</span>
           </motion.div>
 
@@ -246,7 +246,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
           className="p-6 sm:p-10 rounded-[32px] bg-white/5 border border-white/10 backdrop-blur-lg shadow-2xl relative overflow-hidden"
         >
           {/* Internal Shimmer decoration */}
-          <div className="absolute top-0 left-0 w-32 h-[1px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+          <div className="absolute top-0 left-0 w-32 h-[1px] bg-gradient-to-r from-transparent via-brand-accent to-transparent"></div>
 
           <form onSubmit={handleAnalyze} className={`space-y-6 ${isRtl ? 'rtl' : 'ltr'}`}>
             
@@ -260,7 +260,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                 <select
                   value={serviceType}
                   onChange={(e) => setServiceType(e.target.value)}
-                  className="w-full text-xs rounded-xl bg-black/60 border border-white/10 p-3 text-white focus:outline-none focus:border-[#EA580C] font-semibold cursor-pointer"
+                  className="w-full text-xs rounded-xl bg-black/60 border border-white/10 p-3 text-white focus:outline-none focus:border-[#1C99ED] font-semibold cursor-pointer"
                 >
                   <option value="landing_page">{isRtl ? "صفحة هبوط إعلانية" : "Promotional Landing Page"}</option>
                   <option value="ecommerce">{isRtl ? "متجر تجارة إلكتروني متكامل" : "E-Commerce Store"}</option>
@@ -278,9 +278,9 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                 <select
                   value={colorVibe}
                   onChange={(e) => setColorVibe(e.target.value)}
-                  className="w-full text-xs rounded-xl bg-black/60 border border-white/10 p-3 text-white focus:outline-none focus:border-[#EA580C] font-semibold cursor-pointer"
+                  className="w-full text-xs rounded-xl bg-black/60 border border-white/10 p-3 text-white focus:outline-none focus:border-[#1C99ED] font-semibold cursor-pointer"
                 >
-                  <option value="dark_purple">{isRtl ? "مظهر كوني داكن (بنفسجي/برتقالي)" : "Cosmic Neon Dark (Purple/Orange)"}</option>
+                  <option value="dark_navy">{isRtl ? "مظهر كوني داكن (كحلي/أزرق)" : "Cosmic Neon Dark (Dark Navy/Blue)"}</option>
                   <option value="minimal_light">{isRtl ? "تصميم سويسري أبيض ناصع" : "Pure Swiss Off-white"}</option>
                   <option value="botanical">{isRtl ? "ألوان ترابية هادئة (أخضر/بيج)" : "Organic Botanical (Forest/Beige)"}</option>
                   <option value="corporate">{isRtl ? "أزرق شركة وقور ومحترف" : "Corporate Executive Deep Blue"}</option>
@@ -295,7 +295,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                 <select
                   value={designStyle}
                   onChange={(e) => setDesignStyle(e.target.value)}
-                  className="w-full text-xs rounded-xl bg-black/60 border border-white/10 p-3 text-white focus:outline-none focus:border-[#EA580C] font-semibold cursor-pointer"
+                  className="w-full text-xs rounded-xl bg-black/60 border border-white/10 p-3 text-white focus:outline-none focus:border-[#1C99ED] font-semibold cursor-pointer"
                 >
                   <option value="minimalist">{isRtl ? "مبسط جداً ويركز على المحتوى" : "Pure Minimalist"}</option>
                   <option value="cyber">{isRtl ? "مستقبلي سايبربانك مبهر" : "Futuristic Cyberpunk"}</option>
@@ -327,12 +327,12 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                       onClick={() => toggleFeature(feat.id)}
                       className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs text-start cursor-pointer transition-all duration-300 ${
                         isChecked
-                          ? 'bg-indigo-600/15 border-[#EA580C]/40 text-white font-semibold'
+                          ? 'bg-brand-primary/15 border-[#1C99ED]/40 text-white font-semibold'
                           : 'bg-black/30 border-white/5 text-gray-400 hover:text-white hover:bg-black/45'
                       }`}
                     >
                       <span className={`w-3.5 h-3.5 rounded flex items-center justify-center border text-[9px] ${
-                        isChecked ? 'bg-indigo-500 border-indigo-400 text-white' : 'border-white/20'
+                        isChecked ? 'bg-brand-accent border-brand-accent text-white' : 'border-white/20'
                       }`}>
                         {isChecked && "✓"}
                       </span>
@@ -354,7 +354,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                 value={idea}
                 onChange={(e) => setIdea(e.target.value)}
                 placeholder={t.aiPlaceholder}
-                className="w-full text-xs rounded-2xl bg-black/40 border border-white/5 p-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#EA580C] focus:ring-1 focus:ring-[#EA580C] transition-all leading-relaxed"
+                className="w-full text-xs rounded-2xl bg-black/40 border border-white/5 p-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#1C99ED] focus:ring-1 focus:ring-[#1C99ED] transition-all leading-relaxed"
               />
             </div>
 
@@ -376,7 +376,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                       onClick={() => setBudget(lvl.id)}
                       className={`py-2 px-1 text-[11px] sm:text-xs font-semibold rounded-full border transition-all duration-300 cursor-pointer ${
                         budget === lvl.id
-                          ? 'bg-[#EA580C] border-[#EA580C] text-white font-bold'
+                          ? 'bg-[#1C99ED] border-[#1C99ED] text-white font-bold'
                           : 'bg-white/5 border-white/10 text-gray-300 hover:text-white'
                       }`}
                     >
@@ -392,9 +392,9 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                   type="submit"
                   disabled={loading}
                   id="ai-consult-submit-btn"
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-[#4f46e5] to-[#ea580c] hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-lg shadow-orange-500/10 cursor-pointer select-none transition-all disabled:opacity-50"
+                  className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-[#0A4EA4] to-[#1C99ED] hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-lg shadow-brand-accent/10 cursor-pointer select-none transition-all disabled:opacity-50"
                 >
-                  <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse" />
+                  <Sparkles className="w-4 h-4 text-warning animate-pulse" />
                   <span>{t.aiSubmitBtn}</span>
                 </button>
               </div>
@@ -422,12 +422,12 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="p-8 sm:p-12 text-center flex flex-col items-center justify-center bg-indigo-950/15 border border-indigo-500/5 rounded-3xl backdrop-blur-sm"
+                className="p-8 sm:p-12 text-center flex flex-col items-center justify-center bg-navy-900/15 border border-brand-accent/5 rounded-3xl backdrop-blur-sm"
               >
                 {/* Immersive Orbiting Spawns */}
                 <div className="relative w-16 h-16 mb-6">
-                  <div className="absolute inset-0 rounded-full border-4 border-indigo-500/10 border-t-indigo-500 animate-spin"></div>
-                  <div className="absolute top-1 right-1 w-3 h-3 rounded-full bg-orange-500 animate-ping"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-brand-accent/10 border-t-brand-accent animate-spin"></div>
+                  <div className="absolute top-1 right-1 w-3 h-3 rounded-full bg-brand-accent animate-ping"></div>
                 </div>
                 <h4 className="text-white font-bold mb-2 font-sans text-sm sm:text-base animate-pulse">
                   {t.aiAnalyzing}
@@ -448,7 +448,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
               >
                 {/* Fallback Warning Box */}
                 {result.warning && (
-                  <div className="flex gap-2.5 p-4 rounded-2xl bg-[#EA580C]/10 border border-[#EA580C]/20 text-[#EA580C] text-xs text-start">
+                  <div className="flex gap-2.5 p-4 rounded-2xl bg-[#1C99ED]/10 border border-[#1C99ED]/20 text-[#1C99ED] text-xs text-start">
                     <ShieldAlert className="w-5 h-5 shrink-0" />
                     <span>{result.warning}</span>
                   </div>
@@ -458,8 +458,8 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                 <div className={`p-8 sm:p-10 rounded-[32px] bg-white/5 border border-white/10 backdrop-blur-lg shadow-2xl text-start ${isRtl ? 'rtl' : 'ltr'}`}>
                   
                   {/* Decorative badge header */}
-                  <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EA580C]/10 border border-[#EA580C]/20 w-fit text-[10px] font-mono font-bold text-[#EA580C] mb-6 uppercase tracking-wider">
-                    <Award className="w-4 h-4 text-[#EA580C] animate-pulse" />
+                  <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1C99ED]/10 border border-[#1C99ED]/20 w-fit text-[10px] font-mono font-bold text-[#1C99ED] mb-6 uppercase tracking-wider">
+                    <Award className="w-4 h-4 text-[#1C99ED] animate-pulse" />
                     <span>Gemini AI Consultation Sheet</span>
                   </div>
 
@@ -475,10 +475,10 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                     initial={{ scale: 0.98, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.2 }}
-                    className={`p-6 sm:p-8 rounded-[32px] bg-gradient-to-r from-[#1e1b4b] to-black/40 border border-white/10 text-start ${isRtl ? 'rtl' : 'ltr'}`}
+                    className={`p-6 sm:p-8 rounded-[32px] bg-gradient-to-r from-[#12233D] to-black/40 border border-white/10 text-start ${isRtl ? 'rtl' : 'ltr'}`}
                   >
-                    <h4 className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-4 font-mono flex items-center gap-2">
-                      <Sparkles className="w-4.5 h-4.5 text-yellow-500 animate-spin" style={{ animationDuration: '4s' }} />
+                    <h4 className="text-xs font-bold text-brand-accent uppercase tracking-widest mb-4 font-mono flex items-center gap-2">
+                      <Sparkles className="w-4.5 h-4.5 text-warning animate-spin" style={{ animationDuration: '4s' }} />
                       <span>{t.aiMatchesHeader}</span>
                     </h4>
 
@@ -491,7 +491,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                         className="w-full sm:w-40 h-24 object-cover rounded-2xl border border-white/5"
                       />
                       <div className="flex-1 w-full">
-                        <span className="text-[10px] bg-[#EA580C]/15 border border-[#EA580C]/25 px-2.5 py-0.5 rounded-full text-[#EA580C] font-semibold uppercase tracking-wider font-mono">
+                        <span className="text-[10px] bg-[#1C99ED]/15 border border-[#1C99ED]/25 px-2.5 py-0.5 rounded-full text-[#1C99ED] font-semibold uppercase tracking-wider font-mono">
                           {isRtl ? matchedProject.categoryAr : matchedProject.categoryEn}
                         </span>
                         
@@ -506,7 +506,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                         {/* Direct Anchor trigger */}
                         <a
                           href="#portfolio"
-                          className="text-xs text-orange-400 hover:text-white font-bold transition-all flex items-center gap-1.5 cursor-pointer w-fit"
+                          className="text-xs text-brand-accent hover:text-white font-bold transition-all flex items-center gap-1.5 cursor-pointer w-fit"
                           onClick={() => {
                             // Find and trigger element details
                             const element = document.getElementById(`project-card-${matchedProject.id}`);
@@ -526,9 +526,9 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                 )}
 
                 {/* 5. Client Metadata Intake Phase & Confirmation */}
-                <div className={`p-8 sm:p-10 rounded-[32px] bg-gradient-to-br from-[#0e0c24] to-[#060413] border border-white/10 shadow-2xl text-start ${isRtl ? 'rtl' : 'ltr'}`}>
+                <div className={`p-8 sm:p-10 rounded-[32px] bg-gradient-to-br from-[#0C274E] to-[#041024] border border-white/10 shadow-2xl text-start ${isRtl ? 'rtl' : 'ltr'}`}>
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-8 h-8 rounded-lg bg-[#EA580C]/10 flex items-center justify-center text-accent">
+                    <div className="w-8 h-8 rounded-lg bg-[#1C99ED]/10 flex items-center justify-center text-accent">
                       <Send className="w-4 h-4" />
                     </div>
                     <div>
@@ -572,7 +572,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                             value={clientName}
                             onChange={(e) => setClientName(e.target.value)}
                             placeholder={isRtl ? "مثال: عبد الله بن حمد" : "e.g., Jane Done"}
-                            className="w-full text-xs rounded-xl bg-black/50 border border-white/10 p-3.5 text-white focus:outline-none focus:border-[#EA580C]"
+                            className="w-full text-xs rounded-xl bg-black/50 border border-white/10 p-3.5 text-white focus:outline-none focus:border-[#1C99ED]"
                           />
                         </div>
 
@@ -586,7 +586,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                             value={clientEmail}
                             onChange={(e) => setClientEmail(e.target.value)}
                             placeholder="username@example.com"
-                            className="w-full text-xs rounded-xl bg-black/50 border border-white/10 p-3.5 text-white focus:outline-none focus:border-[#EA580C]"
+                            className="w-full text-xs rounded-xl bg-black/50 border border-white/10 p-3.5 text-white focus:outline-none focus:border-[#1C99ED]"
                           />
                         </div>
 
@@ -600,7 +600,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                             value={clientPhone}
                             onChange={(e) => setClientPhone(e.target.value)}
                             placeholder="+966 ..."
-                            className="w-full text-xs rounded-xl bg-black/50 border border-white/10 p-3.5 text-white focus:outline-none focus:border-[#EA580C] text-start font-mono"
+                            className="w-full text-xs rounded-xl bg-black/50 border border-white/10 p-3.5 text-white focus:outline-none focus:border-[#1C99ED] text-start font-mono"
                           />
                         </div>
                       </div>
@@ -614,7 +614,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                           value={clientNotes}
                           onChange={(e) => setClientNotes(e.target.value)}
                           placeholder={isRtl ? "أضف أي تفاصيل تود من المطور الالتزام بها أثناء المراجعة..." : "Any extra guidelines or constraints..."}
-                          className="w-full text-xs rounded-xl bg-black/50 border border-white/10 p-3.5 text-white focus:outline-none focus:border-[#EA580C]"
+                          className="w-full text-xs rounded-xl bg-black/50 border border-white/10 p-3.5 text-white focus:outline-none focus:border-[#1C99ED]"
                         />
                       </div>
 
@@ -626,7 +626,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                           required
                           checked={agreeConsent}
                           onChange={(e) => setAgreeConsent(e.target.checked)}
-                          className="mt-1 accent-[#EA580C] cursor-pointer"
+                          className="mt-1 accent-[#1C99ED] cursor-pointer"
                         />
                         <label htmlFor="consent-checkbox" className="text-[11px] text-white/80 cursor-pointer selection:bg-transparent leading-relaxed font-sans">
                           {isRtl
@@ -639,7 +639,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                         <button
                           type="submit"
                           disabled={requestSending || !agreeConsent}
-                          className="px-8 py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-indigo-600 hover:opacity-95 text-xs text-white font-bold uppercase tracking-wider shadow-lg shadow-emerald-500/10 cursor-pointer transition-all disabled:opacity-40 font-sans"
+                          className="px-8 py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-brand-primary hover:opacity-95 text-xs text-white font-bold uppercase tracking-wider shadow-lg shadow-emerald-500/10 cursor-pointer transition-all disabled:opacity-40 font-sans"
                         >
                           {requestSending ? (isRtl ? "جاري تسجيل طلبك..." : "Registering...") : (isRtl ? "موافق وإرسال طلب التصميم للمطور ✓" : "Confirm & Submit Proposal ✓")}
                         </button>

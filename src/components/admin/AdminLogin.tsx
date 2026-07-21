@@ -67,16 +67,16 @@ export default function AdminLogin({ currentLang, setIsLoggedIn }: AdminLoginPro
   };
 
   return (
-    <section className="min-h-screen py-32 flex items-center justify-center bg-[#040316] text-center px-4 relative">
-      <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-indigo-500/10 rounded-full filter blur-xl pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-600/5 rounded-full filter blur-xl pointer-events-none"></div>
+    <section className="min-h-[100svh] py-16 sm:py-24 lg:py-32 flex items-center justify-center bg-[#041024] text-center px-3 sm:px-4 relative overflow-y-auto">
+      <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-brand-accent/10 rounded-full filter blur-xl pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-brand-hover/5 rounded-full filter blur-xl pointer-events-none"></div>
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white/5 border border-white/10 rounded-[32px] p-8 sm:p-10 backdrop-blur-lg shadow-2xl relative"
+        className="max-w-md w-full bg-white/5 border border-white/10 rounded-2xl sm:rounded-[32px] p-5 sm:p-10 backdrop-blur-lg shadow-2xl relative my-4 sm:my-8"
       >
-        <div className="w-14 h-14 rounded-2xl bg-[#EA580C]/10 flex items-center justify-center border border-[#EA580C]/20 text-[#EA580C] mx-auto mb-6 shadow-inner animate-pulse">
+        <div className="w-14 h-14 rounded-2xl bg-[#1C99ED]/10 flex items-center justify-center border border-[#1C99ED]/20 text-[#1C99ED] mx-auto mb-6 shadow-inner animate-pulse">
           <Key className="w-6 h-6" />
         </div>
 
@@ -109,7 +109,7 @@ export default function AdminLogin({ currentLang, setIsLoggedIn }: AdminLoginPro
                     value={adminEmail}
                     onChange={(e) => setAdminEmail(e.target.value)}
                     placeholder={isRtl ? "أدخل بريد المسؤول" : "Enter admin email"}
-                    className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-4 text-white text-center focus:outline-none focus:border-[#EA580C]"
+                    className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-4 text-white text-center focus:outline-none focus:border-[#1C99ED]"
                     required
                     disabled={isVerifying}
                     autoComplete="email"
@@ -126,7 +126,7 @@ export default function AdminLogin({ currentLang, setIsLoggedIn }: AdminLoginPro
                 <button
                   type="submit"
                   disabled={isVerifying}
-                  className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#4f46e5] to-[#ea580c] text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg hover:opacity-90 active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#0A4EA4] to-[#1C99ED] text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg hover:opacity-90 active:scale-98 cursor-pointer flex items-center justify-center gap-2"
                 >
                   {isVerifying && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>}
                   <span>{isRtl ? "التحقق والاستمرار" : "Verify & Continue"}</span>
@@ -164,7 +164,7 @@ export default function AdminLogin({ currentLang, setIsLoggedIn }: AdminLoginPro
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-4 text-white text-center focus:outline-none focus:border-[#EA580C]"
+                      className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-4 text-white text-center focus:outline-none focus:border-[#1C99ED]"
                       required
                       disabled={isVerifying}
                       autoComplete="current-password"
@@ -192,7 +192,7 @@ export default function AdminLogin({ currentLang, setIsLoggedIn }: AdminLoginPro
                 <button
                   type="submit"
                   disabled={isVerifying}
-                  className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#4f46e5] to-[#ea580c] text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg hover:opacity-90 active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#0A4EA4] to-[#1C99ED] text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg hover:opacity-90 active:scale-98 cursor-pointer flex items-center justify-center gap-2"
                 >
                   {isVerifying && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>}
                   <span>{isRtl ? "تسجيل الدخول" : "Log In"}</span>
