@@ -7,7 +7,7 @@ import { compressImage, ImageValidationError } from '../lib/imageCompress';
 import { FONT_OPTIONS, CUSTOM_FONT_ID, applyFont, getFontById, injectCustomFontFaces, fontFormat, readFileAsDataUrl } from '../lib/fonts';
 import { useAuth } from '../auth/authContext';
 import AdminLogin from './admin/AdminLogin';
-import ConfirmationModal, { ConfirmModalType } from './admin/ConfirmationModal';
+import ConfirmationModal from './admin/ConfirmationModal';
 import AdminAnalytics from './admin/AdminAnalytics';
 
 interface AdminPanelProps {
@@ -47,8 +47,6 @@ export default function AdminPanel({
   setIsLoggedIn,
   t,
 }: AdminPanelProps) {
-  const [passError, setPassError] = useState('');
-  
   // Custom Skills Fields & Actions
   const [newSkillNameAr, setNewSkillNameAr] = useState('');
   const [newSkillNameEn, setNewSkillNameEn] = useState('');
@@ -428,7 +426,7 @@ export default function AdminPanel({
   const [feedback, setFeedback] = useState('');
   const isRtl = currentLang === 'ar';
 
-  const { user: authUser, isAuthenticated, login: authLogin, logout: authLogout } = useAuth();
+  const { isAuthenticated, logout: authLogout } = useAuth();
 
   useEffect(() => {
     setIsLoggedIn(isAuthenticated);

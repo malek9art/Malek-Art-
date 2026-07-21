@@ -173,7 +173,7 @@ export default function AdminLogin({ currentLang, setIsLoggedIn }: AdminLoginPro
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80 transition-colors cursor-pointer p-1"
-                      style={{ [isRtl ? 'left' : 'right']: '12px' }}
+                      style={isRtl ? { left: '12px' } : { right: '12px' }}
                       tabIndex={-1}
                       aria-label={showPassword ? (isRtl ? "إخفاء كلمة المرور" : "Hide password") : (isRtl ? "إظهار كلمة المرور" : "Show password")}
                     >

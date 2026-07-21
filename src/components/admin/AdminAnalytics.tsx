@@ -27,9 +27,6 @@ export default function AdminAnalytics({ messages, projects, services, skills, r
     const msgDate = new Date(m.date);
     return msgDate >= sevenDaysAgo;
   });
-  const messageGrowthRate = totalMessages > 0 
-    ? Math.round((recentMessages.length / totalMessages) * 100) 
-    : 0;
 
   // Service demand calculation (based on project categories)
   const categoryCount: Record<string, number> = {};
