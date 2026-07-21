@@ -692,43 +692,43 @@ export default function App() {
                 {isRtl ? "القنوات والشبكات" : "Connected Networks"}
               </h4>
               <div className="flex flex-wrap gap-2.5">
-                {config?.socialGithub && (
-                  <a
-                    href={config.socialGithub}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10 hover:border-orange-500/30 hover:scale-105 active:scale-95 transition-all w-9 h-9 flex items-center justify-center cursor-pointer"
-                    title="GitHub"
-                  >
-                    <Github className="w-4 h-4 shrink-0" />
-                  </a>
-                )}
-                {config?.socialLinkedin && (
-                  <a
-                    href={config.socialLinkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10 hover:border-orange-500/30 hover:scale-105 active:scale-95 transition-all w-9 h-9 flex items-center justify-center cursor-pointer"
-                    title="LinkedIn"
-                  >
-                    <Linkedin className="w-4 h-4 shrink-0" />
-                  </a>
-                )}
-                {config?.socialTwitter && (
-                  <a
-                    href={config.socialTwitter}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10 hover:border-orange-500/30 hover:scale-105 active:scale-95 transition-all w-9 h-9 flex items-center justify-center cursor-pointer"
-                    title="Twitter/X"
-                  >
-                    <Twitter className="w-4 h-4 shrink-0" />
-                  </a>
-                )}
+                {(() => {
+                  // Build a unified list of social links, preferring the socialLinks array
+                  // and falling back to individual config properties.
+                  const items: { platform: string; url: string; Icon: typeof Github }[] = [];
+                  if (config?.socialLinks && config.socialLinks.length > 0) {
+                    const iconMap: Record<string, typeof Github> = {};
+                    // Dynamically map platform names to icons
+                    config.socialLinks.forEach((sl) => {
+                      const p = sl.platform.toLowerCase();
+                      if (!sl.url || !sl.url.trim()) return; // skip empty URLs
+                      if (p.includes('git')) iconMap[sl.id] = Github;
+                      else if (p.includes('link')) iconMap[sl.id] = Linkedin;
+                      else iconMap[sl.id] = Twitter;
+                      items.push({ platform: sl.platform, url: sl.url, Icon: iconMap[sl.id] });
+                    });
+                  } else {
+                    if (config?.socialGithub) items.push({ platform: 'GitHub', url: config.socialGithub, Icon: Github });
+                    if (config?.socialLinkedin) items.push({ platform: 'LinkedIn', url: config.socialLinkedin, Icon: Linkedin });
+                    if (config?.socialTwitter) items.push({ platform: 'Twitter', url: config.socialTwitter, Icon: Twitter });
+                  }
+                  return items.map((item, idx) => (
+                    <a
+                      key={idx}
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10 hover:border-orange-500/30 hover:scale-105 active:scale-95 transition-all w-9 h-9 flex items-center justify-center cursor-pointer"
+                      title={item.platform}
+                    >
+                      <item.Icon className="w-4 h-4 shrink-0" />
+                    </a>
+                  ));
+                })()}
               </div>
               <div className="space-y-1 text-[11px] text-gray-500">
                 <p>{isRtl ? "الموقع الجغرافي النشط:" : "Current hub:"}</p>
-                <p className="text-gray-400">{config?.resumeLocation || "الرياض، المملكة العربية السعودية"}</p>
+                <p className="text-gray-400">{config?.resumeLocation || (isRtl ? "الرياض، المملكة العربية السعودية" : "Riyadh, KSA")}</p>
               </div>
             </div>
 
@@ -737,8 +737,8 @@ export default function App() {
           <div className="flex flex-col sm:flex-row justify-between items-center gap-6 pt-8 text-center sm:text-start">
             
             {/* Copyright rights */}
-            <p className="text-xs text-gray-400 font-medium font-medium">
-              {isRtl ? currentTranslations.footerRights : currentTranslations.footerRightsEn}
+            <p className="text-xs text-gray-400 font-medium">
+              {currentTranslations.footerRights}
             </p>
 
             {/* Back to top button */}

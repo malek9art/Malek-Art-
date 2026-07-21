@@ -61,7 +61,7 @@ export default function TestimonialsSpace({ currentLang, reviews, onAddReview }:
     <section id="feedback-space" className="relative py-24 sm:py-32 bg-gradient-to-b from-[#0a0724] to-[#040316] overflow-hidden">
       {/* Decorative Blur Spheres */}
       <div className="absolute top-1/2 left-10 w-80 h-80 bg-[#EA580C]/5 rounded-full filter blur-[100px] pointer-events-none"></div>
-      <div className="absolute top-1/4 right-0 w-96 h-96 bg-indigo-505 bg-indigo-600/5 rounded-full filter blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/4 right-0 w-96 h-96 bg-indigo-600/5 rounded-full filter blur-[100px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         

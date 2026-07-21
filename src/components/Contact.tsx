@@ -183,7 +183,7 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
                   </span>
                   <div className="flex items-center gap-4">
                     <a
-                      href="mailto:malikalwesabi@gmail.com"
+                      href={`mailto:${config?.resumeEmail || 'malikalwesabi@gmail.com'}`}
                       className="w-14 h-14 rounded-2xl bg-[#EA580C]/10 hover:bg-[#EA580C] text-[#EA580C] hover:text-white flex items-center justify-center border border-[#EA580C]/30 transition-all hover:scale-105 active:scale-95 shadow-lg group cursor-pointer"
                       title={isRtl ? "راسلني بالبريد الإلكتروني" : "Direct Email Channel"}
                     >

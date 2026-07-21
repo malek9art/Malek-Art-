@@ -163,7 +163,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
         const parts = cleanContent.split('**');
         return (
           <li key={idx} className="list-none flex items-start gap-2.5 text-xs sm:text-sm text-gray-300 mb-2.5 leading-relaxed pl-1">
-            <span className="w-2 h-2 rounded-full bg-indigo-505 bg-orange-500 mt-2 shrink-0"></span>
+            <span className="w-2 h-2 rounded-full bg-orange-500 mt-2 shrink-0"></span>
             <span>
               {parts.map((p, pIdx) => pIdx % 2 === 1 ? <strong key={pIdx} className="text-white font-semibold">{p}</strong> : p)}
             </span>
@@ -499,7 +499,7 @@ export default function AIMatchmaker({ currentLang, projects, config, t }: AIMat
                           {isRtl ? matchedProject.titleAr : matchedProject.titleEn}
                         </h3>
                         
-                        <p className="text-xs text-gray-450 text-gray-400 leading-relaxed mb-3">
+                        <p className="text-xs text-gray-400 leading-relaxed mb-3">
                           {isRtl ? matchedProject.descriptionAr : matchedProject.descriptionEn}
                         </p>
                         

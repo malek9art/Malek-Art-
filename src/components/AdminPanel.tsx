@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Shield, Key, Grid, Layout, Layers, FileText, Trash2, Edit3, Plus, CheckCircle, AlertTriangle, LogOut, FileCode, Mail, Trash, Sparkles, Brain, Star, CheckCheck, Landmark } from 'lucide-react';
-import { Project, Service, ContactMessage, SiteConfig, SocialLink, SmartDesignRequest, Skill, ClientReview, AdminUser, CustomFontData } from '../types';
-import { getAdminUserDB, saveAdminUserDB, saveCustomFontDB, clearCustomFontDB } from '../lib/dbService';
+import { Shield, Grid, Layout, Layers, FileText, Trash2, Edit3, Plus, CheckCircle, LogOut, FileCode, Mail, Trash, Sparkles, Brain, Star, CheckCheck } from 'lucide-react';
+import { Project, Service, ContactMessage, SiteConfig, SocialLink, SmartDesignRequest, Skill, ClientReview, CustomFontData } from '../types';
+import { saveCustomFontDB, clearCustomFontDB } from '../lib/dbService';
 import { compressImage, ImageValidationError } from '../lib/imageCompress';
 import { FONT_OPTIONS, CUSTOM_FONT_ID, applyFont, getFontById, injectCustomFontFaces, fontFormat, readFileAsDataUrl } from '../lib/fonts';
 import { useAuth } from '../auth/authContext';
+import AdminLogin from './admin/AdminLogin';
+import ConfirmationModal, { ConfirmModalType } from './admin/ConfirmationModal';
+import AdminAnalytics from './admin/AdminAnalytics';
 
 interface AdminPanelProps {
   currentLang: 'ar' | 'en';
@@ -44,16 +47,7 @@ export default function AdminPanel({
   setIsLoggedIn,
   t,
 }: AdminPanelProps) {
-  const [password, setPassword] = useState('');
   const [passError, setPassError] = useState('');
-  
-  // Custom multi-step database admin authentication states
-  const [adminEmail, setAdminEmail] = useState('');
-  const [loginStep, setLoginStep] = useState<'email' | 'setPassword' | 'enterPassword'>('email');
-  const [foundAdmin, setFoundAdmin] = useState<AdminUser | null>(null);
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isVerifying, setIsVerifying] = useState(false);
   
   // Custom Skills Fields & Actions
   const [newSkillNameAr, setNewSkillNameAr] = useState('');
@@ -439,60 +433,6 @@ export default function AdminPanel({
   useEffect(() => {
     setIsLoggedIn(isAuthenticated);
   }, [isAuthenticated, setIsLoggedIn]);
-
-  const handleVerifyEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const emailKey = adminEmail.toLowerCase().trim();
-    if (!emailKey) return;
-    setIsVerifying(true);
-    setPassError('');
-    try {
-      const designatedAdmin = (import.meta.env.VITE_ADMIN_EMAIL || "malikalwesabi@gmail.com").toLowerCase().trim();
-      if (emailKey !== designatedAdmin && emailKey !== 'admin@malek.art' && emailKey !== 'admin@malek') {
-        setPassError(isRtl ? 'البريد الإلكتروني المدخل غير مخصص للمسؤول.' : 'The entered email is not designated as administrator.');
-        return;
-      }
-      setLoginStep('enterPassword');
-    } finally {
-      setIsVerifying(false);
-    }
-  };
-
-  const handleSetupPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPassError(isRtl 
-      ? 'إدارة الحسابات وكلمات المرور تتم الآن حصرياً عبر كونسول Firebase Authentication الرسمية.' 
-      : 'User accounts and password setup are managed directly in the official Firebase Authentication Console.');
-  };
-
-  const handlePasswordLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!password.trim() || !adminEmail.trim()) return;
-    setIsVerifying(true);
-    setPassError('');
-    try {
-      const result = await authLogin(adminEmail.trim(), password);
-      if (result.success) {
-        if (result.user?.role !== 'admin') {
-          setPassError(isRtl 
-            ? 'تم التحقق بنجاح ولكن الحساب لا يملك دور مسؤول (Admin Role) في قاعدة البيانات.' 
-            : 'Authenticated successfully, but account lacks Admin Role in database.');
-          await authLogout();
-          return;
-        }
-        setIsLoggedIn(true);
-        setPassError('');
-      } else {
-        setPassError(isRtl 
-          ? `تعذر الدخول بـ Firebase Auth: ${result.error || 'تأكد من وجود البريد في Firebase Authentication وإدخال كلمة المرور الصحيحة.'}` 
-          : (result.error || 'Firebase Authentication failed. Verify user exists in Firebase Auth console and password is correct.'));
-      }
-    } catch (error: any) {
-      setPassError(isRtl ? 'حدث خطأ أثناء إجراء المصادقة عبر Firebase.' : 'An error occurred contacting Firebase Auth.');
-    } finally {
-      setIsVerifying(false);
-    }
-  };
 
   const handleLogout = async () => {
     await authLogout();
@@ -891,229 +831,9 @@ export default function AdminPanel({
     });
   };
 
-  // Logged Lockout Layout
+  // Show login screen if not authenticated
   if (!isLoggedIn) {
-    return (
-      <section className="min-h-screen py-32 flex items-center justify-center bg-[#040316] text-center px-4 relative">
-        <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-indigo-500/10 rounded-full filter blur-xl pointer-events-none"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-600/5 rounded-full filter blur-xl pointer-events-none"></div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-md w-full bg-white/5 border border-white/10 rounded-[32px] p-8 sm:p-10 backdrop-blur-lg shadow-2xl relative"
-        >
-          <div className="w-14 h-14 rounded-2xl bg-[#EA580C]/10 flex items-center justify-center border border-[#EA580C]/20 text-[#EA580C] mx-auto mb-6 shadow-inner animate-pulse">
-            <Key className="w-6 h-6" />
-          </div>
-
-          <AnimatePresence mode="wait">
-            {loginStep === 'email' && (
-              <motion.div
-                key="email-step"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <h3 className="text-xl sm:text-2xl font-black text-white mb-2 font-sans tracking-tight uppercase">
-                  {isRtl ? "تسجيل دخول المسؤول" : "Administrator Portal Login"}
-                </h3>
-                <p className="text-xs text-white/60 mb-8 max-w-xs mx-auto leading-relaxed">
-                  {isRtl 
-                    ? "الرجاء إدخال البريد الإلكتروني المصادق عليه في قاعدة البيانات للتحقق والوصول للوحة التحكم." 
-                    : "Please enter your authenticated administrator email from the database to log in."}
-                </p>
-
-                <form onSubmit={handleVerifyEmail} className={`space-y-5 ${isRtl ? 'rtl' : 'ltr'}`}>
-                  <div className="text-start">
-                    <label htmlFor="admin-email" className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">
-                      {isRtl ? "البريد الإلكتروني" : "Email Address"} (try: <span className="font-mono text-[#EA580C]">malikalwesabi@gmail.com</span>)
-                    </label>
-                    <input
-                      id="admin-email"
-                      type="email"
-                      value={adminEmail}
-                      onChange={(e) => setAdminEmail(e.target.value)}
-                      placeholder="malikalwesabi@gmail.com"
-                      className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-4 text-white text-center focus:outline-none focus:border-[#EA580C]"
-                      required
-                      disabled={isVerifying}
-                    />
-                  </div>
-
-                  {passError && (
-                    <p className="text-xs font-bold text-red-400 flex items-center gap-1.5 justify-center">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span>{passError}</span>
-                    </p>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={isVerifying}
-                    className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#4f46e5] to-[#ea580c] text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg hover:opacity-90 active:scale-98 cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    {isVerifying ? (
-                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    ) : null}
-                    <span>{isRtl ? "التحقق والاستمرار" : "Verify & Continue"}</span>
-                  </button>
-                </form>
-              </motion.div>
-            )}
-
-            {loginStep === 'setPassword' && (
-              <motion.div
-                key="set-password-step"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <h3 className="text-xl sm:text-2xl font-black text-white mb-2 font-sans tracking-tight uppercase">
-                  {isRtl ? "إعداد كلمة المرور لأول مرة" : "Configure Password"}
-                </h3>
-                <p className="text-xs text-white/60 mb-6 max-w-xs mx-auto leading-relaxed">
-                  {isRtl 
-                    ? "أهلاً بك مالك! هذا أول تسجيل دخول لك. الرجاء إعداد كلمة مرور آمنة لحسابك لاستخدامها مستقبلاً." 
-                    : "Welcome, Malek! This is your first login. Please choose a safe admin password for future logins."}
-                </p>
-
-                <form onSubmit={handleSetupPassword} className={`space-y-4 ${isRtl ? 'rtl' : 'ltr'}`}>
-                  <div className="text-start">
-                    <label htmlFor="new-pwd" className="block text-xs uppercase tracking-wider font-semibold text-white mb-1.5">
-                      {isRtl ? "كلمة المرور الجديدة" : "New Password"} (min 6 chars)
-                    </label>
-                    <input
-                      id="new-pwd"
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white text-center focus:outline-none focus:border-[#EA580C]"
-                      required
-                      disabled={isVerifying}
-                    />
-                  </div>
-
-                  <div className="text-start">
-                    <label htmlFor="confirm-pwd" className="block text-xs uppercase tracking-wider font-semibold text-white mb-1.5">
-                      {isRtl ? "تأكيد كلمة المرور" : "Confirm Password"}
-                    </label>
-                    <input
-                      id="confirm-pwd"
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white text-center focus:outline-none focus:border-[#EA580C]"
-                      required
-                      disabled={isVerifying}
-                    />
-                  </div>
-
-                  {passError && (
-                    <p className="text-xs font-bold text-red-400 flex items-center gap-1.5 justify-center">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span>{passError}</span>
-                    </p>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={isVerifying}
-                    className="w-full py-3.5 rounded-full bg-[#EA580C] hover:bg-orange-500 text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg hover:opacity-90 active:scale-98 cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    {isVerifying ? (
-                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    ) : null}
-                    <span>{isRtl ? "حفظ كلمة المرور والدخول" : "Save Password & Enter"}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginStep('email');
-                      setPassError('');
-                    }}
-                    className="w-full text-xs text-white/50 hover:text-white transition-colors py-1 cursor-pointer underline"
-                  >
-                    {isRtl ? "رجوع لتغيير البريد الإلكتروني" : "Back to Change Email"}
-                  </button>
-                </form>
-              </motion.div>
-            )}
-
-            {loginStep === 'enterPassword' && (
-              <motion.div
-                key="enter-password-step"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <h3 className="text-xl sm:text-2xl font-black text-white mb-2 font-sans tracking-tight uppercase">
-                  {isRtl ? "إدخال كلمة المرور" : "Submit Password"}
-                </h3>
-                <p className="text-xs text-white/60 mb-8 max-w-xs mx-auto leading-relaxed">
-                  {isRtl 
-                    ? `مرحباً بالمسؤول (${adminEmail}). الرجاء إدخال كلمة المرور المعتمدة للوصول الكامل للوحة التحكم.` 
-                    : `Welcome Admin (${adminEmail}). Please enter your safe password to unlock modifications.`}
-                </p>
-
-                <form onSubmit={handlePasswordLogin} className={`space-y-5 ${isRtl ? 'rtl' : 'ltr'}`}>
-                  <div className="text-start">
-                    <label htmlFor="admin-vault-pwd" className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">
-                      {isRtl ? "كلمة المرور" : "Password"}
-                    </label>
-                    <input
-                      id="admin-vault-pwd"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full text-sm rounded-2xl bg-black/40 border border-white/10 p-4 text-white text-center focus:outline-none focus:border-[#EA580C]"
-                      required
-                      disabled={isVerifying}
-                    />
-                  </div>
-
-                  {passError && (
-                    <p className="text-xs font-bold text-red-400 flex items-center gap-1.5 justify-center">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span>{passError}</span>
-                    </p>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={isVerifying}
-                    className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#4f46e5] to-[#ea580c] text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg hover:opacity-90 active:scale-98 cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    {isVerifying ? (
-                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    ) : null}
-                    <span>{isRtl ? "تسجيل الدخول" : "Log In"}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginStep('email');
-                      setPassError('');
-                    }}
-                    className="w-full text-xs text-white/50 hover:text-white transition-colors py-1 cursor-pointer underline"
-                  >
-                    {isRtl ? "رجوع لتغيير البريد الإلكتروني" : "Back to Change Email"}
-                  </button>
-                </form>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      </section>
-    );
+    return <AdminLogin currentLang={currentLang} setIsLoggedIn={setIsLoggedIn} />;
   }
 
   // Dashboard CMS workspace UI
@@ -2616,92 +2336,16 @@ export default function AdminPanel({
           </form>
         )}
 
-        {/* ==================== TAB 6 DETAILS: ADVANCED ANALYTICS DASHBOARD ==================== */}
+        {/* ==================== TAB: ANALYTICS (extracted component with real data) ==================== */}
         {activeTab === 'analytics' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {/* Card 1: Inbox Size */}
-              <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md text-start">
-                <span className="text-[10px] text-white/50 block font-mono">TOTAL INBOUND LEADS</span>
-                <span className="text-3xl font-black text-white block mt-2">{messages.length}</span>
-                <span className="text-xs text-green-400 mt-1 block font-semibold">▲ 12% increase this week</span>
-              </div>
-
-              {/* Card 2: Interactive views mock */}
-              <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md text-start">
-                <span className="text-[10px] text-white/50 block font-mono">PORTFOLIO CLICKS</span>
-                <span className="text-3xl font-black text-accent block mt-2">1,482</span>
-                <span className="text-xs text-white/50 block mt-1">Driven by custom UI showcases</span>
-              </div>
-
-              {/* Card 3: Graphic Design share */}
-              <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md text-start">
-                <span className="text-[10px] text-white/50 block font-mono">ACTIVE PROJECTS</span>
-                <span className="text-3xl font-black text-indigo-400 block mt-2">{projects.length}</span>
-                <span className="text-xs text-white/50 block mt-1">Production nodes online</span>
-              </div>
-            </div>
-
-            {/* Service & Product category demand analytics charts (crafted cleanly with micro HTML/CSS bars) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-6 sm:p-8 rounded-[32px] bg-white/5 border border-white/10 backdrop-blur-md text-start">
-                <h4 className="text-sm font-bold text-white mb-6 font-mono uppercase tracking-wider">Estimated Service Demand distribution</h4>
-                
-                <div className="space-y-5">
-                  {[
-                    { label: isRtl ? "تصميم واجهات المستخدم" : "UI Design Requests", percent: 92, count: "12 inquiries", color: "bg-accent" },
-                    { label: isRtl ? "التطوير البرمجي" : "Frontend Development", percent: 84, count: "9 inquiries", color: "bg-[#818CF8]" },
-                    { label: isRtl ? "التصميم الجرافيگي" : "Graphic Design", percent: 65, count: "5 inquiries", color: "bg-emerald-500" },
-                    { label: isRtl ? "منشورات التواصل" : "Social Media Posts", percent: 55, count: "4 inquiries", color: "bg-pink-500" }
-                  ].map((item, idx) => (
-                    <div key={idx} className="space-y-1.5">
-                      <div className="flex justify-between items-center text-xs text-white/80 font-medium">
-                        <span>{item.label}</span>
-                        <span className="font-mono text-white/60">{item.count} ({item.percent}%)</span>
-                      </div>
-                      <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden p-[1px]">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${item.percent}%` }}
-                          transition={{ duration: 1, ease: 'easeOut' }}
-                          className={`h-full rounded-full ${item.color}`}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Monthly submissions trend charts */}
-              <div className="p-6 sm:p-8 rounded-[32px] bg-white/5 border border-white/10 backdrop-blur-md text-start flex flex-col justify-between">
-                <div>
-                  <h4 className="text-sm font-bold text-white mb-2 font-mono uppercase tracking-wider">Submissions Volume (June 2026)</h4>
-                  <p className="text-xs text-white/50 leading-relaxed">Tracking message submissions activity metrics and analytics.</p>
-                </div>
-
-                <div className="h-32 flex items-end gap-3 pt-6 border-b border-white/5 pb-2 font-mono text-[9px] text-white/45">
-                  {[
-                    { day: "June 1", height: "h-8", msgs: 1 },
-                    { day: "June 5", height: "h-16", msgs: 2 },
-                    { day: "June 10", height: "h-24", msgs: 3 },
-                    { day: "June 15", height: "h-12", msgs: 1 },
-                    { day: "June 20", height: "h-28", msgs: 5 },
-                    { day: "June 22", height: "h-36", msgs: 7 }
-                  ].map((bar, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group cursor-pointer">
-                      <div className="text-[10px] text-accent font-bold opacity-0 group-hover:opacity-100 transition-opacity">{bar.msgs}</div>
-                      <motion.div
-                        initial={{ scaleY: 0 }}
-                        animate={{ scaleY: 1 }}
-                        className={`w-full ${bar.height} bg-accent/40 group-hover:bg-accent rounded-t-md origin-bottom transition-colors`}
-                      />
-                      <span className="text-[8px] sm:text-[9px] text-white/40">{bar.day}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          <AdminAnalytics
+            messages={messages}
+            projects={projects}
+            services={services}
+            skills={skills}
+            reviews={reviews}
+            isRtl={isRtl}
+          />
         )}
 
         {/* ==================== TAB 4 DETAILS: CONTACT INBOX MESSAGES ==================== */}
@@ -3382,85 +3026,17 @@ export default function AdminPanel({
           </div>
         )}
 
-        {/* ==================== CONFIRMATION DIALOG MODAL OVERLAY ==================== */}
-        <AnimatePresence>
-          {savedConfirmModal?.isOpen && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md"
-            >
-              <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                transition={{ type: "spring", duration: 0.5 }}
-                className="w-full max-w-md overflow-hidden bg-[#121125] border border-white/10 rounded-[32px] shadow-2xl p-6 sm:p-8 relative text-center"
-              >
-                {/* Visual Accent Circle glow */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-[#EA580C]/20 blur-3xl rounded-full -z-10" />
-
-                {savedConfirmModal.type === 'sync_error' ? (
-                  <div className="mx-auto w-14 h-14 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mb-5 animate-pulse">
-                    <AlertTriangle className="w-7 h-7 text-red-400" />
-                  </div>
-                ) : (
-                  <div className="mx-auto w-14 h-14 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center mb-5 animate-pulse">
-                    <CheckCircle className="w-7 h-7 text-green-400" />
-                  </div>
-                )}
-
-                <h3 className="text-base sm:text-lg font-extrabold text-white mb-2">
-                  {savedConfirmModal.title}
-                </h3>
-                
-                <p className="text-xs sm:text-sm text-white/70 leading-relaxed mb-5">
-                  {savedConfirmModal.message}
-                </p>
-
-                <div className="bg-black/35 rounded-2xl p-4 mb-5 border border-white/5 text-[10px] text-white/50 text-start leading-relaxed font-mono">
-                  {isRtl ? (
-                    <div>
-                      <p className="font-sans font-bold text-accent mb-1">تفاصيل العملية:</p>
-                      <p>● نوع التعديل: {
-                        savedConfirmModal.type === 'project_added' ? 'إضافة مشروع جديد للمعرض' :
-                        savedConfirmModal.type === 'project_updated' ? 'تعديل وحفظ بيانات مشروع قائمة الذخيرة' :
-                        savedConfirmModal.type === 'service_updated' ? 'تعديل وحفظ ميزات خدمة العرض' :
-                        savedConfirmModal.type === 'config_saved' ? 'تعديل هوية وألوان الإنجاز البصرية الفورية' :
-                        savedConfirmModal.type === 'deleted' ? 'إزالة وحذف نهائي من قاعدة البيانات' :
-                        savedConfirmModal.type === 'sync_error' ? 'فشل اتصال بقاعدة البيانات السحابية' : 'عملية تعديل بيانات النظام'
-                      }</p>
-                      <p className="mt-1">● حالة العملية: {
-                        savedConfirmModal.type === 'sync_error'
-                          ? 'فشلت المزامنة السحابية — محفوظ محلياً فقط (LOCAL ONLY)'
-                          : 'ناجحة ومُزامنة مع قاعدة البيانات السحابية (Firestore Cloud Verified)'
-                      }</p>
-                    </div>
-                  ) : (
-                    <div>
-                      <p className="font-sans font-bold text-accent mb-1">OPERATION METRICS:</p>
-                      <p>● Event Node Type: {savedConfirmModal.type.toUpperCase()}</p>
-                      <p className="mt-1">● Status Code: {
-                        savedConfirmModal.type === 'sync_error'
-                          ? 'CLOUD_SYNC_FAILED (Persisted Locally Only)'
-                          : 'CLOUD_SYNCED_SUCCESSFULLY (Firestore Verified)'
-                      }</p>
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSavedConfirmModal(null)}
-                  className="w-full py-3 rounded-full bg-accent hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider cursor-pointer shadow-md transition-all active:scale-98 select-none"
-                >
-                  {isRtl ? "موافق، فهمت" : "Acknowledge & Dismiss"}
-                </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* ==================== CONFIRMATION MODAL (extracted component) ==================== */}
+        {savedConfirmModal && (
+          <ConfirmationModal
+            isOpen={savedConfirmModal.isOpen}
+            title={savedConfirmModal.title}
+            message={savedConfirmModal.message}
+            type={savedConfirmModal.type}
+            onClose={() => setSavedConfirmModal(null)}
+            isRtl={isRtl}
+          />
+        )}
 
       </div>
     </section>
