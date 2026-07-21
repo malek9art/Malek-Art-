@@ -12,10 +12,10 @@ export default function Services({ currentLang, services, t }: ServicesProps) {
   const isRtl = currentLang === 'ar';
 
   return (
-    <section id="services" className="relative py-24 sm:py-32 bg-gradient-to-b from-[#0a0724] to-[#040316] overflow-hidden">
+    <section id="services" className="relative py-24 sm:py-32 bg-gradient-to-b from-[#081B36] to-[#041024] overflow-hidden">
       {/* Decorative Blur Orbs */}
-      <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-indigo-600/5 rounded-full filter blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 left-10 w-[300px] h-[300px] bg-orange-600/5 rounded-full filter blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-brand-primary/5 rounded-full filter blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 left-10 w-[300px] h-[300px] bg-brand-hover/5 rounded-full filter blur-[100px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -26,9 +26,9 @@ export default function Services({ currentLang, services, t }: ServicesProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EA580C]/10 text-[#EA580C] mb-4 text-xs font-semibold uppercase tracking-wider border border-[#EA580C]/20"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1C99ED]/10 text-[#1C99ED] mb-4 text-xs font-semibold uppercase tracking-wider border border-[#1C99ED]/20"
           >
-            <LucideIcons.Sparkles className="w-4 h-4 text-[#EA580C]" />
+            <LucideIcons.Sparkles className="w-4 h-4 text-[#1C99ED]" />
             <span>{t.navServices}</span>
           </motion.div>
 
@@ -92,15 +92,15 @@ export default function Services({ currentLang, services, t }: ServicesProps) {
                 <div className="absolute inset-0 bg-radial-gradient(ellipse_at_center,rgba(79,70,229,0.06)_0%,transparent_70%) opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
                 {/* Glowing Corner Indicator */}
-                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-orange-500/5 to-transparent rounded-bl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-brand-accent/5 to-transparent rounded-bl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                 {/* Service Icon Box */}
-                <div className="w-14 h-14 rounded-2xl bg-[#1e1b4b]/85 border border-white/10 text-[#EA580C] flex items-center justify-center mb-6 shadow-inner group-hover:bg-[#EA580C] group-hover:text-white group-hover:border-[#EA580C] group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(234,88,12,0.4)] transition-all duration-300">
+                <div className="w-14 h-14 rounded-2xl bg-[#12233D]/85 border border-white/10 text-[#1C99ED] flex items-center justify-center mb-6 shadow-inner group-hover:bg-[#1C99ED] group-hover:text-white group-hover:border-[#1C99ED] group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(234,88,12,0.4)] transition-all duration-300">
                   <IconComponent className="w-6 h-6" />
                 </div>
 
                 {/* Title */}
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-3 group-hover:text-orange-400 transition-colors duration-300 font-sans">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-3 group-hover:text-brand-accent transition-colors duration-300 font-sans">
                   {isRtl ? service.titleAr : service.titleEn}
                 </h3>
 
@@ -111,8 +111,8 @@ export default function Services({ currentLang, services, t }: ServicesProps) {
 
                 {/* Aesthetic Detail Dots */}
                 <div className="mt-auto flex gap-1.5 opacity-50">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                  <span className="w-4 h-1.5 rounded-full bg-[#EA580C] transition-all duration-300 group-hover:w-8"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-accent"></span>
+                  <span className="w-4 h-1.5 rounded-full bg-[#1C99ED] transition-all duration-300 group-hover:w-8"></span>
                 </div>
 
               </motion.div>

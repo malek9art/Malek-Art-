@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Github, Linkedin, Twitter, MessageSquare, Send, CheckCircle2, ShieldAlert, Facebook, Instagram, Youtube, MessageCircle, Globe } from 'lucide-react';
+import { Mail, Github, Linkedin, X as XIcon, MessageSquare, Send, CheckCircle2, ShieldAlert, Facebook, Instagram, Youtube, MessageCircle, Globe } from 'lucide-react';
 import { ContactMessage, SocialLink } from '../types';
 
 interface ContactProps {
@@ -75,7 +75,7 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
     const p = platform.toLowerCase();
     if (p.includes('git')) return <Github className="w-4.5 h-4.5 sm:w-5 sm:h-5 flex-shrink-0" />;
     if (p.includes('link')) return <Linkedin className="w-4.5 h-4.5 sm:w-5 sm:h-5 flex-shrink-0" />;
-    if (p.includes('twit') || p.includes('x')) return <Twitter className="w-4.5 h-4.5 flex-shrink-0" />;
+    if (p.includes('twit') || p.includes('x')) return <XIcon className="w-4.5 h-4.5 flex-shrink-0" />;
     if (p.includes('face')) return <Facebook className="w-4.5 h-4.5 flex-shrink-0" />;
     if (p.includes('inst')) return <Instagram className="w-4.5 h-4.5 flex-shrink-0" />;
     if (p.includes('yout')) return <Youtube className="w-4.5 h-4.5 flex-shrink-0" />;
@@ -86,13 +86,13 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
   const getSocialColor = (platform: string) => {
     const p = platform.toLowerCase();
     if (p.includes('git')) return 'hover:text-white hover:bg-black/80 hover:border-black/80';
-    if (p.includes('link')) return 'hover:text-white hover:bg-indigo-600 hover:border-indigo-600';
-    if (p.includes('twit') || p.includes('x')) return 'hover:text-white hover:bg-sky-500 hover:border-sky-500';
+    if (p.includes('link')) return 'hover:text-white hover:bg-brand-primary hover:border-brand-primary';
+    if (p.includes('twit') || p.includes('x')) return 'hover:text-white hover:bg-brand-accent hover:border-brand-accent';
     if (p.includes('face')) return 'hover:text-white hover:bg-blue-600 hover:border-blue-600';
-    if (p.includes('inst')) return 'hover:text-white hover:bg-pink-600 hover:border-pink-600';
+    if (p.includes('inst')) return 'hover:text-white hover:bg-brand-primary hover:border-brand-primary';
     if (p.includes('yout')) return 'hover:text-white hover:bg-red-600 hover:border-red-600';
     if (p.includes('whats')) return 'hover:text-white hover:bg-green-600 hover:border-green-600';
-    return 'hover:text-white hover:bg-[#EA580C] hover:border-[#EA580C]';
+    return 'hover:text-white hover:bg-[#1C99ED] hover:border-[#1C99ED]';
   };
 
   const socialLinks = config?.socialLinks && config.socialLinks.length > 0
@@ -104,23 +104,23 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
       }))
     : [
         ...(config?.socialGithub ? [{ name: 'Github', url: config.socialGithub, icon: <Github className="w-4.5 h-4.5 sm:w-5 sm:h-5" />, color: 'hover:text-white hover:bg-black/85' }] : []),
-        ...(config?.socialLinkedin ? [{ name: 'LinkedIn', url: config.socialLinkedin, icon: <Linkedin className="w-4.5 h-4.5 sm:w-5 sm:h-5" />, color: 'hover:text-white hover:bg-indigo-600' }] : []),
-        ...(config?.socialTwitter ? [{ name: 'Twitter/X', url: config.socialTwitter, icon: <Twitter className="w-4.5 h-4.5" />, color: 'hover:text-[#ea580c] hover:bg-white/5' }] : []),
+        ...(config?.socialLinkedin ? [{ name: 'LinkedIn', url: config.socialLinkedin, icon: <Linkedin className="w-4.5 h-4.5 sm:w-5 sm:h-5" />, color: 'hover:text-white hover:bg-brand-primary' }] : []),
+        ...(config?.socialTwitter ? [{ name: 'Twitter/X', url: config.socialTwitter, icon: <XIcon className="w-4.5 h-4.5" />, color: 'hover:text-[#1C99ED] hover:bg-white/5' }] : []),
         ...(config?.socialFacebook ? [{ name: 'Facebook', url: config.socialFacebook, icon: <Facebook className="w-4.5 h-4.5" />, color: 'hover:text-blue-500 hover:bg-white/5' }] : []),
-        ...(config?.socialInstagram ? [{ name: 'Instagram', url: config.socialInstagram, icon: <Instagram className="w-4.5 h-4.5" />, color: 'hover:text-pink-500 hover:bg-white/5' }] : [])
+        ...(config?.socialInstagram ? [{ name: 'Instagram', url: config.socialInstagram, icon: <Instagram className="w-4.5 h-4.5" />, color: 'hover:text-brand-accent hover:bg-white/5' }] : [])
       ];
 
   if (socialLinks.length === 0) {
     socialLinks.push(
       { name: 'Github', url: 'https://github.com/malekart', icon: <Github className="w-4.5 h-4.5 sm:w-5 sm:h-5" />, color: 'hover:text-white hover:bg-black/80' },
-      { name: 'LinkedIn', url: 'https://linkedin.com/in/malekart', icon: <Linkedin className="w-4.5 h-4.5 sm:w-5 sm:h-5" />, color: 'hover:text-white hover:bg-indigo-600' }
+      { name: 'LinkedIn', url: 'https://linkedin.com/in/malekart', icon: <Linkedin className="w-4.5 h-4.5 sm:w-5 sm:h-5" />, color: 'hover:text-white hover:bg-brand-primary' }
     );
   }
 
   return (
-    <section id="contact" className="relative py-24 sm:py-32 bg-[#0a0724] overflow-hidden">
+    <section id="contact" className="relative py-24 sm:py-32 bg-[#081B36] overflow-hidden">
       {/* Decorative Blur lights */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[350px] h-[350px] bg-indigo-600/5 rounded-full filter blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[350px] h-[350px] bg-brand-primary/5 rounded-full filter blur-[100px] pointer-events-none"></div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -131,9 +131,9 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EA580C]/10 text-[#EA580C] mb-4 text-xs font-semibold uppercase tracking-wider border border-[#EA580C]/20"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1C99ED]/10 text-[#1C99ED] mb-4 text-xs font-semibold uppercase tracking-wider border border-[#1C99ED]/20"
           >
-            <MessageSquare className="w-4 h-4 text-[#EA580C]" />
+            <MessageSquare className="w-4 h-4 text-[#1C99ED]" />
             <span>{t.navContact}</span>
           </motion.div>
 
@@ -184,7 +184,7 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
                   <div className="flex items-center gap-4">
                     <a
                       href={`mailto:${config?.resumeEmail || 'malikalwesabi@gmail.com'}`}
-                      className="w-14 h-14 rounded-2xl bg-[#EA580C]/10 hover:bg-[#EA580C] text-[#EA580C] hover:text-white flex items-center justify-center border border-[#EA580C]/30 transition-all hover:scale-105 active:scale-95 shadow-lg group cursor-pointer"
+                      className="w-14 h-14 rounded-2xl bg-[#1C99ED]/10 hover:bg-[#1C99ED] text-[#1C99ED] hover:text-white flex items-center justify-center border border-[#1C99ED]/30 transition-all hover:scale-105 active:scale-95 shadow-lg group cursor-pointer"
                       title={isRtl ? "راسلني بالبريد الإلكتروني" : "Direct Email Channel"}
                     >
                       <Mail className="w-7 h-7 transition-all group-hover:scale-110 group-hover:rotate-6" />
@@ -192,7 +192,7 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
 
                     {/* Simulated Speed */}
                     <div className="flex-1 flex gap-3 items-center px-4 py-3.5 rounded-2xl bg-white/5 border border-white/5">
-                      <MessageSquare className="w-4.5 h-4.5 text-[#818CF8]" />
+                      <MessageSquare className="w-4.5 h-4.5 text-[#1C99ED]" />
                       <span className="text-xs text-gray-300 font-semibold">
                         {isRtl ? "رد نشط خلال أقل من 12 ساعة" : "Response in less than 12h"}
                       </span>
@@ -222,7 +222,7 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`w-11 h-11 rounded-full bg-white/5 flex items-center justify-center text-gray-300 transition-all border border-white/10 shadow-md active:scale-90 ${item.color} hover:bg-[#EA580C] hover:text-white hover:border-[#EA580C]`}
+                    className={`w-11 h-11 rounded-full bg-white/5 flex items-center justify-center text-gray-300 transition-all border border-white/10 shadow-md active:scale-90 ${item.color} hover:bg-[#1C99ED] hover:text-white hover:border-[#1C99ED]`}
                     title={item.name}
                   >
                     {item.icon}
@@ -257,7 +257,7 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full text-xs sm:text-sm rounded-2xl bg-[#1e1b4b]/60 border border-white/10 p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#EA580C] focus:ring-1 focus:ring-[#EA580C] transition-all"
+                      className="w-full text-xs sm:text-sm rounded-2xl bg-[#12233D]/60 border border-white/10 p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#1C99ED] focus:ring-1 focus:ring-[#1C99ED] transition-all"
                       required
                     />
                   </div>
@@ -272,7 +272,7 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full text-xs sm:text-sm rounded-2xl bg-[#1e1b4b]/60 border border-white/10 p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#EA580C] focus:ring-1 focus:ring-[#EA580C] transition-all"
+                      className="w-full text-xs sm:text-sm rounded-2xl bg-[#12233D]/60 border border-white/10 p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#1C99ED] focus:ring-1 focus:ring-[#1C99ED] transition-all"
                       required
                     />
                   </div>
@@ -288,7 +288,7 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
                     id="contact-subject"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    className="w-full text-xs sm:text-sm rounded-2xl bg-[#1e1b4b] border border-white/10 p-3.5 text-gray-300 focus:outline-none focus:border-[#EA580C] focus:ring-1 focus:ring-[#EA580C] transition-all cursor-pointer"
+                    className="w-full text-xs sm:text-sm rounded-2xl bg-[#12233D] border border-white/10 p-3.5 text-gray-300 focus:outline-none focus:border-[#1C99ED] focus:ring-1 focus:ring-[#1C99ED] transition-all cursor-pointer"
                   >
                     <option value="ui">{t.contactSubjectUi}</option>
                     <option value="dev">{t.contactSubjectDev}</option>
@@ -308,7 +308,7 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
                     rows={5}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    className="w-full text-xs sm:text-sm rounded-2xl bg-[#1e1b4b]/60 border border-white/10 p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#EA580C] focus:ring-1 focus:ring-[#EA580C] transition-all leading-relaxed"
+                    className="w-full text-xs sm:text-sm rounded-2xl bg-[#12233D]/60 border border-white/10 p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#1C99ED] focus:ring-1 focus:ring-[#1C99ED] transition-all leading-relaxed"
                     required
                   />
                 </div>
@@ -347,7 +347,7 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
                   type="submit"
                   disabled={status === 'sending'}
                   id="contact-form-submit-btn"
-                  className="w-full py-4 rounded-full bg-gradient-to-r from-[#4f46e5] to-[#ea580c] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 border border-white/10 transition-all shadow-xl hover:opacity-90 cursor-pointer active:scale-99 select-none"
+                  className="w-full py-4 rounded-full bg-gradient-to-r from-[#0A4EA4] to-[#1C99ED] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 border border-white/10 transition-all shadow-xl hover:opacity-90 cursor-pointer active:scale-99 select-none"
                 >
                   {status === 'sending' ? (
                     <div className="flex items-center gap-2">
@@ -356,7 +356,7 @@ export default function Contact({ currentLang, onNewMessage, t, config }: Contac
                     </div>
                   ) : (
                     <>
-                      <Send className="w-4 h-4 text-orange-200 animate-pulse" />
+                      <Send className="w-4 h-4 text-brand-accent animate-pulse" />
                       <span>{t.contactSubmitBtn}</span>
                     </>
                   )}

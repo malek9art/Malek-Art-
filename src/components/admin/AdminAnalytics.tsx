@@ -76,12 +76,12 @@ export default function AdminAnalytics({ messages, projects, services, skills, r
 
         <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md text-start">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-[#EA580C]/10 flex items-center justify-center">
-              <FolderOpen className="w-5 h-5 text-[#EA580C]" />
+            <div className="w-10 h-10 rounded-xl bg-[#1C99ED]/10 flex items-center justify-center">
+              <FolderOpen className="w-5 h-5 text-[#1C99ED]" />
             </div>
             <span className="text-[10px] text-white/50 block font-mono uppercase">{isRtl ? "المشاريع النشطة" : "ACTIVE PROJECTS"}</span>
           </div>
-          <span className="text-3xl font-black text-[#EA580C] block">{totalProjects}</span>
+          <span className="text-3xl font-black text-[#1C99ED] block">{totalProjects}</span>
           <span className="text-xs text-white/50 block mt-1">
             {isRtl ? `${totalServices} خدمة متاحة` : `${totalServices} services available`}
           </span>
@@ -89,12 +89,12 @@ export default function AdminAnalytics({ messages, projects, services, skills, r
 
         <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md text-start">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
-              <Star className="w-5 h-5 text-yellow-400" />
+            <div className="w-10 h-10 rounded-xl bg-warning/10 flex items-center justify-center">
+              <Star className="w-5 h-5 text-warning" />
             </div>
             <span className="text-[10px] text-white/50 block font-mono uppercase">{isRtl ? "التقييمات" : "REVIEWS"}</span>
           </div>
-          <span className="text-3xl font-black text-indigo-400 block">{reviews.length}</span>
+          <span className="text-3xl font-black text-brand-accent block">{reviews.length}</span>
           <span className="text-xs text-white/50 block mt-1">
             {isRtl 
               ? `${approvedReviews} معتمدة • ${pendingReviews} معلقة` 
@@ -108,7 +108,7 @@ export default function AdminAnalytics({ messages, projects, services, skills, r
         {/* Project Categories Distribution */}
         <div className="p-6 sm:p-8 rounded-[32px] bg-white/5 border border-white/10 backdrop-blur-md text-start">
           <h4 className="text-sm font-bold text-white mb-6 font-mono uppercase tracking-wider flex items-center gap-2">
-            <Briefcase className="w-4 h-4 text-[#EA580C]" />
+            <Briefcase className="w-4 h-4 text-[#1C99ED]" />
             {isRtl ? "توزيع المشاريع حسب التصنيف" : "Project Categories Distribution"}
           </h4>
 
@@ -120,7 +120,7 @@ export default function AdminAnalytics({ messages, projects, services, skills, r
             <div className="space-y-5">
               {sortedCategories.map(([cat, count], idx) => {
                 const percent = Math.round((count / maxCount) * 100);
-                const colors = ['bg-[#EA580C]', 'bg-[#818CF8]', 'bg-emerald-500', 'bg-pink-500'];
+                const colors = ['bg-[#1C99ED]', 'bg-[#1C99ED]', 'bg-emerald-500', 'bg-brand-accent'];
                 return (
                   <div key={idx} className="space-y-1.5">
                     <div className="flex justify-between items-center text-xs text-white/80 font-medium">
@@ -162,7 +162,7 @@ export default function AdminAnalytics({ messages, projects, services, skills, r
             <div className="h-32 flex items-end gap-3 pt-6 border-b border-white/5 pb-2 font-mono text-[9px] text-white/45">
               {last7Days.map((day, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group cursor-pointer">
-                  <div className="text-[10px] text-[#EA580C] font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="text-[10px] text-[#1C99ED] font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                     {day.count}
                   </div>
                   <motion.div
@@ -204,7 +204,7 @@ export default function AdminAnalytics({ messages, projects, services, skills, r
               </div>
               <div className="flex justify-between text-xs text-white/60">
                 <span>{isRtl ? "متوسط الإتقان" : "Average Proficiency"}</span>
-                <span className="font-bold text-[#EA580C]">
+                <span className="font-bold text-[#1C99ED]">
                   {Math.round(skills.reduce((acc, s) => acc + s.percentage, 0) / skills.length)}%
                 </span>
               </div>

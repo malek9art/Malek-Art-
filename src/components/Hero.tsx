@@ -30,7 +30,7 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
   return (
     <section 
       id="home" 
-      className="relative min-h-[110vh] pt-32 pb-20 flex flex-col justify-center items-center overflow-hidden bg-gradient-to-b from-[#1E1B4B] via-[#0d0a27] to-[#040212]"
+      className="relative min-h-[110vh] pt-32 pb-20 flex flex-col justify-center items-center overflow-hidden bg-gradient-to-b from-[#12233D] via-[#081B36] to-[#030B1A]"
     >
       {/* Visual Ambient Background Shaders/Glows */}
       {config.heroBgImg ? (
@@ -40,12 +40,12 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
             alt="Hero Backdrop"
             className="w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1E1B4B]/70 via-[#0d0a27]/90 to-[#040212]"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-[#12233D]/70 via-[#081B36]/90 to-[#030B1A]"></div>
         </div>
       ) : (
         <div className="absolute top-0 left-0 w-full h-full opacity-25 pointer-events-none">
-          <div className="absolute top-[-100px] left-[-100px] w-[700px] h-[700px] bg-[#4F46E5] rounded-full filter blur-[130px] opacity-40"></div>
-          <div className="absolute bottom-[-100px] right-[-100px] w-[600px] h-[600px] bg-[#EA580C] rounded-full filter blur-[130px] opacity-30"></div>
+          <div className="absolute top-[-100px] left-[-100px] w-[700px] h-[700px] bg-[#0A4EA4] rounded-full filter blur-[130px] opacity-40"></div>
+          <div className="absolute bottom-[-100px] right-[-100px] w-[600px] h-[600px] bg-[#1C99ED] rounded-full filter blur-[130px] opacity-30"></div>
         </div>
       )}
 
@@ -53,7 +53,7 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
       <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.015)_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
 
       {/* Futuristic visual star dots particles */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden font-mono text-[10px] text-indigo-500/10 hidden lg:block select-none">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden font-mono text-[10px] text-brand-accent/10 hidden lg:block select-none">
         <span className="absolute top-1/4 left-10">01001101 01000001 01001100 01000101 01001011</span>
         <span className="absolute top-1/3 right-12">ART & TECH SYNERGY CODE_</span>
         <span className="absolute bottom-1/4 left-20">LATENCY: 12MS // STABLE_SYS</span>
@@ -72,11 +72,11 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-indigo-300 shadow-xl backdrop-blur-md select-none"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-brand-accent shadow-xl backdrop-blur-md select-none"
             >
-              <Sparkles className="w-4 h-4 text-orange-500 animate-pulse" />
+              <Sparkles className="w-4 h-4 text-brand-accent animate-pulse" />
               <span className="font-mono tracking-widest text-[9px] sm:text-[10px] uppercase text-white/90">
-                {t.heroTitlePrefix} <span className="text-orange-500 font-extrabold">{t.heroTitleName}</span>
+                {t.heroTitlePrefix} <span className="text-brand-accent font-extrabold">{t.heroTitleName}</span>
               </span>
             </motion.div>
 
@@ -100,7 +100,7 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: -20, opacity: 0 }}
                     transition={{ duration: 0.4, ease: "easeInOut" }}
-                    className="text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r from-orange-500 via-rose-500 to-amber-500 bg-clip-text text-transparent inline-block pb-1"
+                    className="text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r from-brand-accent via-brand-accent to-brand-accent bg-clip-text text-transparent inline-block pb-1"
                   >
                     🚀 {greetingWords[wordIdx]}
                   </motion.span>
@@ -128,7 +128,7 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
               <button
                 type="button"
                 onClick={() => onCtaClick('portfolio')}
-                className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 shadow-xl shadow-orange-500/10 hover:shadow-orange-500/20 active:scale-[0.98] cursor-pointer group"
+                className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-brand-hover to-brand-accent hover:from-brand-accent hover:to-brand-accent text-white font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 shadow-xl shadow-brand-accent/10 hover:shadow-brand-accent/20 active:scale-[0.98] cursor-pointer group"
               >
                 <span>{t.heroCtaWork}</span>
                 {isRtl ? (
@@ -158,17 +158,17 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
               className="relative w-full max-w-sm sm:max-w-md p-6 rounded-[36px] bg-gradient-to-b from-white/10 to-white/5 border border-white/15 backdrop-blur-xl shadow-2xl overflow-hidden group font-sans"
             >
               {/* Outer light sheen indicator overlay */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 via-transparent to-orange-500/5 opacity-80 pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+              <div className="absolute inset-0 bg-gradient-to-tr from-brand-accent/10 via-transparent to-brand-accent/5 opacity-80 pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
 
               {/* Mock Window Terminal Top Header */}
               <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10 select-none">
                 <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-rose-500/80"></div>
-                  <div className="w-3 h-3 rounded-full bg-amber-500/80"></div>
+                  <div className="w-3 h-3 rounded-full bg-brand-accent/80"></div>
+                  <div className="w-3 h-3 rounded-full bg-warning/80"></div>
                   <div className="w-3 h-3 rounded-full bg-emerald-500/80"></div>
                 </div>
                 <div className="flex items-center gap-1 text-[9px] font-mono text-white/50 bg-black/40 px-3 py-1 rounded-full border border-white/5">
-                  <Terminal className="w-3 h-3 text-orange-500 animate-pulse" />
+                  <Terminal className="w-3 h-3 text-brand-accent animate-pulse" />
                   <span>m_ahmed.sh</span>
                 </div>
               </div>
@@ -180,7 +180,7 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
                 <div className="flex items-center gap-4">
                   {config.profileImg ? (
                     <div className="relative shrink-0">
-                      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-orange-500 to-indigo-600 opacity-60 blur-md group-hover:opacity-100 transition-opacity"></div>
+                      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-brand-accent to-brand-primary opacity-60 blur-md group-hover:opacity-100 transition-opacity"></div>
                       <img
                         src={config.profileImg}
                         referrerPolicy="no-referrer"
@@ -194,13 +194,13 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
                       </span>
                     </div>
                   ) : (
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-indigo-600 to-orange-500 flex items-center justify-center font-bold text-xl text-white border border-white/20 shadow-lg">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-brand-primary to-brand-accent flex items-center justify-center font-bold text-xl text-white border border-white/20 shadow-lg">
                       M
                     </div>
                   )}
 
                   <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-[#EA580C] bg-[#EA580C]/10 px-2.5 py-0.5 rounded-full inline-block">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-[#1C99ED] bg-[#1C99ED]/10 px-2.5 py-0.5 rounded-full inline-block">
                       {isRtl ? "متاح للتوظيف" : "Available for Projects"}
                     </span>
                     <h3 className="text-base sm:text-lg font-extrabold text-white leading-tight">
@@ -213,15 +213,15 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
                 </div>
 
                 {/* Simulated Interactive code output block */}
-                <div className="p-3 bg-black/45 rounded-2xl border border-white/5 font-mono text-[10px] sm:text-xs text-indigo-200/90 leading-relaxed space-y-1 select-all relative">
+                <div className="p-3 bg-black/45 rounded-2xl border border-white/5 font-mono text-[10px] sm:text-xs text-brand-accent/90 leading-relaxed space-y-1 select-all relative">
                   <span className="absolute top-2 right-2 flex items-center gap-1 text-[8px] bg-white/5 px-2 py-0.5 rounded border border-white/5 text-emerald-400">
                     <Laptop className="w-2.5 h-2.5" />
                     <span>JS Engine v18</span>
                   </span>
                   <div className="text-white/40">// Developer active parameters</div>
-                  <div><span className="text-orange-400">const</span> <span className="text-white">skills</span> = [<span className="text-emerald-300">"React"</span>, <span className="text-emerald-300">"TS"</span>, <span className="text-emerald-300">"UX"</span>];</div>
-                  <div><span className="text-orange-400">const</span> <span className="text-white">hub</span> = <span className="text-amber-300">"Riyadh, KSA"</span>;</div>
-                  <div><span className="text-indigo-400">export default</span> <span className="text-[#EA580C]">CraftingArts</span>;</div>
+                  <div><span className="text-brand-accent">const</span> <span className="text-white">skills</span> = [<span className="text-emerald-300">"React"</span>, <span className="text-emerald-300">"TS"</span>, <span className="text-emerald-300">"UX"</span>];</div>
+                  <div><span className="text-brand-accent">const</span> <span className="text-white">hub</span> = <span className="text-warning">"Riyadh, KSA"</span>;</div>
+                  <div><span className="text-brand-accent">export default</span> <span className="text-[#1C99ED]">CraftingArts</span>;</div>
                 </div>
 
                 {/* Soft tags highlights */}
@@ -231,8 +231,8 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {[
-                      { icon: <Cpu className="w-3 h-3 text-orange-500" />, label: isRtl ? "ذكاء اصطناعي" : "AI Services" },
-                      { icon: <Laptop className="w-3 h-3 text-indigo-400" />, label: isRtl ? "تطوير ويب" : "Web Architect" },
+                      { icon: <Cpu className="w-3 h-3 text-brand-accent" />, label: isRtl ? "ذكاء اصطناعي" : "AI Services" },
+                      { icon: <Laptop className="w-3 h-3 text-brand-accent" />, label: isRtl ? "تطوير ويب" : "Web Architect" },
                       { icon: <ShieldCheck className="w-3 h-3 text-emerald-400" />, label: isRtl ? "نظام موثق" : "Secure Apps" }
                     ].map((badge, idx) => (
                       <div
@@ -264,9 +264,9 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
             {stats.map((stat, idx) => {
               // Custom icons for standard statistics indices
               const icons = [
-                <Code className="w-6 h-6 text-[#818CF8]" key="ico-code" />,
-                <Palette className="w-6 h-6 text-[#EA580C]" key="ico-palette" />,
-                <Trophy className="w-6 h-6 text-yellow-500" key="ico-trophy" />
+                <Code className="w-6 h-6 text-[#1C99ED]" key="ico-code" />,
+                <Palette className="w-6 h-6 text-[#1C99ED]" key="ico-palette" />,
+                <Trophy className="w-6 h-6 text-warning" key="ico-trophy" />
               ];
 
               return (
@@ -276,11 +276,11 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
                   className="relative overflow-hidden group p-8 rounded-[32px] bg-white/5 border border-white/10 backdrop-blur-lg shadow-xl hover:bg-white/10 hover:border-white/20 hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center text-center select-none"
                 >
                   {/* Soft highlight radial backdrop hover effect */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-gradient-to-tr from-brand-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                   
                   {/* Decorative Icon Wrapper */}
                   <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mb-4 border border-white/10 shadow-inner group-hover:scale-110 transition-transform duration-300">
-                    {icons[idx] || <Sparkles className="w-6 h-6 text-indigo-400" />}
+                    {icons[idx] || <Sparkles className="w-6 h-6 text-brand-accent" />}
                   </div>
 
                   {/* Quantitative Value with digital glow */}

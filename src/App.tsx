@@ -1,6 +1,6 @@
 import React, { useState, useEffect, SetStateAction } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Github, Linkedin, Twitter, ArrowUp } from 'lucide-react';
+import { Github, Linkedin, X as XIcon, ArrowUp } from 'lucide-react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -469,7 +469,7 @@ export default function App() {
   const isRtl = lang === 'ar';
 
   return (
-    <div className={`relative min-h-screen bg-[#07051b] text-white selection:bg-orange-600 selection:text-white ${isRtl ? 'font-sans' : 'font-sans'}`}>
+    <div className={`relative min-h-screen bg-[#041024] text-white selection:bg-brand-hover selection:text-white ${isRtl ? 'font-sans' : 'font-sans'}`}>
       
       {/* Subtle Animated Grid Pattern Overlay */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -612,9 +612,9 @@ export default function App() {
       </AnimatePresence>
 
       {/* 3. Global Footer */}
-      <footer className="bg-[#040212] border-t border-indigo-500/10 pt-16 pb-8 relative z-10 font-sans">
+      <footer className="bg-[#030B1A] border-t border-brand-accent/10 pt-16 pb-8 relative z-10 font-sans">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-indigo-500/5 text-start">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-brand-accent/5 text-start">
             
             {/* Logo and brief info */}
             <div className="md:col-span-5 space-y-4">
@@ -629,7 +629,7 @@ export default function App() {
                     }}
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-orange-500 flex items-center justify-center font-mono font-bold text-base text-white shadow-lg">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-primary to-brand-accent flex items-center justify-center font-mono font-bold text-base text-white shadow-lg">
                     {(config?.logoTextEn || 'Malek')[0].toUpperCase()}
                   </div>
                 )}
@@ -653,7 +653,7 @@ export default function App() {
 
             {/* Quick Navigation Links */}
             <div className="md:col-span-4 space-y-4">
-              <h4 className="text-xs uppercase font-bold tracking-wider text-orange-500">
+              <h4 className="text-xs uppercase font-bold tracking-wider text-brand-accent">
                 {isRtl ? "وصول سريع" : "Quick Access"}
               </h4>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs text-gray-400">
@@ -677,7 +677,7 @@ export default function App() {
                     }}
                     className="hover:text-white transition-colors cursor-pointer text-start flex items-center gap-1 group"
                   >
-                    <span className="text-orange-500/0 group-hover:text-orange-500 transition-all duration-300">
+                    <span className="text-brand-accent/0 group-hover:text-brand-accent transition-all duration-300">
                       {isRtl ? "←" : "→"}
                     </span>
                     <span>{linkItem.label}</span>
@@ -688,7 +688,7 @@ export default function App() {
 
             {/* Social channels / Contact channels */}
             <div className="md:col-span-3 space-y-4">
-              <h4 className="text-xs uppercase font-bold tracking-wider text-indigo-400">
+              <h4 className="text-xs uppercase font-bold tracking-wider text-brand-accent">
                 {isRtl ? "القنوات والشبكات" : "Connected Networks"}
               </h4>
               <div className="flex flex-wrap gap-2.5">
@@ -704,13 +704,13 @@ export default function App() {
                       if (!sl.url || !sl.url.trim()) return; // skip empty URLs
                       if (p.includes('git')) iconMap[sl.id] = Github;
                       else if (p.includes('link')) iconMap[sl.id] = Linkedin;
-                      else iconMap[sl.id] = Twitter;
+                      else iconMap[sl.id] = XIcon;
                       items.push({ platform: sl.platform, url: sl.url, Icon: iconMap[sl.id] });
                     });
                   } else {
                     if (config?.socialGithub) items.push({ platform: 'GitHub', url: config.socialGithub, Icon: Github });
                     if (config?.socialLinkedin) items.push({ platform: 'LinkedIn', url: config.socialLinkedin, Icon: Linkedin });
-                    if (config?.socialTwitter) items.push({ platform: 'Twitter', url: config.socialTwitter, Icon: Twitter });
+                    if (config?.socialTwitter) items.push({ platform: 'X', url: config.socialTwitter, Icon: XIcon });
                   }
                   return items.map((item, idx) => (
                     <a
@@ -718,7 +718,7 @@ export default function App() {
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10 hover:border-orange-500/30 hover:scale-105 active:scale-95 transition-all w-9 h-9 flex items-center justify-center cursor-pointer"
+                      className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10 hover:border-brand-accent/30 hover:scale-105 active:scale-95 transition-all w-9 h-9 flex items-center justify-center cursor-pointer"
                       title={item.platform}
                     >
                       <item.Icon className="w-4 h-4 shrink-0" />

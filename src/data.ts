@@ -261,7 +261,7 @@ export const DEFAULT_CONFIG: SiteConfig = {
   fontFamily: "thmanyah-sans",
   customFontFamily: "",
   customFontUrl: "",
-  accentColor: "#EA580C",
+  accentColor: "#1C99ED",
   socialFacebook: "https://facebook.com/malekart",
   socialTwitter: "https://twitter.com/malekart",
   socialLinkedin: "https://linkedin.com/in/malekart",

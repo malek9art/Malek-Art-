@@ -58,10 +58,10 @@ export default function TestimonialsSpace({ currentLang, reviews, onAddReview }:
   };
 
   return (
-    <section id="feedback-space" className="relative py-24 sm:py-32 bg-gradient-to-b from-[#0a0724] to-[#040316] overflow-hidden">
+    <section id="feedback-space" className="relative py-24 sm:py-32 bg-gradient-to-b from-[#081B36] to-[#041024] overflow-hidden">
       {/* Decorative Blur Spheres */}
-      <div className="absolute top-1/2 left-10 w-80 h-80 bg-[#EA580C]/5 rounded-full filter blur-[100px] pointer-events-none"></div>
-      <div className="absolute top-1/4 right-0 w-96 h-96 bg-indigo-600/5 rounded-full filter blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/2 left-10 w-80 h-80 bg-[#1C99ED]/5 rounded-full filter blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/4 right-0 w-96 h-96 bg-brand-primary/5 rounded-full filter blur-[100px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -72,9 +72,9 @@ export default function TestimonialsSpace({ currentLang, reviews, onAddReview }:
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-orange-600/10 text-orange-400 mb-4 text-xs font-semibold uppercase tracking-wider border border-orange-500/20 font-sans"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-brand-hover/10 text-brand-accent mb-4 text-xs font-semibold uppercase tracking-wider border border-brand-accent/20 font-sans"
           >
-            <Sparkles className="w-4 h-4 text-orange-500" />
+            <Sparkles className="w-4 h-4 text-brand-accent" />
             <span>{isRtl ? "قسم قضاء العملاء" : "Clients Lounge & Feedback"}</span>
           </motion.div>
 
@@ -108,7 +108,7 @@ export default function TestimonialsSpace({ currentLang, reviews, onAddReview }:
           {/* Approved Testimonials Feed (7 Columns) */}
           <div className="lg:col-span-7 flex flex-col gap-6 text-start">
             <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-indigo-400 animate-pulse" />
+              <MessageSquare className="w-5 h-5 text-brand-accent animate-pulse" />
               <span>{isRtl ? "آراء معتمدة وموثقة" : "Approved Client Testimonials"} ({approvedReviews.length})</span>
             </h3>
 
@@ -129,10 +129,10 @@ export default function TestimonialsSpace({ currentLang, reviews, onAddReview }:
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: idx * 0.05, duration: 0.5 }}
-                      className="p-6 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-md relative overflow-hidden group shadow-xl hover:border-orange-500/20 transition-all"
+                      className="p-6 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-md relative overflow-hidden group shadow-xl hover:border-brand-accent/20 transition-all"
                     >
                       {/* Ambient shine inside review card */}
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-orange-500/10 to-transparent rounded-bl-3xl"></div>
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-brand-accent/10 to-transparent rounded-bl-3xl"></div>
                       
                       {/* Upper Info Row */}
                       <div className="flex justify-between items-start gap-4 mb-4">
@@ -141,11 +141,11 @@ export default function TestimonialsSpace({ currentLang, reviews, onAddReview }:
                           <span className="text-[10px] text-white/40 block mt-0.5 font-mono">{rev.date}</span>
                         </div>
                         {/* Star rate stars */}
-                        <div className="flex gap-0.5 text-yellow-500 shrink-0 bg-yellow-500/10 px-2 py-1 rounded-full border border-yellow-500/15">
+                        <div className="flex gap-0.5 text-warning shrink-0 bg-warning/10 px-2 py-1 rounded-full border border-warning/15">
                           {Array.from({ length: 5 }).map((_, i) => (
                             <Star 
                               key={i} 
-                              className={`w-3.5 h-3.5 ${i < rev.rating ? 'fill-yellow-500 text-yellow-500' : 'text-slate-600'}`} 
+                              className={`w-3.5 h-3.5 ${i < rev.rating ? 'fill-warning text-warning' : 'text-slate-600'}`}
                             />
                           ))}
                         </div>
@@ -171,10 +171,10 @@ export default function TestimonialsSpace({ currentLang, reviews, onAddReview }:
               transition={{ duration: 0.6 }}
               className="p-8 sm:p-10 rounded-[32px] bg-white/5 border border-white/10 backdrop-blur-lg shadow-2xl relative overflow-hidden"
             >
-              <div className="absolute top-0 left-0 w-32 h-32 bg-indigo-600/10 rounded-br-3xl pointer-events-none filter blur-2xl"></div>
+              <div className="absolute top-0 left-0 w-32 h-32 bg-brand-primary/10 rounded-br-3xl pointer-events-none filter blur-2xl"></div>
 
               <h3 className="text-lg sm:text-xl font-bold text-white mb-2 text-start flex items-center gap-2">
-                <Star className="w-5 h-5 text-orange-500 animate-spin" style={{ animationDuration: '4s' }} />
+                <Star className="w-5 h-5 text-brand-accent animate-spin" style={{ animationDuration: '4s' }} />
                 <span>{isRtl ? "شاركنا تقييمك ورأيك" : "Drop Your Own Rating"}</span>
               </h3>
               <p className="text-xs text-white/60 mb-6 text-start">
@@ -199,7 +199,7 @@ export default function TestimonialsSpace({ currentLang, reviews, onAddReview }:
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder={isRtl ? "أ. محمد عبد الله" : "e.g., Sarah Jenkins"}
-                      className={`w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 ${isRtl ? 'pr-3.5 pl-10' : 'pl-10 pr-3.5'} py-3 text-white placeholder-gray-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all`}
+                      className={`w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 ${isRtl ? 'pr-3.5 pl-10' : 'pl-10 pr-3.5'} py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all`}
                     />
                   </div>
                 </div>
@@ -225,13 +225,13 @@ export default function TestimonialsSpace({ currentLang, reviews, onAddReview }:
                         >
                           <Star 
                             className={`w-6 h-6 transition-colors duration-150 ${
-                              isLit ? 'fill-yellow-500 text-yellow-500 shadow-md drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]' : 'text-slate-600'
-                            }`} 
+                              isLit ? 'fill-warning text-warning shadow-md drop-shadow-[0_0_8px_rgba(28,153,237,0.5)]' : 'text-slate-600'
+                            }`}
                           />
                         </button>
                       );
                     })}
-                    <span className="text-xs font-mono font-bold text-yellow-500 ml-2 select-none">
+                    <span className="text-xs font-mono font-bold text-warning ml-2 select-none">
                       ({rating}/5)
                     </span>
                   </div>
@@ -249,7 +249,7 @@ export default function TestimonialsSpace({ currentLang, reviews, onAddReview }:
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     placeholder={isRtl ? "اكتب تفاصيل تجربتك، جودة العمل، الدعم الفني، إلخ..." : "Express your collaboration experiences..."}
-                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white placeholder-gray-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all leading-relaxed"
+                    className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all leading-relaxed"
                   />
                 </div>
 
@@ -293,9 +293,9 @@ export default function TestimonialsSpace({ currentLang, reviews, onAddReview }:
                 <button
                   type="submit"
                   disabled={isSubmitted}
-                  className="w-full py-3.5 rounded-full bg-gradient-to-r from-indigo-600 to-orange-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 border border-white/10 transition-all shadow-xl hover:opacity-95 cursor-pointer active:scale-99"
+                  className="w-full py-3.5 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 border border-white/10 transition-all shadow-xl hover:opacity-95 cursor-pointer active:scale-99"
                 >
-                  <Send className="w-4 h-4 text-orange-200 animate-pulse" />
+                  <Send className="w-4 h-4 text-brand-accent animate-pulse" />
                   <span>{isRtl ? "إرسال تقييمك الآن" : "Submit Review"}</span>
                 </button>
               </form>

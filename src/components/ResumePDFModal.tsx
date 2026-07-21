@@ -38,7 +38,7 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                 theme: {
                   extend: {
                     colors: {
-                      accent: '#ea580c',
+                      accent: '#1C99ED',
                     },
                     fontFamily: {
                       sans: "Thmanyah Sans, -apple-system, BlinkMacSystemFont, sans-serif"
@@ -108,13 +108,13 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          className="relative w-full max-w-4xl bg-[#0e0c28] border border-white/10 rounded-[28px] overflow-hidden shadow-2xl my-8 flex flex-col max-h-[90vh]"
+          className="relative w-full max-w-4xl bg-[#0C274E] border border-white/10 rounded-[28px] overflow-hidden shadow-2xl my-8 flex flex-col max-h-[90vh]"
         >
           {/* Top Panel Actions */}
           <div className="p-6 border-b border-white/10 bg-white/5 flex flex-col gap-4">
             <div className="flex flex-wrap justify-between items-center gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-orange-500 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-accent to-brand-accent flex items-center justify-center">
                   <Printer className="w-5 h-5 text-white" />
                 </div>
                 <div className="text-start">
@@ -134,7 +134,7 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                     type="button"
                     onClick={() => setResumeLang('ar')}
                     className={`px-3 py-1.5 rounded-full cursor-pointer transition-all ${
-                      resumeLang === 'ar' ? 'bg-orange-500 text-white shadow-md' : 'text-white/60 hover:text-white'
+                      resumeLang === 'ar' ? 'bg-brand-accent text-white shadow-md' : 'text-white/60 hover:text-white'
                     }`}
                   >
                     العربية
@@ -143,7 +143,7 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                     type="button"
                     onClick={() => setResumeLang('en')}
                     className={`px-3 py-1.5 rounded-full cursor-pointer transition-all ${
-                      resumeLang === 'en' ? 'bg-orange-500 text-white shadow-md' : 'text-white/60 hover:text-white'
+                      resumeLang === 'en' ? 'bg-brand-accent text-white shadow-md' : 'text-white/60 hover:text-white'
                     }`}
                   >
                     English
@@ -154,7 +154,7 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-all shadow-lg flex items-center gap-1.5 hover:scale-102 active:scale-98"
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-brand-primary hover:from-emerald-400 hover:to-brand-accent text-white rounded-xl text-xs font-bold cursor-pointer transition-all shadow-lg flex items-center gap-1.5 hover:scale-102 active:scale-98"
                 >
                   <Printer className="w-4 h-4" />
                   <span>{currentLang === 'ar' ? 'تصدير وحفظ PDF' : 'Print / Save PDF'}</span>
@@ -182,7 +182,7 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                   onClick={() => setTemplateStyle('modern')}
                   className={`px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer border transition-all ${
                     templateStyle === 'modern'
-                      ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/10'
+                      ? 'bg-brand-primary border-brand-accent text-white shadow-lg shadow-brand-accent/10'
                       : 'bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -193,7 +193,7 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                   onClick={() => setTemplateStyle('ats')}
                   className={`px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer border transition-all ${
                     templateStyle === 'ats'
-                      ? 'bg-amber-600 border-amber-500 text-white shadow-lg shadow-amber-500/10'
+                      ? 'bg-warning border-warning text-white shadow-lg shadow-warning/10'
                       : 'bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -219,7 +219,7 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                             src={config.profileImg}
                             referrerPolicy="no-referrer"
                             alt="Avatar"
-                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-orange-500/20 shadow-md"
+                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-brand-accent/20 shadow-md"
                           />
                           <div className="absolute inset-0 rounded-2xl border border-black/5"></div>
                         </div>
@@ -228,7 +228,7 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
                           {isRtl ? (config.nameAr || "المهندس مالك أحمد") : (config.nameEn || "Malek Ahmed")}
                         </h1>
-                        <p className="text-sm font-semibold text-orange-600 uppercase tracking-wider mt-1.5">
+                        <p className="text-sm font-semibold text-brand-hover uppercase tracking-wider mt-1.5">
                           {isRtl ? (config.professionAr || "مصمم ومطور تفاعلي") : (config.professionEn || "UI/UX & Web Dev Artist")}
                         </p>
                       </div>
@@ -237,15 +237,15 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                     {/* Contact Elements */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-xs text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 w-full md:w-auto shrink-0">
                       <div className="flex items-center gap-1.5">
-                        <Phone className="w-3.5 h-3.5 text-orange-600 shrink-0" />
+                        <Phone className="w-3.5 h-3.5 text-brand-hover shrink-0" />
                         <span className="font-mono">{config.resumePhone || "+966 50 000 0000"}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <Mail className="w-3.5 h-3.5 text-orange-600 shrink-0" />
+                        <Mail className="w-3.5 h-3.5 text-brand-hover shrink-0" />
                         <span className="font-mono">{config.resumeEmail || "malikalwesabi@gmail.com"}</span>
                       </div>
                       <div className="flex items-center gap-1.5 sm:col-span-2">
-                        <MapPin className="w-3.5 h-3.5 text-orange-600 shrink-0" />
+                        <MapPin className="w-3.5 h-3.5 text-brand-hover shrink-0" />
                         <span>{config.resumeLocation || "الرياض، المملكة العربية السعودية"}</span>
                       </div>
                     </div>
@@ -257,8 +257,8 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                     <div className="lg:col-span-7 space-y-6">
                       {/* Summary Block */}
                       <div className="space-y-2">
-                        <h3 className="text-sm uppercase tracking-wider font-extrabold text-slate-900 border-b-2 border-orange-500 pb-1 flex items-center gap-1.5">
-                          <User className="w-4 h-4 text-orange-600" />
+                        <h3 className="text-sm uppercase tracking-wider font-extrabold text-slate-900 border-b-2 border-brand-accent pb-1 flex items-center gap-1.5">
+                          <User className="w-4 h-4 text-brand-hover" />
                           <span>{isRtl ? "الملخص المهني" : "Professional Summary"}</span>
                         </h3>
                         <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line text-justify">
@@ -268,8 +268,8 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
 
                       {/* Experience Block */}
                       <div className="space-y-2">
-                        <h3 className="text-sm uppercase tracking-wider font-extrabold text-slate-900 border-b-2 border-orange-500 pb-1 flex items-center gap-1.5">
-                          <Briefcase className="w-4 h-4 text-orange-600" />
+                        <h3 className="text-sm uppercase tracking-wider font-extrabold text-slate-900 border-b-2 border-brand-accent pb-1 flex items-center gap-1.5">
+                          <Briefcase className="w-4 h-4 text-brand-hover" />
                           <span>{isRtl ? "الخبرات والمسار المهني" : "Career Milestones & Experience"}</span>
                         </h3>
                         <div className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line pl-1 antialiased space-y-1">
@@ -279,8 +279,8 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
 
                       {/* Education Block */}
                       <div className="space-y-2">
-                        <h3 className="text-sm uppercase tracking-wider font-extrabold text-slate-900 border-b-2 border-orange-500 pb-1 flex items-center gap-1.5">
-                          <GraduationCap className="w-4 h-4 text-orange-600" />
+                        <h3 className="text-sm uppercase tracking-wider font-extrabold text-slate-900 border-b-2 border-brand-accent pb-1 flex items-center gap-1.5">
+                          <GraduationCap className="w-4 h-4 text-brand-hover" />
                           <span>{isRtl ? "المؤهلات العلمية والدراسة" : "Specialized Education & Credentials"}</span>
                         </h3>
                         <div className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line pl-1 space-y-1">
@@ -294,14 +294,14 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                       {/* Digital links */}
                       <div>
                         <h3 className="text-xs uppercase tracking-wider font-bold text-slate-800 border-b border-slate-200 pb-1.5 mb-3 flex items-center gap-1.5">
-                          <Globe className="w-3.5 h-3.5 text-orange-600" />
+                          <Globe className="w-3.5 h-3.5 text-brand-hover" />
                           <span>{isRtl ? "قنوات التواصل الرقمية" : "Digital Channels"}</span>
                         </h3>
                         <div className="space-y-2.5 text-xs text-slate-600 select-all">
                           {config.socialGithub && (
                             <div className="flex justify-between items-center bg-white px-3 py-1.5 rounded-lg border border-slate-100">
                               <span className="font-semibold text-slate-500 text-[10px]">GitHub</span>
-                              <span className="text-orange-600 font-mono font-medium text-[10px] truncate max-w-[140px]">
+                              <span className="text-brand-hover font-mono font-medium text-[10px] truncate max-w-[140px]">
                                 {config.socialGithub.replace('https://', '')}
                               </span>
                             </div>
@@ -309,7 +309,7 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                           {config.socialLinkedin && (
                             <div className="flex justify-between items-center bg-white px-3 py-1.5 rounded-lg border border-slate-100">
                               <span className="font-semibold text-slate-500 text-[10px]">LinkedIn</span>
-                              <span className="text-orange-600 font-mono font-medium text-[10px] truncate max-w-[140px]">
+                              <span className="text-brand-hover font-mono font-medium text-[10px] truncate max-w-[140px]">
                                 {config.socialLinkedin.replace('https://', '')}
                               </span>
                             </div>
@@ -317,7 +317,7 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                           {config.socialTwitter && (
                             <div className="flex justify-between items-center bg-white px-3 py-1.5 rounded-lg border border-slate-100">
                               <span className="font-semibold text-slate-500 text-[10px]">Twitter/X</span>
-                              <span className="text-orange-600 font-mono font-medium text-[10px] truncate max-w-[140px]">
+                              <span className="text-brand-hover font-mono font-medium text-[10px] truncate max-w-[140px]">
                                 {config.socialTwitter.replace('https://', '')}
                               </span>
                             </div>
@@ -328,7 +328,7 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                       {/* Hard skill list with progress sliders */}
                       <div>
                         <h3 className="text-xs uppercase tracking-wider font-bold text-slate-800 border-b border-slate-200 pb-1.5 mb-3 flex items-center gap-1.5">
-                          <Award className="w-3.5 h-3.5 text-orange-600" />
+                          <Award className="w-3.5 h-3.5 text-brand-hover" />
                           <span>{isRtl ? "ترسانة المهارات الإبداعية" : "Expertise & Tech Stack"}</span>
                         </h3>
                         <div className="space-y-3.5">
@@ -336,11 +336,11 @@ export default function ResumePDFModal({ isOpen, onClose, currentLang, config, s
                             <div key={skill.id}>
                               <div className="flex justify-between items-center text-[11px] mb-1 font-semibold">
                                 <span className="text-slate-700">{isRtl ? skill.nameAr : skill.nameEn}</span>
-                                <span className="text-orange-600 font-mono text-[10px]">{skill.percentage}%</span>
+                                <span className="text-brand-hover font-mono text-[10px]">{skill.percentage}%</span>
                               </div>
                               <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
                                 <div
-                                  className="h-full bg-orange-600 rounded-full"
+                                  className="h-full bg-brand-hover rounded-full"
                                   style={{ width: `${skill.percentage}%` }}
                                 ></div>
                               </div>

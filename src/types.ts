@@ -11,6 +11,8 @@ export interface Project {
   categoryAr: string;
   categoryEn: string;
   link?: string;
+  /** Controls whether the project is shown in the public portfolio. */
+  isVisible?: boolean;
   date: string;
   sortOrder: number;
 }

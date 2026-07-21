@@ -27,9 +27,9 @@ export default function ConfirmationModal({ isOpen, title, message, type, onClos
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.9, y: 20 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="w-full max-w-md overflow-hidden bg-[#121125] border border-white/10 rounded-[32px] shadow-2xl p-6 sm:p-8 relative text-center"
+            className="w-full max-w-md overflow-hidden bg-[#0C274E] border border-white/10 rounded-[32px] shadow-2xl p-6 sm:p-8 relative text-center"
           >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-[#EA580C]/20 blur-3xl rounded-full -z-10" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-[#1C99ED]/20 blur-3xl rounded-full -z-10" />
 
             {type === 'sync_error' ? (
               <div className="mx-auto w-14 h-14 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mb-5 animate-pulse">
@@ -47,7 +47,7 @@ export default function ConfirmationModal({ isOpen, title, message, type, onClos
             <div className="bg-black/35 rounded-2xl p-4 mb-5 border border-white/5 text-[10px] text-white/50 text-start leading-relaxed font-mono">
               {isRtl ? (
                 <div>
-                  <p className="font-sans font-bold text-[#EA580C] mb-1">تفاصيل العملية:</p>
+                  <p className="font-sans font-bold text-[#1C99ED] mb-1">تفاصيل العملية:</p>
                   <p>● نوع التعديل: {
                     type === 'project_added' ? 'إضافة مشروع جديد للمعرض' :
                     type === 'project_updated' ? 'تعديل وحفظ بيانات مشروع قائمة الذخيرة' :
@@ -64,7 +64,7 @@ export default function ConfirmationModal({ isOpen, title, message, type, onClos
                 </div>
               ) : (
                 <div>
-                  <p className="font-sans font-bold text-[#EA580C] mb-1">OPERATION METRICS:</p>
+                  <p className="font-sans font-bold text-[#1C99ED] mb-1">OPERATION METRICS:</p>
                   <p>● Event Node Type: {type.toUpperCase()}</p>
                   <p className="mt-1">● Status Code: {
                     type === 'sync_error'
@@ -78,7 +78,7 @@ export default function ConfirmationModal({ isOpen, title, message, type, onClos
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-3 rounded-full bg-[#EA580C] hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider cursor-pointer shadow-md transition-all active:scale-98 select-none"
+              className="w-full py-3 rounded-full bg-[#1C99ED] hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider cursor-pointer shadow-md transition-all active:scale-98 select-none"
             >
               {isRtl ? "موافق، فهمت" : "Acknowledge & Dismiss"}
             </button>
