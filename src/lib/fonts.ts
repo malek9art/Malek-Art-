@@ -92,6 +92,10 @@ const DYNAMIC_LINK_ID = 'dynamic-font-stylesheet';
  * Apply a font choice: set --font-active and (for Google presets) inject the
  * Google Fonts <link>. For the custom uploaded font, the @font-face rules are
  * injected separately by injectCustomFontFaces().
+ *
+ * If the Google Fonts stylesheet fails to load (network issue, blocked by
+ * ad-blocker, etc.), the CSS variable gracefully falls back to "Thmanyah Sans"
+ * which is bundled locally — so Arabic text always renders properly.
  */
 export function applyFont(cfg: FontConfig): void {
   if (typeof document === 'undefined') return;
@@ -111,6 +115,13 @@ export function applyFont(cfg: FontConfig): void {
       link = document.createElement('link');
       link.id = DYNAMIC_LINK_ID;
       link.rel = 'stylesheet';
+      // On load error, fall back to local Thmanyah Sans (already bundled).
+      link.onerror = () => {
+        document.documentElement.style.setProperty(
+          '--font-active',
+          '"Thmanyah Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+        );
+      };
       document.head.appendChild(link);
     }
     if (link.href !== href) link.href = href;

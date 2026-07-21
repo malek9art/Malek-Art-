@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ExternalLink, Calendar, Tag, Layers, X, Eye, ArrowUpLeft, ArrowUpRight, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
+import { ExternalLink, Calendar, Tag, Layers, X, Eye, ArrowUpLeft, ArrowUpRight, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Maximize2, Minimize2, BookOpen } from 'lucide-react';
 import { Project } from '../types';
 
 interface PortfolioProps {
@@ -57,6 +57,15 @@ export default function Portfolio({ currentLang, projects, t }: PortfolioProps) 
     const nextIdx = (activeIndex + 1) % filteredProjects.length;
     setActiveProject(filteredProjects[nextIdx]);
   };
+
+  // Body scroll lock when lightbox is open — prevents background page from scrolling
+  useEffect(() => {
+    if (activeProject) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [activeProject]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -132,7 +141,25 @@ export default function Portfolio({ currentLang, projects, t }: PortfolioProps) 
           ))}
         </div>
 
+        {/* Empty state when no projects exist */}
+        {filteredProjects.length === 0 && (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4">
+              <Layers className="w-8 h-8 text-white/30" />
+            </div>
+            <h3 className="text-lg font-bold text-white/70 mb-2">
+              {isRtl ? "لا توجد مشاريع حالياً" : "No Projects Yet"}
+            </h3>
+            <p className="text-sm text-white/50 max-w-sm mx-auto">
+              {isRtl
+                ? "لم يتم إضافة أي مشاريع بعد. ستظهر هنا قريباً!"
+                : "No projects have been added yet. Check back soon!"}
+            </p>
+          </div>
+        )}
+
         {/* Bento/Broken Portfolio Grid */}
+        {filteredProjects.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           <AnimatePresence mode="popLayout">
             {filteredProjects.map((project, idx) => {
@@ -170,8 +197,8 @@ export default function Portfolio({ currentLang, projects, t }: PortfolioProps) 
                   {/* Glowing Accent Border lines */}
                   <div className="absolute inset-0 border border-transparent group-hover:border-[#EA580C]/20 rounded-[32px] transition-all duration-300 pointer-events-none"></div>
 
-                  {/* Corner indicator button */}
-                  <div className="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#040316]/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white scale-0 group-hover:scale-100 transition-all duration-300 shadow-lg hover:bg-[#EA580C]">
+                  {/* Corner indicator button — always visible for touch devices */}
+                  <div className="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#040316]/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white sm:scale-0 group-hover:scale-100 transition-all duration-300 shadow-lg hover:bg-[#EA580C]">
                     <Eye className="w-5 h-5" />
                   </div>
 
@@ -194,6 +221,14 @@ export default function Portfolio({ currentLang, projects, t }: PortfolioProps) 
                       {isRtl ? project.descriptionAr : project.descriptionEn}
                     </p>
 
+                    {/* Detailed content hint — shown only when rich content exists */}
+                    {((isRtl && project.contentAr && project.contentAr.trim()) || (!isRtl && project.contentEn && project.contentEn.trim())) && (
+                      <div className="flex items-center gap-1.5 mb-3 text-[10px] sm:text-[11px] text-indigo-300 font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <BookOpen className="w-3 h-3" />
+                        <span>{isRtl ? "يوجد وصف تفصيلي — اضغط للعرض" : "Detailed description available — tap to view"}</span>
+                      </div>
+                    )}
+
                     {/* Metadata: Date and interactive helper */}
                     <div className="flex items-center gap-4 text-[11px] text-gray-400 font-mono">
                       <div className="flex items-center gap-1">
@@ -213,6 +248,7 @@ export default function Portfolio({ currentLang, projects, t }: PortfolioProps) 
             })}
           </AnimatePresence>
         </div>
+        )}
 
         {/* Detailed Full-Screen Lightbox Modal Overlay */}
         <AnimatePresence>
@@ -222,7 +258,7 @@ export default function Portfolio({ currentLang, projects, t }: PortfolioProps) 
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               id="project-overlay-modal"
-              className="fixed inset-0 z-50 bg-[#02010d]/98 backdrop-blur-xl flex flex-col md:flex-row overflow-hidden"
+              className="fixed inset-0 z-[60] bg-[#02010d]/98 backdrop-blur-xl flex flex-col md:flex-row overflow-hidden"
               onClick={() => {
                 setActiveProject(null);
                 setIsImgExpanded(false);
@@ -311,12 +347,12 @@ export default function Portfolio({ currentLang, projects, t }: PortfolioProps) 
                   animate={{ opacity: 1, width: 'auto' }}
                   exit={{ opacity: 0, width: 0 }}
                   transition={{ duration: 0.4 }}
-                  className={`w-full md:w-1/3 lg:w-[30%] bg-[#080614] border-t md:border-t-0 md:border-l border-white/10 flex flex-col h-full max-h-[45vh] md:max-h-screen overflow-y-auto ${
+                  className={`w-full md:w-1/3 lg:w-[30%] bg-[#080614] border-t md:border-t-0 md:border-l border-white/10 flex flex-col max-h-[50vh] md:max-h-screen overflow-hidden ${
                     isRtl ? 'md:border-r md:border-l-0 border-white/10 text-right rtl' : 'text-left ltr'
                   }`}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="p-6 sm:p-8 flex flex-col h-full">
+                  <div className="p-6 sm:p-8 flex flex-col h-full overflow-y-auto overscroll-contain">
                     {/* Category and Date Tag line */}
                     <div className="flex flex-wrap items-center gap-3 text-xs mb-6 pb-4 border-b border-white/5">
                       <span className="px-3 py-1 bg-[#EA580C]/10 border border-[#EA580C]/20 rounded-md text-[#EA580C] font-semibold flex items-center gap-1.5">
@@ -340,12 +376,21 @@ export default function Portfolio({ currentLang, projects, t }: PortfolioProps) 
                       {isRtl ? activeProject.descriptionAr : activeProject.descriptionEn}
                     </p>
 
-                    {/* Expandable Rich content text block */}
-                    <div className="text-white/60 text-xs sm:text-sm leading-relaxed space-y-4 mb-8 overflow-y-auto pr-1 flex-grow">
-                      <p className="whitespace-pre-line">
-                        {isRtl ? activeProject.contentAr : activeProject.contentEn}
-                      </p>
-                    </div>
+                    {/* Expandable Rich content text block — only shown when content exists */}
+                    {((isRtl && activeProject.contentAr && activeProject.contentAr.trim()) || (!isRtl && activeProject.contentEn && activeProject.contentEn.trim())) && (
+                      <div className="text-white/60 text-xs sm:text-sm leading-relaxed space-y-4 mb-8 flex-grow min-h-0">
+                        <h4 className="text-xs font-bold text-white/80 uppercase tracking-wider border-b border-white/10 pb-2 mb-3 flex items-center gap-1.5">
+                          <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
+                          <span>{isRtl ? "الوصف التفصيلي" : "Detailed Overview"}</span>
+                        </h4>
+                        <div className="whitespace-pre-line">
+                          {isRtl ? activeProject.contentAr : activeProject.contentEn}
+                        </div>
+                      </div>
+                    )}
+                    {(!((isRtl && activeProject.contentAr && activeProject.contentAr.trim()) || (!isRtl && activeProject.contentEn && activeProject.contentEn.trim()))) && (
+                      <div className="flex-grow" />
+                    )}
 
                     {/* Actions and Footer buttons */}
                     <div className="pt-6 mt-auto border-t border-white/5 flex flex-col gap-3">

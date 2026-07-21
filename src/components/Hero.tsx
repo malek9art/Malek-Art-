@@ -88,7 +88,7 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
                 transition={{ duration: 0.7 }}
                 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white leading-[1.15] sm:leading-[1.1] tracking-tight bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent"
               >
-                {config.heroTextAr && isRtl ? config.heroTextAr : config.heroTextEn}
+                {isRtl ? (config.heroTextAr || config.heroTextEn) : (config.heroTextEn || config.heroTextAr)}
               </motion.h1>
 
               {/* Seamless Dynamic Word Change Box (Perfect fit without jumping layout) */}
@@ -115,7 +115,7 @@ export default function Hero({ currentLang, config, stats, onCtaClick, t }: Hero
               transition={{ delay: 0.3, duration: 0.8 }}
               className="text-white/70 text-sm sm:text-base max-w-2xl leading-relaxed text-justify lg:text-start"
             >
-              {config.heroSubAr && isRtl ? config.heroSubAr : config.heroSubEn}
+              {isRtl ? (config.heroSubAr || config.heroSubEn) : (config.heroSubEn || config.heroSubAr)}
             </motion.p>
 
             {/* Direct Interaction CTAs */}

@@ -17,6 +17,61 @@
           el.style.background = t === 'light' ? '#eef1f8' : '#07051b';
         } catch (e) {}
       })();
+      // Apply the active font BEFORE first paint to prevent FOUC.
+      // Reads the previously saved font choice from localStorage and sets the
+      // --font-active CSS variable so the first rendered frame uses the right font.
+      (function () {
+        try {
+          var cfg = JSON.parse(localStorage.getItem('malek_config') || '{}');
+          var fontId = cfg.fontFamily || 'thmanyah-sans';
+          var customFamily = cfg.customFontFamily || '';
+
+          // Font stack map (mirrors src/lib/fonts.ts FONT_OPTIONS)
+          var fontMap = {
+            'thmanyah-sans': '"Thmanyah Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            'cairo': '"Cairo", "Thmanyah Sans", sans-serif',
+            'tajawal': '"Tajawal", "Thmanyah Sans", sans-serif',
+            'ibm-plex-arabic': '"IBM Plex Sans Arabic", "Thmanyah Sans", sans-serif',
+            'custom': customFamily ? '"' + customFamily + '", "Thmanyah Sans", sans-serif' : '"Thmanyah Sans", sans-serif'
+          };
+          var family = fontMap[fontId] || fontMap['thmanyah-sans'];
+          document.documentElement.style.setProperty('--font-active', family);
+
+          // Pre-inject Google Fonts stylesheet for non-local fonts BEFORE first paint
+          if (fontId === 'cairo' || fontId === 'tajawal' || fontId === 'ibm-plex-arabic') {
+            var hrefs = {
+              'cairo': 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700;800&display=swap',
+              'tajawal': 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap',
+              'ibm-plex-arabic': 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap'
+            };
+            var link = document.createElement('link');
+            link.id = 'dynamic-font-stylesheet';
+            link.rel = 'stylesheet';
+            link.href = hrefs[fontId];
+            document.head.appendChild(link);
+          }
+
+          // Pre-inject custom @font-face rules from local storage if available
+          if (fontId === 'custom') {
+            var fontData = JSON.parse(localStorage.getItem('malek_custom_font') || 'null');
+            if (fontData && fontData.family) {
+              var weights = [
+                { weight: 400, file: fontData.regular },
+                { weight: 500, file: fontData.medium },
+                { weight: 700, file: fontData.bold }
+              ].filter(function(w) { return w.file && w.file.src; });
+              if (weights.length > 0) {
+                var style = document.createElement('style');
+                style.id = 'custom-font-faces';
+                style.textContent = weights.map(function(w) {
+                  return '@font-face { font-family: "' + fontData.family + '"; src: url("' + w.file.src + '") format("' + w.file.fmt + '"); font-weight: ' + w.weight + '; font-display: swap; }';
+                }).join('\n');
+                document.head.appendChild(style);
+              }
+            }
+          }
+        } catch (e) {}
+      })();
     </script>
   </head>
   <body>

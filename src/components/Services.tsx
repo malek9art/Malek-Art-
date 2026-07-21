@@ -53,7 +53,25 @@ export default function Services({ currentLang, services, t }: ServicesProps) {
           </motion.p>
         </div>
 
+        {/* Empty state when no services exist */}
+        {services.length === 0 && (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4">
+              <LucideIcons.Sparkles className="w-8 h-8 text-white/30" />
+            </div>
+            <h3 className="text-lg font-bold text-white/70 mb-2">
+              {isRtl ? "لا توجد خدمات حالياً" : "No Services Yet"}
+            </h3>
+            <p className="text-sm text-white/50 max-w-sm mx-auto">
+              {isRtl
+                ? "لم يتم إضافة أي خدمات بعد. ستظهر هنا قريباً!"
+                : "No services have been added yet. Check back soon!"}
+            </p>
+          </div>
+        )}
+
         {/* Bento/Broken Grid of Services */}
+        {services.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {services.map((service, index) => {
             // Resolve Lucide components dynamically based on icon key string
@@ -101,6 +119,7 @@ export default function Services({ currentLang, services, t }: ServicesProps) {
             );
           })}
         </div>
+        )}
 
       </div>
     </section>
