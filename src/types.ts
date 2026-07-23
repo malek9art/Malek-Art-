@@ -15,6 +15,30 @@ export interface Project {
   isVisible?: boolean;
   date: string;
   sortOrder: number;
+
+  // ── Professional Product Showcase Fields ──
+  /** Product type: 'system' | 'app' | 'platform' | 'website' | 'plugin' */
+  productType?: 'system' | 'app' | 'platform' | 'website' | 'plugin';
+  /** Technology stack tags (e.g. ['React', 'Node.js', 'Firebase']) */
+  technologies?: string[];
+  /** Key features list */
+  featuresAr?: string[];
+  featuresEn?: string[];
+  /** Product status */
+  status?: 'live' | 'beta' | 'coming-soon' | 'archived';
+  /** Key metrics */
+  metrics?: {
+    users?: string;
+    rating?: number;
+    downloads?: string;
+    uptime?: string;
+  };
+  /** Secondary/gallery images */
+  gallery?: string[];
+  /** Whether this is a featured/hero product */
+  isFeatured?: boolean;
+  /** Product accent color override */
+  accentColor?: string;
 }
 
 export interface Service {

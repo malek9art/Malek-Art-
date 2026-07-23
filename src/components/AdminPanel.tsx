@@ -220,6 +220,19 @@ export default function AdminPanel({
   const [pOrder, setPOrder] = useState(1);
   const [pIsVisible, setPIsVisible] = useState(true);
 
+  // ── Professional Product Showcase Fields ──
+  const [pProductType, setPProductType] = useState<Project['productType']>('system');
+  const [pTechnologies, setPTechnologies] = useState('');
+  const [pFeaturesAr, setPFeaturesAr] = useState('');
+  const [pFeaturesEn, setPFeaturesEn] = useState('');
+  const [pStatus, setPStatus] = useState<Project['status']>('live');
+  const [pIsFeatured, setPIsFeatured] = useState(false);
+  const [pAccentColor, setPAccentColor] = useState('#1C99ED');
+  const [pMetricsUsers, setPMetricsUsers] = useState('');
+  const [pMetricsRating, setPMetricsRating] = useState('');
+  const [pMetricsDownloads, setPMetricsDownloads] = useState('');
+  const [pMetricsUptime, setPMetricsUptime] = useState('');
+
   // Edit Service Fields State
   const [sTitleAr, setSTitleAr] = useState('');
   const [sTitleEn, setSTitleEn] = useState('');
@@ -517,6 +530,23 @@ export default function AdminPanel({
   // CRUD PROJECT: Save Add or Edit
   const handleSaveProject = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Build product-specific fields
+    const productFields = {
+      productType: pProductType,
+      technologies: pTechnologies.split(',').map(s => s.trim()).filter(Boolean),
+      featuresAr: pFeaturesAr.split('\n').map(s => s.trim()).filter(Boolean),
+      featuresEn: pFeaturesEn.split('\n').map(s => s.trim()).filter(Boolean),
+      status: pStatus,
+      isFeatured: pIsFeatured,
+      accentColor: pAccentColor,
+      metrics: {
+        users: pMetricsUsers || undefined,
+        rating: pMetricsRating ? parseFloat(pMetricsRating) : undefined,
+        downloads: pMetricsDownloads || undefined,
+        uptime: pMetricsUptime || undefined,
+      },
+    };
     
     if (editingProject) {
       // Edit mode
@@ -537,6 +567,7 @@ export default function AdminPanel({
             isVisible: pIsVisible,
             date: pDate,
             sortOrder: Number(pOrder),
+            ...productFields,
           };
         }
         return p;
@@ -571,6 +602,7 @@ export default function AdminPanel({
         isVisible: pIsVisible,
         date: pDate,
         sortOrder: Number(pOrder),
+        ...productFields,
       };
       const updated = [...projects, newProj];
       const cloudOk = await setProjects(updated);
@@ -610,6 +642,19 @@ export default function AdminPanel({
     setPDate(p.date);
     setPOrder(p.sortOrder);
     setPIsVisible(p.isVisible !== false);
+
+    // Professional Product Showcase Fields
+    setPProductType(p.productType || 'system');
+    setPTechnologies((p.technologies || []).join(', '));
+    setPFeaturesAr((p.featuresAr || []).join('\n'));
+    setPFeaturesEn((p.featuresEn || []).join('\n'));
+    setPStatus(p.status || 'live');
+    setPIsFeatured(p.isFeatured || false);
+    setPAccentColor(p.accentColor || '#1C99ED');
+    setPMetricsUsers(p.metrics?.users || '');
+    setPMetricsRating(p.metrics?.rating?.toString() || '');
+    setPMetricsDownloads(p.metrics?.downloads || '');
+    setPMetricsUptime(p.metrics?.uptime || '');
   };
 
   const startAddProject = () => {
@@ -631,6 +676,19 @@ export default function AdminPanel({
     setPDate('2026-06');
     setPOrder(projects.length + 1);
     setPIsVisible(true);
+
+    // Professional Product Showcase Fields
+    setPProductType('system');
+    setPTechnologies('');
+    setPFeaturesAr('');
+    setPFeaturesEn('');
+    setPStatus('live');
+    setPIsFeatured(false);
+    setPAccentColor('#1C99ED');
+    setPMetricsUsers('');
+    setPMetricsRating('');
+    setPMetricsDownloads('');
+    setPMetricsUptime('');
   };
 
   const closeProjectUI = () => {
@@ -1193,6 +1251,98 @@ export default function AdminPanel({
                       {pIsVisible ? (isRtl ? 'إظهار المشروع في المعرض' : 'Show project in portfolio') : (isRtl ? 'إخفاء المشروع من المعرض' : 'Hide project from portfolio')}
                     </span>
                   </label>
+
+                  {/* ── Professional Product Showcase Fields ── */}
+                  <div className="p-5 rounded-[24px] bg-brand-accent/5 border border-brand-accent/10 space-y-5">
+                    <h4 className="text-xs font-bold text-[#1C99ED] uppercase tracking-widest font-mono flex items-center gap-2">
+                      <Layers className="w-4 h-4" />
+                      {isRtl ? 'خصائص المنتج الاحترافية' : 'Professional Product Showcase Fields'}
+                    </h4>
+
+                    {/* Product Type, Status, Accent Color, Featured */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'نوع المنتج' : 'Product Type'}</label>
+                        <select value={pProductType || 'system'} onChange={(e) => setPProductType(e.target.value as any)} className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none">
+                          <option value="system">{isRtl ? 'نظام (System)' : 'System'}</option>
+                          <option value="app">{isRtl ? 'تطبيق (App)' : 'Application'}</option>
+                          <option value="platform">{isRtl ? 'منصة (Platform)' : 'Platform'}</option>
+                          <option value="website">{isRtl ? 'موقع ويب (Website)' : 'Website'}</option>
+                          <option value="plugin">{isRtl ? 'إضافة (Plugin)' : 'Plugin'}</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'حالة المنتج' : 'Product Status'}</label>
+                        <select value={pStatus || 'live'} onChange={(e) => setPStatus(e.target.value as any)} className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none">
+                          <option value="live">{isRtl ? 'مباشر (Live)' : 'Live'}</option>
+                          <option value="beta">{isRtl ? 'تجريبي (Beta)' : 'Beta'}</option>
+                          <option value="coming-soon">{isRtl ? 'قريباً (Coming Soon)' : 'Coming Soon'}</option>
+                          <option value="archived">{isRtl ? 'مؤرشف (Archived)' : 'Archived'}</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'لون مميز للمنتج' : 'Accent Color'}</label>
+                        <div className="flex gap-2 items-center">
+                          <input type="color" value={pAccentColor || '#1C99ED'} onChange={(e) => setPAccentColor(e.target.value)} className="w-10 h-10 rounded-lg bg-black/40 border border-white/10 p-1 cursor-pointer" />
+                          <input type="text" value={pAccentColor || '#1C99ED'} onChange={(e) => setPAccentColor(e.target.value)} className="flex-1 text-xs rounded-xl bg-black/40 border border-white/10 p-2.5 text-white font-mono focus:outline-none" />
+                        </div>
+                      </div>
+                      <div className="flex items-end">
+                        <label className="flex items-center gap-2 w-fit rounded-xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer select-none">
+                          <input type="checkbox" checked={pIsFeatured} onChange={(e) => setPIsFeatured(e.target.checked)} className="sr-only peer" />
+                          <span className="w-9 h-5 rounded-full bg-white/15 peer-checked:bg-yellow-500 relative transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-4" />
+                          <span className="text-xs font-bold text-white flex items-center gap-1">
+                            <Star className="w-3.5 h-3.5 text-yellow-400" />
+                            {isRtl ? 'منتج مميز' : 'Featured'}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Technologies */}
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'التقنيات المستخدمة (مفصولة بفاصلة)' : 'Technologies (comma-separated)'}</label>
+                      <input
+                        type="text"
+                        value={pTechnologies}
+                        onChange={(e) => setPTechnologies(e.target.value)}
+                        placeholder="React, Node.js, Firebase, Tailwind"
+                        className="w-full text-xs sm:text-sm rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none font-mono"
+                      />
+                    </div>
+
+                    {/* Features */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'الميزات الرئيسية (بالعربية - سطر لكل ميزة)' : 'Key Features (Arabic - one per line)'}</label>
+                        <textarea rows={3} value={pFeaturesAr} onChange={(e) => setPFeaturesAr(e.target.value)} placeholder={isRtl ? 'ميزة أولى\nميزة ثانية\nميزة ثالثة' : 'Feature 1\nFeature 2\nFeature 3'} className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'الميزات الرئيسية (بالإنجليزية - سطر لكل ميزة)' : 'Key Features (English - one per line)'}</label>
+                        <textarea rows={3} value={pFeaturesEn} onChange={(e) => setPFeaturesEn(e.target.value)} placeholder="Feature 1\nFeature 2\nFeature 3" className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none" />
+                      </div>
+                    </div>
+
+                    {/* Metrics */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1.5">{isRtl ? 'المستخدمين' : 'Users'}</label>
+                        <input type="text" value={pMetricsUsers} onChange={(e) => setPMetricsUsers(e.target.value)} placeholder="10K+" className="w-full text-xs rounded-lg bg-black/40 border border-white/10 p-2.5 text-white focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1.5">{isRtl ? 'التقييم' : 'Rating'}</label>
+                        <input type="text" value={pMetricsRating} onChange={(e) => setPMetricsRating(e.target.value)} placeholder="4.8" className="w-full text-xs rounded-lg bg-black/40 border border-white/10 p-2.5 text-white focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1.5">{isRtl ? 'التحميلات' : 'Downloads'}</label>
+                        <input type="text" value={pMetricsDownloads} onChange={(e) => setPMetricsDownloads(e.target.value)} placeholder="5K+" className="w-full text-xs rounded-lg bg-black/40 border border-white/10 p-2.5 text-white focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1.5">{isRtl ? 'وقت التشغيل' : 'Uptime'}</label>
+                        <input type="text" value={pMetricsUptime} onChange={(e) => setPMetricsUptime(e.target.value)} placeholder="99.9%" className="w-full text-xs rounded-lg bg-black/40 border border-white/10 p-2.5 text-white focus:outline-none" />
+                      </div>
+                    </div>
+                  </div>
 
                   {/* Buttons save / cancel */}
                   <div className="flex flex-wrap gap-3 pt-4 justify-end">
