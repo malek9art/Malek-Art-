@@ -240,6 +240,23 @@ export default function AdminPanel({
   const [sDescEn, setSDescEn] = useState('');
   const [sIcon, setSIcon] = useState('');
 
+  // ── Professional Service Showcase Fields ──
+  const [sCategoryAr, setSCategoryAr] = useState('');
+  const [sCategoryEn, setSCategoryEn] = useState('');
+  const [sFeaturesAr, setSFeaturesAr] = useState('');
+  const [sFeaturesEn, setSFeaturesEn] = useState('');
+  const [sTechnologies, setSTechnologies] = useState('');
+  const [sPricingTier, setSPricingTier] = useState<Service['pricingTier']>('standard');
+  const [sDeliveryTimeAr, setSDeliveryTimeAr] = useState('');
+  const [sDeliveryTimeEn, setSDeliveryTimeEn] = useState('');
+  const [sIsPopular, setSIsPopular] = useState(false);
+  const [sAccentColor, setSAccentColor] = useState('#1C99ED');
+  const [sStatsProjects, setSStatsProjects] = useState('');
+  const [sStatsSatisfaction, setSStatsSatisfaction] = useState('');
+  const [sStatsDeliveryDays, setSStatsDeliveryDays] = useState('');
+  const [sProcessAr, setSProcessAr] = useState('');
+  const [sProcessEn, setSProcessEn] = useState('');
+
   // Edit Config Fields State
   const [cAboutAr, setCAboutAr] = useState(config.aboutTextAr || '');
   const [cAboutEn, setCAboutEn] = useState(config.aboutTextEn || '');
@@ -737,7 +754,28 @@ export default function AdminPanel({
   // CRUD SERVICE: Save Edit or Create
   const handleSaveService = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Build professional service fields
+    const serviceFields = {
+      categoryAr: sCategoryAr || undefined,
+      categoryEn: sCategoryEn || undefined,
+      featuresAr: sFeaturesAr.split('\n').map(s => s.trim()).filter(Boolean),
+      featuresEn: sFeaturesEn.split('\n').map(s => s.trim()).filter(Boolean),
+      technologies: sTechnologies.split(',').map(s => s.trim()).filter(Boolean),
+      pricingTier: sPricingTier,
+      deliveryTimeAr: sDeliveryTimeAr || undefined,
+      deliveryTimeEn: sDeliveryTimeEn || undefined,
+      isPopular: sIsPopular,
+      accentColor: sAccentColor,
+      stats: {
+        projectsCompleted: sStatsProjects || undefined,
+        satisfactionRate: sStatsSatisfaction || undefined,
+        avgDeliveryDays: sStatsDeliveryDays || undefined,
+      },
+      processAr: sProcessAr.split('\n').map(s => s.trim()).filter(Boolean),
+      processEn: sProcessEn.split('\n').map(s => s.trim()).filter(Boolean),
+    };
+
     if (isCreatingService) {
       const newService: Service = {
         id: 'service-' + Date.now(),
@@ -745,7 +783,8 @@ export default function AdminPanel({
         titleEn: sTitleEn,
         descriptionAr: sDescAr,
         descriptionEn: sDescEn,
-        icon: sIcon || 'Layers'
+        icon: sIcon || 'Layers',
+        ...serviceFields,
       };
       
       const updated = [...services, newService];
@@ -763,6 +802,21 @@ export default function AdminPanel({
       setSDescAr('');
       setSDescEn('');
       setSIcon('');
+      setSCategoryAr('');
+      setSCategoryEn('');
+      setSFeaturesAr('');
+      setSFeaturesEn('');
+      setSTechnologies('');
+      setSPricingTier('standard');
+      setSDeliveryTimeAr('');
+      setSDeliveryTimeEn('');
+      setSIsPopular(false);
+      setSAccentColor('#1C99ED');
+      setSStatsProjects('');
+      setSStatsSatisfaction('');
+      setSStatsDeliveryDays('');
+      setSProcessAr('');
+      setSProcessEn('');
       
       setSavedConfirmModal({
         isOpen: true,
@@ -784,6 +838,7 @@ export default function AdminPanel({
           descriptionAr: sDescAr,
           descriptionEn: sDescEn,
           icon: sIcon,
+          ...serviceFields,
         };
       }
       return s;
@@ -830,6 +885,23 @@ export default function AdminPanel({
     setSDescAr(s.descriptionAr);
     setSDescEn(s.descriptionEn);
     setSIcon(s.icon);
+
+    // Professional Service Showcase Fields
+    setSCategoryAr(s.categoryAr || '');
+    setSCategoryEn(s.categoryEn || '');
+    setSFeaturesAr((s.featuresAr || []).join('\n'));
+    setSFeaturesEn((s.featuresEn || []).join('\n'));
+    setSTechnologies((s.technologies || []).join(', '));
+    setSPricingTier(s.pricingTier || 'standard');
+    setSDeliveryTimeAr(s.deliveryTimeAr || '');
+    setSDeliveryTimeEn(s.deliveryTimeEn || '');
+    setSIsPopular(s.isPopular || false);
+    setSAccentColor(s.accentColor || '#1C99ED');
+    setSStatsProjects(s.stats?.projectsCompleted || '');
+    setSStatsSatisfaction(s.stats?.satisfactionRate || '');
+    setSStatsDeliveryDays(s.stats?.avgDeliveryDays || '');
+    setSProcessAr((s.processAr || []).join('\n'));
+    setSProcessEn((s.processEn || []).join('\n'));
   };
 
   // CRUD CONFIG: Save global text and advanced dynamic specifications
@@ -1552,7 +1624,7 @@ export default function AdminPanel({
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{t.adminServIcon} (Layout, Layers, Code, Sparkles, Database, Shield)</label>
+                    <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{t.adminServIcon} (Layout, Layers, Code, Sparkles, Database, Shield, Server)</label>
                     <input
                       type="text"
                       value={sIcon}
@@ -1560,6 +1632,106 @@ export default function AdminPanel({
                       className="w-full text-xs sm:text-sm rounded-2xl bg-black/40 border border-white/10 p-3.5 text-white focus:outline-none"
                       required
                     />
+                  </div>
+
+                  {/* ── Professional Service Showcase Fields ── */}
+                  <div className="p-5 rounded-[24px] bg-brand-accent/5 border border-brand-accent/10 space-y-5">
+                    <h4 className="text-xs font-bold text-[#1C99ED] uppercase tracking-widest font-mono flex items-center gap-2">
+                      <Layers className="w-4 h-4" />
+                      {isRtl ? 'خصائص الخدمة الاحترافية' : 'Professional Service Showcase Fields'}
+                    </h4>
+
+                    {/* Category, Pricing, Delivery, Popular, Accent */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'التصنيف بالعربية' : 'Category (Arabic)'}</label>
+                        <input type="text" value={sCategoryAr} onChange={(e) => setSCategoryAr(e.target.value)} placeholder="تصميم، تطوير، استشارات..." className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'التصنيف بالإنجليزية' : 'Category (English)'}</label>
+                        <input type="text" value={sCategoryEn} onChange={(e) => setSCategoryEn(e.target.value)} placeholder="Design, Development, Consulting" className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'فئة الخدمة' : 'Pricing Tier'}</label>
+                        <select value={sPricingTier || 'standard'} onChange={(e) => setSPricingTier(e.target.value as any)} className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none">
+                          <option value="basic">{isRtl ? 'أساسي (Basic)' : 'Basic'}</option>
+                          <option value="standard">{isRtl ? 'قياسي (Standard)' : 'Standard'}</option>
+                          <option value="premium">{isRtl ? 'متقدم (Premium)' : 'Premium'}</option>
+                          <option value="enterprise">{isRtl ? 'مؤسسي (Enterprise)' : 'Enterprise'}</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'مدة التسليم بالعربية' : 'Delivery Time (Arabic)'}</label>
+                        <input type="text" value={sDeliveryTimeAr} onChange={(e) => setSDeliveryTimeAr(e.target.value)} placeholder="2-4 أسابيع" className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'مدة التسليم بالإنجليزية' : 'Delivery Time (English)'}</label>
+                        <input type="text" value={sDeliveryTimeEn} onChange={(e) => setSDeliveryTimeEn(e.target.value)} placeholder="2-4 weeks" className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'لون مميز' : 'Accent Color'}</label>
+                        <div className="flex gap-2 items-center">
+                          <input type="color" value={sAccentColor || '#1C99ED'} onChange={(e) => setSAccentColor(e.target.value)} className="w-10 h-10 rounded-lg bg-black/40 border border-white/10 p-1 cursor-pointer" />
+                          <input type="text" value={sAccentColor || '#1C99ED'} onChange={(e) => setSAccentColor(e.target.value)} className="flex-1 text-xs rounded-xl bg-black/40 border border-white/10 p-2.5 text-white font-mono focus:outline-none" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Popular toggle */}
+                    <label className="flex items-center gap-2 w-fit rounded-xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer select-none">
+                      <input type="checkbox" checked={sIsPopular} onChange={(e) => setSIsPopular(e.target.checked)} className="sr-only peer" />
+                      <span className="w-9 h-5 rounded-full bg-white/15 peer-checked:bg-yellow-500 relative transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-4" />
+                      <span className="text-xs font-bold text-white flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5 text-yellow-400" />
+                        {isRtl ? 'خدمة مميزة' : 'Popular Service'}
+                      </span>
+                    </label>
+
+                    {/* Technologies */}
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'الأدوات والتقنيات (مفصولة بفاصلة)' : 'Technologies (comma-separated)'}</label>
+                      <input type="text" value={sTechnologies} onChange={(e) => setSTechnologies(e.target.value)} placeholder="Figma, React, Adobe XD, Tailwind" className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none font-mono" />
+                    </div>
+
+                    {/* Features */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'المخرجات والdelivrables (بالعربية - سطر لكل ميزة)' : 'Deliverables (Arabic - one per line)'}</label>
+                        <textarea rows={3} value={sFeaturesAr} onChange={(e) => setSFeaturesAr(e.target.value)} placeholder={isRtl ? 'مخرج أول\nمخرج ثاني\nمخرج ثالث' : 'Deliverable 1\nDeliverable 2\nDeliverable 3'} className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'المخرجات والdelivrables (بالإنجليزية - سطر لكل ميزة)' : 'Deliverables (English - one per line)'}</label>
+                        <textarea rows={3} value={sFeaturesEn} onChange={(e) => setSFeaturesEn(e.target.value)} placeholder="Deliverable 1\nDeliverable 2\nDeliverable 3" className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none" />
+                      </div>
+                    </div>
+
+                    {/* Process Steps */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'مراحل العمل (بالعربية - سطر لكل مرحلة)' : 'Work Process (Arabic - one per line)'}</label>
+                        <textarea rows={3} value={sProcessAr} onChange={(e) => setSProcessAr(e.target.value)} placeholder={isRtl ? 'مرحلة أولى\nمرحلة ثانية\nمرحلة ثالثة' : 'Step 1\nStep 2\nStep 3'} className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-white mb-2">{isRtl ? 'مراحل العمل (بالإنجليزية - سطر لكل مرحلة)' : 'Work Process (English - one per line)'}</label>
+                        <textarea rows={3} value={sProcessEn} onChange={(e) => setSProcessEn(e.target.value)} placeholder="Step 1\nStep 2\nStep 3" className="w-full text-xs rounded-xl bg-black/40 border border-white/10 p-3 text-white focus:outline-none" />
+                      </div>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1.5">{isRtl ? 'مشاريع مكتملة' : 'Projects Completed'}</label>
+                        <input type="text" value={sStatsProjects} onChange={(e) => setSStatsProjects(e.target.value)} placeholder="35+" className="w-full text-xs rounded-lg bg-black/40 border border-white/10 p-2.5 text-white focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1.5">{isRtl ? 'نسبة الرضا' : 'Satisfaction Rate'}</label>
+                        <input type="text" value={sStatsSatisfaction} onChange={(e) => setSStatsSatisfaction(e.target.value)} placeholder="98%" className="w-full text-xs rounded-lg bg-black/40 border border-white/10 p-2.5 text-white focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1.5">{isRtl ? 'أيام التسليم' : 'Avg Delivery Days'}</label>
+                        <input type="text" value={sStatsDeliveryDays} onChange={(e) => setSStatsDeliveryDays(e.target.value)} placeholder="18" className="w-full text-xs rounded-lg bg-black/40 border border-white/10 p-2.5 text-white focus:outline-none" />
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex gap-4 pt-2 justify-end">
@@ -1605,6 +1777,21 @@ export default function AdminPanel({
                       setSDescAr('');
                       setSDescEn('');
                       setSIcon('Layers');
+                      setSCategoryAr('');
+                      setSCategoryEn('');
+                      setSFeaturesAr('');
+                      setSFeaturesEn('');
+                      setSTechnologies('');
+                      setSPricingTier('standard');
+                      setSDeliveryTimeAr('');
+                      setSDeliveryTimeEn('');
+                      setSIsPopular(false);
+                      setSAccentColor('#1C99ED');
+                      setSStatsProjects('');
+                      setSStatsSatisfaction('');
+                      setSStatsDeliveryDays('');
+                      setSProcessAr('');
+                      setSProcessEn('');
                       setIsCreatingService(true);
                     }}
                     className="px-4.5 py-2.5 bg-accent hover:opacity-95 text-xs font-bold text-white rounded-full flex items-center gap-1.5 cursor-pointer shadow-md transition-all active:scale-97 select-none"

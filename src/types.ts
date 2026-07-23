@@ -48,6 +48,34 @@ export interface Service {
   descriptionAr: string;
   descriptionEn: string;
   icon: string; // Lucide icon name
+
+  // ── Professional Service Showcase Fields ──
+  /** Service category */
+  categoryAr?: string;
+  categoryEn?: string;
+  /** Key deliverables / features */
+  featuresAr?: string[];
+  featuresEn?: string[];
+  /** Tools and technologies used */
+  technologies?: string[];
+  /** Pricing tier indicator */
+  pricingTier?: 'basic' | 'standard' | 'premium' | 'enterprise';
+  /** Estimated delivery time */
+  deliveryTimeAr?: string;
+  deliveryTimeEn?: string;
+  /** Service stats */
+  stats?: {
+    projectsCompleted?: string;
+    satisfactionRate?: string;
+    avgDeliveryDays?: string;
+  };
+  /** Custom accent color */
+  accentColor?: string;
+  /** Whether this is a popular/highlighted service */
+  isPopular?: boolean;
+  /** Service process steps */
+  processAr?: string[];
+  processEn?: string[];
 }
 
 export interface Skill {
